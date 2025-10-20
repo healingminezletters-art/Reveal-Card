@@ -13,6 +13,7 @@
     color:black;
     text-align:center;
     overflow-x:hidden;
+    overflow-y:hidden;
   }
   h1 { font-size:2em; margin-top:20px; }
   h1 span { display:block; font-size:1em; margin-top:10px; }
@@ -32,14 +33,14 @@
   #spreadButtons button:hover { transform: scale(1.05); }
   #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
   #cardContainer {
-    margin:30px auto; position:relative; width:90%; max-width:900px; min-height:300px;
-    display:flex; justify-content:center; align-items:center; gap:25px;
-    perspective:1000px;
+    margin:30px auto; position:relative; width:90%; max-width:900px; min-height:320px;
+    display:flex; justify-content:center; align-items:center; perspective:1500px;
   }
   .card {
     width:180px; height:280px; border-radius:10px; cursor:pointer;
-    position: relative;
+    position: absolute;
     transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
+    box-shadow:0 0 5px rgba(0,0,0,0.2);
   }
   #revealBtn {
     background-color:#FF69B4; color:white; border:none; padding:15px 30px;
@@ -51,10 +52,16 @@
     box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite;
   }
   @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
-  .sparkle { position:absolute; width:6px; height:6px; border-radius:50%; background:#FFD700;
-    box-shadow:0 0 10px 3px #FFD700; opacity:0; pointer-events:none; animation:sparkleAnim 0.8s ease-out forwards;}
-  @keyframes sparkleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(1.5); opacity:1;} 100% {transform:scale(0); opacity:0;}}
-  @keyframes popReveal {0% {transform: scale(0.7);} 50% {transform: scale(1.1);} 100% {transform: scale(1);}}
+  .sparkle {
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:#FFD700;
+    box-shadow:0 0 12px 4px #FFD700;
+    opacity:0;
+    pointer-events:none;
+    animation:sparkleAnim 0.8s ease-out forwards;
+  }
+  @keyframes sparkleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(2); opacity:1;} 100% {transform:scale(0); opacity:0;}}
+  @keyframes popReveal {0% {transform: scale(0.5) rotate(-10deg);} 50% {transform: scale(1.2) rotate(5deg);} 100% {transform: scale(1) rotate(0deg);}}
 </style>
 </head>
 <body>
@@ -73,9 +80,7 @@
 
 <div id="spreadDesc"></div>
 
-<div id="cardContainer">
-  <!-- Gold cards will appear instantly -->
-</div>
+<div id="cardContainer"></div>
 
 <br>
 <button id="revealBtn">✨ Reveal Card(s) ✨</button>
@@ -103,7 +108,7 @@ let pulledCards = [];
 
 // Floating stars
 for(let i=0;i<50;i++){
-  const star = document.createElement('div');
+  const star=document.createElement('div');
   star.className='star';
   star.style.top=Math.random()*100+'%';
   star.style.left=Math.random()*100+'%';
@@ -112,16 +117,16 @@ for(let i=0;i<50;i++){
   document.body.appendChild(star);
 }
 
-// Show gold cards
+// Show gold cards stacked
 function showGoldCards(num){
   cardContainer.innerHTML='';
   for(let i=0;i<num;i++){
-    const img = document.createElement('img');
-    img.src = goldBack;
+    const img=document.createElement('img');
+    img.src=goldBack;
     img.className='card';
-    img.style.position='absolute';
     img.style.left=(cardContainer.offsetWidth/2 - 90)+'px';
-    img.style.top='0px';
+    img.style.top=(i*2)+'px';
+    img.style.zIndex=i;
     cardContainer.appendChild(img);
   }
 }
@@ -129,7 +134,7 @@ showGoldCards(selectedSpread);
 
 // Spread buttons
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
+  btn.addEventListener('click',()=>{
     selectedSpread=parseInt(btn.dataset.spread);
     spreadDesc.innerText = selectedSpread===1?"Daily inspiration / journal prompt.":
                            selectedSpread===3?"Message from Divine: Past – Present – Future.":
@@ -139,15 +144,16 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   });
 });
 
-function shuffleAnimation(cardsElems, duration=1500){
+// Shuffle animation
+function shuffleDeck(cardsElems, duration=1500){
   return new Promise(resolve=>{
     let start = Date.now();
     const interval = setInterval(()=>{
-      const t = Date.now()-start;
+      const t=Date.now()-start;
       cardsElems.forEach(c=>{
-        const x=Math.random()*200-100;
-        const y=Math.random()*50-25;
-        const rot=Math.random()*40-20;
+        const x=Math.random()*160-80;
+        const y=Math.random()*40-20;
+        const rot=Math.random()*30-15;
         c.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;
       });
       if(t>=duration){
@@ -161,7 +167,7 @@ function shuffleAnimation(cardsElems, duration=1500){
 // Reveal cards
 revealBtn.addEventListener('click', async ()=>{
   const cardsElems=Array.from(document.querySelectorAll('.card'));
-  // Select random cards
+  // Pick random cards
   const deckCopy=[...deck];
   pulledCards=[];
   for(let i=0;i<selectedSpread;i++){
@@ -169,27 +175,30 @@ revealBtn.addEventListener('click', async ()=>{
     pulledCards.push(deckCopy.splice(idx,1)[0]);
   }
 
-  // Shuffle gold cards
-  await shuffleAnimation(cardsElems);
+  // Shuffle animation
+  await shuffleDeck(cardsElems);
 
-  // Reveal final cards
+  // Reveal final cards spread
   cardsElems.forEach((c,i)=>{
     c.src=pulledCards[i].front;
-    c.style.transform='translate(0px,0px) rotate(0deg)';
-    c.style.animation='popReveal 0.6s ease forwards';
-    // sparkle burst
-    for(let j=0;j<15;j++){
+    c.style.transform='translate('+(i*200-(selectedSpread-1)*100)+'px,0px) rotate(0deg)';
+    c.style.animation='popReveal 0.8s ease forwards';
+    // Dramatic sparkle burst
+    for(let j=0;j<25;j++){
       const sparkle=document.createElement('div');
       sparkle.classList.add('sparkle');
       const angle=Math.random()*2*Math.PI;
-      const radius=Math.random()*40+20;
+      const radius=Math.random()*50+20;
       sparkle.style.left=c.offsetWidth/2+Math.cos(angle)*radius+'px';
       sparkle.style.top=c.offsetHeight/2+Math.sin(angle)*radius+'px';
+      sparkle.style.background=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+      sparkle.style.boxShadow=`0 0 12px 4px ${sparkle.style.background}`;
       cardContainer.appendChild(sparkle);
-      setTimeout(()=>sparkle.remove(),800);
+      setTimeout(()=>sparkle.remove(),1000);
     }
   });
-  chime.currentTime=0; chime.play();
+  chime.currentTime=0;
+  chime.play();
 });
 </script>
 
