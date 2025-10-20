@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -11,6 +11,7 @@
     --accent:#FF69B4;
     --gold:#FFD700;
     --card-max:320px;
+    --card-gap:22; /* px gap (used in JS calc too) */
   }
   html,body{height:100%;}
   body{
@@ -36,10 +37,10 @@
   .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
   .controls button{
     background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, box-shadow .2s ease;
   }
   .controls button:active{ transform:scale(.98); }
-  .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+  .controls button[aria-pressed="true"]{ box-shadow:0 6px 18px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
   #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; }
 
@@ -47,37 +48,35 @@
   #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
   #cardContainer{
     width:100%;
-    min-height:380px;
+    min-height:420px;
     display:flex;
     justify-content:center;
     align-items:flex-start;
     position:relative;
     perspective:1600px;
-    gap: 18px;
-    padding:20px 10px;
+    gap: calc(var(--card-gap) * 1px);
+    padding:24px 10px;
     box-sizing:border-box;
   }
 
-  /* card sizing responsive */
+  /* card sizing responsive (JS will set exact width to keep consistent) */
   .card{
-    width: clamp(160px, 20vw, var(--card-max));
-    aspect-ratio: 7/9;
+    box-sizing:border-box;
+    height:auto;
     position:relative;
     transform-style:preserve-3d;
     -webkit-tap-highlight-color:transparent;
     border-radius:12px;
     opacity:0;
-    /* front/back faces handled inside .inner */
-    display:flex;
-    align-items:center;
-    justify-content:center;
     will-change:transform, opacity;
+    display:inline-block;
   }
 
   /* inner flip wrapper */
   .inner {
-    position:absolute;
-    inset:0;
+    position:relative;
+    width:100%;
+    height:100%;
     border-radius:12px;
     transform-style:preserve-3d;
     transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
@@ -91,25 +90,63 @@
     background-size:cover;
     background-position:center;
     backface-visibility:hidden;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    box-shadow:0 8px 22px rgba(0,0,0,0.12);
+    overflow:hidden;
   }
   .face.back{ transform: rotateY(0deg); }
   .face.front{ transform: rotateY(180deg); }
 
-  /* when flipped we'll rotate the inner */
-  .flipped .inner{ transform: rotateY(180deg); }
+  /* after flip we rotate inner so front shows */
+  .revealed .inner{ transform: rotateY(180deg); }
 
-  /* sparkle & dust small elements */
+  /* shimmer overlay (will animate left->right) */
+  .shimmer {
+    pointer-events:none;
+    position:absolute;
+    inset:0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.0) 60%);
+    mix-blend-mode: screen;
+    opacity:0.9;
+    transform: translateX(-110%);
+    transition: none;
+  }
+  /* continuous left->right shimmer */
+  .shimmer.animate {
+    animation: shimmerMove 2.8s linear infinite;
+  }
+  @keyframes shimmerMove {
+    from{ transform: translateX(-110%); }
+    to{ transform: translateX(110%); }
+  }
+
+  /* dust & sparkle base */
   .dust, .sparkle {
     position:absolute;
     border-radius:50%;
     pointer-events:none;
-    transform-origin:center;
     opacity:0;
+    transform-origin:center;
     will-change: transform, opacity;
   }
 
-  /* background floating subtles (very soft) */
+  /* reveal button restored styling (glow + hover) */
+  #revealBtn{
+    background: linear-gradient(90deg,var(--accent), #ff98c9);
+    color:white;
+    border:none;
+    padding:12px 22px;
+    border-radius:18px;
+    font-size:1.05rem;
+    cursor:pointer;
+    box-shadow: 0 8px 28px rgba(255,105,180,0.18), 0 2px 6px rgba(0,0,0,0.12);
+    transition: transform .12s ease, box-shadow .2s;
+  }
+  #revealBtn:hover{ transform: translateY(-2px); box-shadow: 0 12px 34px rgba(255,105,180,0.22); }
+  #revealBtn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
+
+  /* background subtle particles (CSS only for softness) */
   .bg-particle{
     position:fixed;
     width:6px; height:6px; border-radius:50%; pointer-events:none;
@@ -118,12 +155,9 @@
   }
   @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
 
-  footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-
-  /* small utilities */
-  .hidden{ display:none!important; }
   @media (max-width:520px){
     h1{ font-size:1.25rem; }
+    #cardContainer{ gap:12px; }
   }
 </style>
 </head>
@@ -142,7 +176,6 @@
     <button data-spread="3" aria-pressed="false">3 Cards</button>
     <button data-spread="5" aria-pressed="false">5 Cards</button>
   </div>
-  <div style="width:12px"></div>
   <div id="spreadDesc">Daily inspiration / journal prompt.</div>
 </div>
 
@@ -157,14 +190,16 @@
 
 <footer aria-hidden="true"></footer>
 
-<!-- audio -->
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 
 <script>
 /* ==========================
-   Full professional script
-   Deck Burst Shuffle (only gold backs animate)
-   then flip to reveal fronts
+   Updated final script:
+   - fixes card sizing for 1/3/5 spreads
+   - deck-burst shuffle (gold backs animate)
+   - flip to reveal fronts
+   - continuous left->right shimmer on revealed fronts
+   - dust & sparkles retained
    ========================== */
 
 const CARDS = [
@@ -190,8 +225,9 @@ const chime = document.getElementById('chime');
 
 let selectedSpread = 1;
 let busy = false;
+const CARD_GAP = Number(getComputedStyle(document.documentElement).getPropertyValue('--card-gap')) || 22;
 
-/* helper: pick N unique random indices from 0..len-1 */
+/* helper to pick n unique random indices */
 function pickUniqueIndices(n, len){
   const arr = Array.from({length:len},(_,i)=>i);
   for(let i=len-1;i>0;i--){
@@ -201,7 +237,7 @@ function pickUniqueIndices(n, len){
   return arr.slice(0,n);
 }
 
-/* update spread button ARIA pressed */
+/* set active spread button UI */
 function setActiveSpread(n){
   selectedSpread = n;
   spreadButtons.forEach(btn=>{
@@ -213,81 +249,101 @@ function setActiveSpread(n){
                      : "Deep insight: 5-card guidance spread.";
 }
 
-/* create fanned gold-back cards and assign final front images (random unique) */
+/* calculate and set card widths so they stay consistent across spreads */
+function computeCardWidth(n){
+  const containerWidth = Math.max(cardContainer.clientWidth, 320);
+  const gapTotal = (n-1) * CARD_GAP;
+  const available = containerWidth - gapTotal - 40; // padding breathing
+  // desired width max
+  const maxW = Math.min(320, available / Math.min(n, 4)); // if n>4 still limit by 4
+  // but ensure not to exceed available/n
+  const w = Math.floor(Math.max(140, Math.min(maxW, available / n)));
+  return w;
+}
+
+/* create gold-back cards and assign final fronts (unique) */
 function showGoldCards(n){
   cardContainer.innerHTML='';
   const finals = pickUniqueIndices(n, CARDS.length).map(i=>CARDS[i]);
-  for(let i=0;i<n;i++){
+  const cardWidth = computeCardWidth(n);
+  finals.forEach((frontUrl, i)=>{
     const card = document.createElement('div');
     card.className = 'card';
-    // inner flip wrapper
+    card.style.width = card.style.maxWidth = cardWidth + 'px';
+    // set height via aspect ratio 7/9
+    const height = Math.round(cardWidth * (9/7));
+    card.style.height = height + 'px';
+
     const inner = document.createElement('div');
     inner.className = 'inner';
     const back = document.createElement('div');
     back.className = 'face back';
     back.style.backgroundImage = `url(${GOLD})`;
+
     const front = document.createElement('div');
     front.className = 'face front';
-    front.style.backgroundImage = `url(${finals[i]})`;
+    front.style.backgroundImage = `url(${frontUrl})`;
+
+    // shimmer overlay (hidden until reveal)
+    const shimmer = document.createElement('div');
+    shimmer.className = 'shimmer';
+    front.appendChild(shimmer);
+
     inner.appendChild(back);
     inner.appendChild(front);
     card.appendChild(inner);
 
-    // make the front hidden initially by inner transform default (no rotate)
-    // set dataset.final just in case
-    card.dataset.final = finals[i];
+    // store final on dataset for backup
+    card.dataset.final = frontUrl;
 
-    // place and fan
-    card.style.opacity = '0';
     cardContainer.appendChild(card);
 
-    // compute offset and initial transform: fly-in from top, then settle fanned
+    // fly-in & fan placement
     const offset = (i - (n-1)/2);
-    const offsetX = offset * ( (window.innerWidth < 520) ? 70 : 110 );
-    const angle = offset * 6; // gentle fan angle
-    // initial: offscreen up
+    const offsetX = offset * ( window.innerWidth < 520 ? (cardWidth * 0.7) : (cardWidth * 0.95) );
+    const angle = offset * 6;
+    // start above
     card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
-    // stagger the fly-in
+    // animate in staggered
     setTimeout(()=>{
-      card.style.transition = 'transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
+      card.style.transition = 'transform 720ms cubic-bezier(.18,.9,.32,1), opacity 380ms';
       card.style.transform = `translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
       card.style.opacity = '1';
-    }, 120 + i*110);
-  }
+    }, 120 + i*100);
+  });
 }
 
-/* Create small pink-gold dust particle attached to an element (card) */
-function emitDust(parent, count=6, palette = ['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+/* emit small pink-gold dust from card */
+function emitDust(parent, count=4){
   for(let i=0;i<count;i++){
     const d = document.createElement('div');
     d.className = 'dust';
     const size = 3 + Math.random()*7;
     d.style.width = d.style.height = `${size}px`;
-    d.style.background = palette[Math.floor(Math.random()*palette.length)];
+    d.style.background = ['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];
     d.style.left = `${10 + Math.random()*(parent.offsetWidth-20)}px`;
     d.style.top = `${10 + Math.random()*(parent.offsetHeight-20)}px`;
     d.style.opacity = '1';
     d.style.transform = 'translateY(0) scale(.6)';
-    d.style.transition = `transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
+    d.style.transition = `transform ${700+Math.random()*600}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*600}ms`;
     parent.appendChild(d);
-    // animate outward slightly and fade
     requestAnimationFrame(()=> {
-      d.style.transform = `translateY(${-40 - Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`;
+      d.style.transform = `translateY(${-40 - Math.random()*80}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`;
       d.style.opacity = '0';
     });
-    setTimeout(()=> d.remove(), 1400 + Math.random()*500);
+    setTimeout(()=> d.remove(), 1100 + Math.random()*700);
   }
 }
 
-/* sparkles on reveal */
-function revealSparkles(parent, count=12){
+/* reveal sparkle */
+function revealSparkles(parent, count=10){
   for(let i=0;i<count;i++){
     const s = document.createElement('div');
     s.className = 'sparkle';
     const size = 4 + Math.random()*8;
     s.style.width = s.style.height = `${size}px`;
-    s.style.left = `${10 + Math.random()*(parent.offsetWidth-20)}px`;
-    s.style.top = `${10 + Math.random()*(parent.offsetHeight-20)}px`;
+    s.style.left = `${8 + Math.random()*(parent.offsetWidth-16)}px`;
+    s.style.top = `${8 + Math.random()*(parent.offsetHeight-16)}px`;
     s.style.background = ['#FFD700','#FF69B4','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];
     s.style.opacity = '1';
     s.style.transition = `transform ${500+Math.random()*600}ms ease-out, opacity ${500+Math.random()*600}ms`;
@@ -300,104 +356,106 @@ function revealSparkles(parent, count=12){
   }
 }
 
-/* main shuffle: only gold backs move; after shuffle flip to fronts */
+/* perform deck-burst shuffle (only gold backs animate), then flip to reveal fronts with shimmer */
 async function shuffleAndReveal(){
   if(busy) return;
   busy = true;
   revealBtn.disabled = true;
-  // find cards
-  const cards = Array.from(cardContainer.querySelectorAll('.card'));
-  if(cards.length === 0) { busy=false; revealBtn.disabled=false; return; }
 
-  // Pre-assign finals if not already done (should be done in showGoldCards)
-  cards.forEach((c) => {
-    if(!c.dataset.final){
-      const idx = Math.floor(Math.random()*CARDS.length);
-      c.dataset.final = CARDS[idx];
-      const frontFace = c.querySelector('.face.front');
-      if(frontFace) frontFace.style.backgroundImage = `url(${c.dataset.final})`;
-    }
+  const cards = Array.from(cardContainer.querySelectorAll('.card'));
+  if(cards.length === 0){ busy=false; revealBtn.disabled=false; return; }
+
+  // ensure finals set on front faces
+  cards.forEach(c=>{
+    const front = c.querySelector('.face.front');
+    if(front && !front.style.backgroundImage) front.style.backgroundImage = `url(${c.dataset.final})`;
   });
 
-  // SHUFFLE PHASE: a burst shuffle — cards jitter, lift, overlap briefly, then settle
+  // shuffle rounds (burst jitter + dust)
   const rounds = 12;
-  const shuffleDelayBase = 40;
   for(let r=0;r<rounds;r++){
     cards.forEach((card, i) => {
-      // small random translations & rotations (only gold backs visible)
-      const jitterX = (Math.random()-0.5) * (20 + r*2);
-      const jitterY = -10 - Math.random()*20 - (r%2===0?5:0);
-      const rot = (Math.random()-0.5) * (35);
-      card.style.transition = `transform ${shuffleDelayBase+Math.random()*60}ms ease`;
-      card.style.transform = `translateX(${jitterX + (i - (cards.length-1)/2) * (window.innerWidth<520 ? 60: 90)}px) translateY(${jitterY}px) rotate(${rot}deg)`;
-      // dust
+      const jitterX = (Math.random()-0.5) * (30 + r*1.6);
+      const jitterY = -10 - Math.random()*22 - (r%2===0?5:0);
+      const rot = (Math.random()-0.5) * (30 + r*0.9);
+      card.style.transition = `transform ${70 + Math.random()*80}ms ease`;
+      const baseOffset = (i - (cards.length-1)/2) * ( computeCardWidth(selectedSpread) * (window.innerWidth<520 ? 0.7 : 0.95) );
+      card.style.transform = `translateX(${baseOffset + jitterX}px) translateY(${jitterY}px) rotate(${rot}deg)`;
       if(Math.random() < 0.45) emitDust(card, 2);
     });
-    // wait small time between rounds (async sleep)
-    await new Promise(r=>setTimeout(r, 80 + Math.random()*40));
+    await new Promise(r=>setTimeout(r, 70 + Math.random()*50));
   }
 
-  // settle & fan a little before flip
+  // settle & fan a little
   cards.forEach((card, i) => {
-    const offset = (i - (cards.length-1)/2) * (window.innerWidth < 520 ? 72 : 120);
+    const offset = (i - (cards.length-1)/2) * ( computeCardWidth(selectedSpread) * (window.innerWidth<520 ? 0.7 : 0.95) );
     const angle = (i - (cards.length-1)/2) * 6;
     card.style.transition = 'transform 420ms cubic-bezier(.2,.9,.25,1)';
     card.style.transform = `translateX(${offset}px) translateY(0px) rotate(${angle}deg)`;
   });
 
-  // short pause for anticipation
+  // short pause
   await new Promise(r=>setTimeout(r, 420));
 
-  // FLIP (reveal) — flip all cards with small stagger, show sparkles
+  // flip + apply continuous shimmer to fronts
   cards.forEach((card, i) => {
     setTimeout(()=>{
-      // mark flipped to rotate inner; .flipped toggles .inner transform
-      card.classList.add('flipped');
-      // glow & sparkles
-      card.style.boxShadow = '0 10px 40px rgba(255,215,0,0.18)';
-      revealSparkles(card, 10);
-      // tiny float after reveal
-      card.style.transition = 'transform 520ms cubic-bezier(.2,.9,.25,1), box-shadow 300ms';
-    }, i * 160);
+      // reveal by setting class .revealed (inner rotates)
+      card.classList.add('revealed');
+      // ensure the inner is rotated and front visible
+      const inner = card.querySelector('.inner');
+      inner.style.transform = 'rotateY(180deg)';
+      // add shimmer to front
+      const front = card.querySelector('.face.front');
+      const shimmer = front.querySelector('.shimmer');
+      if(shimmer) shimmer.classList.add('animate');
+      revealSparkles(card, 12);
+      card.style.boxShadow = '0 10px 44px rgba(255,215,0,0.14)';
+    }, i * 140);
   });
 
-  // play chime slightly after most flips began
-  setTimeout(()=> { chime.currentTime = 0; chime.play().catch(()=>{}); }, 180 + cards.length*120);
+  // chime after most flips
+  setTimeout(()=> { chime.currentTime = 0; chime.play().catch(()=>{}); }, 180 + cards.length*120 );
 
-  // finish after reveal animations
-  await new Promise(r=>setTimeout(r, 180 + cards.length*160 + 600));
-  // relax glow
-  cards.forEach(card => {
-    card.style.boxShadow = '';
-    card.classList.remove('flipped'); // keep front visible visually by forcing inner transform (we'll toggle differently)
-    // IMPORTANT: keep front visible — instead of removing class, set inner transform permanently:
-    const inner = card.querySelector('.inner');
-    // set final transform to keep front up
-    inner.style.transform = 'rotateY(180deg)';
-  });
-
-  // done
+  // finish
+  await new Promise(r=>setTimeout(r, 180 + cards.length*140 + 600));
+  // settled: keep front visible (inner already rotated) and keep shimmer running
   busy = false;
   revealBtn.disabled = false;
 }
 
-/* event wiring */
+/* wires */
 spreadButtons.forEach(btn => {
-  btn.addEventListener('click', e => {
+  btn.addEventListener('click', ()=>{
     const n = Number(btn.dataset.spread) || 1;
     setActiveSpread(n);
     showGoldCards(n);
+    // ensure accessibility focus back to reveal
+    revealBtn.focus();
   });
 });
+revealBtn.addEventListener('click', ()=>{ if(!busy) shuffleAndReveal(); });
 
-revealBtn.addEventListener('click', () => {
-  if(busy) return;
-  shuffleAndReveal();
-});
-
-/* initial setup */
+/* initial */
 setActiveSpread(1);
 showGoldCards(1);
+
+/* recompute card sizes on resize to keep consistent */
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    // recompute widths and reapply to existing cards
+    const cards = Array.from(cardContainer.querySelectorAll('.card'));
+    if(cards.length){
+      const w = computeCardWidth(cards.length);
+      cards.forEach(c=>{
+        c.style.width = w + 'px';
+        c.style.height = Math.round(w * (9/7)) + 'px';
+      });
+    }
+  }, 120);
+});
 
 /* subtle background floating particles */
 (function createBackgroundParticles(){
@@ -411,7 +469,7 @@ showGoldCards(1);
     p.style.left = `${Math.random()*100}%`;
     p.style.top = `${60 + Math.random()*40}%`;
     p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.opacity = (0.08 + Math.random()*0.18).toString();
+    p.style.opacity = (0.06 + Math.random()*0.18).toString();
     p.style.animationDuration = `${8 + Math.random()*10}s`;
     p.style.animationDelay = `${-(Math.random()*10)}s`;
     document.body.appendChild(p);
