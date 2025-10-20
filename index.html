@@ -14,8 +14,8 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 #spreadButtons button, #revealBtn { background:#FF69B4; color:white; border:none; padding:15px 30px; margin:5px; border-radius:15px; cursor:pointer; font-size:1.2em; transition: transform 0.2s; }
 #spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
 #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
-#cardContainer { margin:30px auto; position:relative; width:90%; max-width:900px; min-height:320px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
-.card { width:220px; height:320px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.5s ease, left 0.5s ease, top 0.5s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
+#cardContainer { margin:30px auto; position:relative; width:90%; max-width:900px; min-height:350px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
+.card { width:240px; height:340px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.5s ease, left 0.5s ease, top 0.5s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
 .sparkle { position:absolute; width:6px; height:6px; border-radius:50%; background:#FFD700; box-shadow:0 0 14px 6px #FFD700; opacity:0; pointer-events:none; animation:sparkleAnim 0.8s ease-out forwards; }
@@ -82,8 +82,8 @@ function showGoldCards(num){
     const img=document.createElement('img');
     img.src=goldBack;
     img.className='card';
-    img.style.left=(cardContainer.offsetWidth/2 - 110)+'px';
-    img.style.top=(i*2)+'px';
+    img.style.left=(cardContainer.offsetWidth/2 - 120)+'px';
+    img.style.top=(i*3)+'px';
     img.style.zIndex=i;
     cardContainer.appendChild(img);
   }
@@ -137,7 +137,7 @@ revealBtn.addEventListener('click', async ()=>{
   // Reveal final cards
   cardsElems.forEach((c,i)=>{
     c.src = pulledCards[i].front;
-    c.style.transform = `translate(${i*240-(selectedSpread-1)*120}px,0px) rotate(0deg)`;
+    c.style.transform = `translate(${i*260-(selectedSpread-1)*130}px,0px) rotate(0deg)`;
     c.style.animation='popReveal 0.8s ease forwards';
 
     // Sparkle trail
@@ -145,7 +145,7 @@ revealBtn.addEventListener('click', async ()=>{
       const sparkle=document.createElement('div');
       sparkle.classList.add('sparkle');
       const angle=Math.random()*2*Math.PI;
-      const radius=Math.random()*80+40;
+      const radius=Math.random()*100+50;
       sparkle.style.left=c.offsetWidth/2 + Math.cos(angle)*radius + 'px';
       sparkle.style.top=c.offsetHeight/2 + Math.sin(angle)*radius + 'px';
       sparkle.style.background=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
