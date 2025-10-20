@@ -18,8 +18,8 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 .card { width:280px; height:380px; border-radius:10px; background-size: cover; background-position: center; position:relative; cursor:pointer; transition: transform 0.6s ease, box-shadow 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); opacity:0; }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
-.sparkle, .dust, .particle { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 2s linear infinite; }
-@keyframes particleAnim {0% {transform:translateY(0) scale(0); opacity:0.5;} 50% {transform:translateY(-50px) scale(1); opacity:1;} 100% {transform:translateY(-100px) scale(0); opacity:0;}}
+.sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; }
+
 </style>
 </head>
 <body>
@@ -50,7 +50,6 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 
 <script>
-const version = 2;
 const deck = [
 "https://i.imgur.com/3xOO16W.png?v=2","https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2",
 "https://i.imgur.com/oNN1KR0.png?v=2","https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2","https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2",
@@ -78,18 +77,21 @@ for(let i=0;i<50;i++){
   document.body.appendChild(star);
 }
 
-// Display gold cards initially
+// Show gold cards initially
 function showGoldCards(num){
   cardContainer.innerHTML=''; 
   for(let i=0;i<num;i++){
     const card=document.createElement('div');
     card.className='card';
     card.style.backgroundImage=`url(${goldBack})`;
-    card.style.transform=`translateY(-500px)`;
+    card.style.transform=`translateY(-500px) rotate(0deg)`;
     cardContainer.appendChild(card);
+    // Fan out animation
     setTimeout(()=>{
-      card.style.transition='transform 1s ease-out, opacity 1s ease-out';
-      card.style.transform=`translateY(0) rotate(${(i-(num-1)/2)*10}deg)`;
+      card.style.transition='transform 0.8s ease-out, opacity 0.8s ease-out';
+      const offset = (i-(num-1)/2)*50;
+      const angle = (i-(num-1)/2)*5;
+      card.style.transform=`translateY(0px) translateX(${offset}px) rotate(${angle}deg)`;
       card.style.opacity=1;
     }, i*150);
   }
@@ -107,20 +109,44 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   });
 });
 
-// Reveal cards
-revealBtn.addEventListener('click', ()=>{
+// Magical shuffle with dust trails
+function shuffleAndReveal(){
   const cards = cardContainer.querySelectorAll('.card');
   cards.forEach((card,i)=>{
-    setTimeout(()=>{
+    let j=0;
+    const shuffleInterval = setInterval(()=>{
       const randIndex=Math.floor(Math.random()*deck.length);
       card.style.backgroundImage=`url(${deck[randIndex]})`;
-      card.style.transform='rotate(0deg)';
-      card.style.boxShadow='0 0 20px gold';
-    }, i*300);
+      card.style.transform=`translateY(${Math.random()*10-5}px) rotate(${Math.random()*20-10}deg)`;
+      createDust(card);
+      j++;
+      if(j>10){
+        clearInterval(shuffleInterval);
+        // Final reveal
+        card.style.backgroundImage=`url(${deck[Math.floor(Math.random()*deck.length)]})`;
+        card.style.transform='translateY(0px) rotate(0deg)';
+        card.style.boxShadow='0 0 20px gold';
+      }
+    }, 80 + i*50);
   });
-  setTimeout(()=>{ chime.play(); }, 500);
-});
-</script>
+  setTimeout(()=>{ chime.play(); }, 600);
+}
 
+// Dust particles
+function createDust(card){
+  const dust = document.createElement('div');
+  dust.className='dust';
+  dust.style.width=dust.style.height='6px';
+  dust.style.background='gold';
+  dust.style.left=Math.random()*card.offsetWidth+'px';
+  dust.style.top=Math.random()*card.offsetHeight+'px';
+  dust.style.opacity=1;
+  card.appendChild(dust);
+  setTimeout(()=>{ dust.remove(); }, 800);
+}
+
+revealBtn.addEventListener('click', shuffleAndReveal);
+
+</script>
 </body>
 </html>
