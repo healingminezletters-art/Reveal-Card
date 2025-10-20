@@ -19,7 +19,6 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
 .sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; }
-
 </style>
 </head>
 <body>
@@ -51,12 +50,12 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 
 <script>
 const deck = [
-"https://i.imgur.com/3xOO16W.png?v=2","https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2",
-"https://i.imgur.com/oNN1KR0.png?v=2","https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2","https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2",
-"https://i.imgur.com/edCCB8Q.png?v=2","https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2","https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2",
-"https://i.imgur.com/JsJDaix.png?v=2","https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2","https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2",
-"https://i.imgur.com/d8cODxw.png?v=2","https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2","https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2",
-"https://i.imgur.com/lbHy6kp.png?v=2","https://i.imgur.com/tJ9JtNL.png?v=2"
+"https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2","https://i.imgur.com/oNN1KR0.png?v=2",
+"https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2","https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2","https://i.imgur.com/edCCB8Q.png?v=2",
+"https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2","https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2","https://i.imgur.com/JsJDaix.png?v=2",
+"https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2","https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2","https://i.imgur.com/d8cODxw.png?v=2",
+"https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2","https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2","https://i.imgur.com/lbHy6kp.png?v=2",
+"https://i.imgur.com/tJ9JtNL.png?v=2"
 ];
 
 const goldBack = "https://i.imgur.com/3xOO16W.png?v=2";
@@ -85,8 +84,8 @@ function showGoldCards(num){
     card.className='card';
     card.style.backgroundImage=`url(${goldBack})`;
     card.style.transform=`translateY(-500px) rotate(0deg)`;
+    card.dataset.final = deck[Math.floor(Math.random()*deck.length)];
     cardContainer.appendChild(card);
-    // Fan out animation
     setTimeout(()=>{
       card.style.transition='transform 0.8s ease-out, opacity 0.8s ease-out';
       const offset = (i-(num-1)/2)*50;
@@ -109,25 +108,24 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   });
 });
 
-// Magical shuffle with dust trails
+// Shuffle gold cards and reveal final cards
 function shuffleAndReveal(){
   const cards = cardContainer.querySelectorAll('.card');
   cards.forEach((card,i)=>{
-    let j=0;
-    const shuffleInterval = setInterval(()=>{
-      const randIndex=Math.floor(Math.random()*deck.length);
-      card.style.backgroundImage=`url(${deck[randIndex]})`;
+    let count=0;
+    const interval = setInterval(()=>{
+      card.style.backgroundImage=`url(${goldBack})`;
       card.style.transform=`translateY(${Math.random()*10-5}px) rotate(${Math.random()*20-10}deg)`;
       createDust(card);
-      j++;
-      if(j>10){
-        clearInterval(shuffleInterval);
-        // Final reveal
-        card.style.backgroundImage=`url(${deck[Math.floor(Math.random()*deck.length)]})`;
+      count++;
+      if(count>12){
+        clearInterval(interval);
+        card.style.backgroundImage=`url(${card.dataset.final})`;
         card.style.transform='translateY(0px) rotate(0deg)';
-        card.style.boxShadow='0 0 20px gold';
+        card.style.boxShadow='0 0 25px gold';
+        createSparkle(card);
       }
-    }, 80 + i*50);
+    }, 100 + i*50);
   });
   setTimeout(()=>{ chime.play(); }, 600);
 }
@@ -145,8 +143,21 @@ function createDust(card){
   setTimeout(()=>{ dust.remove(); }, 800);
 }
 
-revealBtn.addEventListener('click', shuffleAndReveal);
+// Sparkle on reveal
+function createSparkle(card){
+  for(let j=0;j<15;j++){
+    const sparkle = document.createElement('div');
+    sparkle.className='sparkle';
+    sparkle.style.width=sparkle.style.height='6px';
+    sparkle.style.background=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+    sparkle.style.left=Math.random()*card.offsetWidth+'px';
+    sparkle.style.top=Math.random()*card.offsetHeight+'px';
+    card.appendChild(sparkle);
+    setTimeout(()=>{ sparkle.remove(); }, 1000);
+  }
+}
 
+revealBtn.addEventListener('click', shuffleAndReveal);
 </script>
 </body>
 </html>
