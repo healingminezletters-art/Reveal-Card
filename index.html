@@ -3,157 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Healing Minez: Pull Your Daily Card</title>
+<title>Healing Minez: Pull Your Cards</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <style>
   body {
     margin:0;
     padding:0;
-    background: #40E0D0;
-    overflow-x:hidden;
-    font-family: 'Playfair Display', serif;
-    color: black;
+    background:#40E0D0;
+    font-family:'Playfair Display', serif;
+    color:black;
     text-align:center;
+    overflow-x:hidden;
   }
-  h1 {
-    font-size:2em;
-    margin-top:20px;
+  h1 { font-size:2em; margin-top:20px; }
+  h1 span { display:block; font-size:1em; margin-top:10px; }
+  .signature { font-family:'Great Vibes', cursive; font-size:1.5em; color:#000; margin-top:10px; }
+  #spreadButtons button {
+    background:#FF69B4; color:white; border:none; padding:10px 20px;
+    margin:5px; border-radius:12px; cursor:pointer; font-size:1em; transition: transform 0.2s;
   }
-  h1 span {
-    display:block;
-    font-size:1em;
-    margin-top:10px;
-  }
-  .signature {
-    font-family:'Great Vibes', cursive;
-    font-size:1.5em;
-    display:block;
-    margin-top:10px;
-    color:#000;
-  }
+  #spreadButtons button:hover { transform: scale(1.05); }
+  #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
   #cardContainer {
-    margin:30px auto;
-    position:relative;
-    width:80%;
-    max-width:300px;
-    min-width:150px;
-    height:auto;
+    margin:30px auto; position:relative; width:90%; max-width:600px; min-height:200px;
+    display:flex; justify-content:center; align-items:center; gap:15px;
   }
-  #card {
-    width:100%;
-    height:auto;
-    display:block;
-    margin:0 auto;
-    border-radius:10px;
-    opacity:0;
-    filter: drop-shadow(0 0 15px #E6E6FA) drop-shadow(0 0 10px #FFD700);
-    transition: opacity 1.5s ease, transform 0.1s, box-shadow 0.1s, filter 0.2s;
+  .card {
+    width:120px; max-width:20%; border-radius:10px; transition: transform 0.3s, box-shadow 0.3s;
+    opacity:0; cursor:pointer;
   }
-  button {
-    background-color:#FF69B4;
-    color:white;
-    border:none;
-    padding:15px 30px;
-    font-size:1.2em;
-    border-radius:15px;
-    cursor:pointer;
-    transition: transform 0.2s;
-  }
-  button:hover {transform: scale(1.05);}
   .star {
-    position:absolute;
-    width:2px;
-    height:2px;
-    background:white;
-    border-radius:50%;
-    box-shadow:0 0 4px 1px gold;
-    animation: twinkle 2s infinite;
+    position:absolute; width:2px; height:2px; background:white; border-radius:50%;
+    box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite;
   }
-  @keyframes twinkle {
-    0%,100% {opacity:0.3;}
-    50% {opacity:1;}
-  }
-  .sparkle {
-    position:absolute;
-    width:4px;
-    height:4px;
-    border-radius:50%;
-    background: #FFD700;
-    box-shadow: 0 0 8px 3px #FFD700;
-    opacity:0;
-    pointer-events:none;
-    animation: sparkleAnim 0.8s ease-out forwards;
-  }
-  @keyframes sparkleAnim {
-    0% {transform:scale(0); opacity:1;}
-    50% {transform:scale(1.5); opacity:1;}
-    100% {transform:scale(0); opacity:0;}
-  }
-  @keyframes popReveal {
-    0% {transform: scale(0.7) rotate(0deg);}
-    50% {transform: scale(1.1) rotate(0deg);}
-    100% {transform: scale(1) rotate(0deg);}
-  }
+  @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
+  .sparkle { position:absolute; width:4px; height:4px; border-radius:50%; background:#FFD700;
+    box-shadow:0 0 8px 3px #FFD700; opacity:0; pointer-events:none; animation:sparkleAnim 0.8s ease-out forwards;}
+  @keyframes sparkleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(1.5); opacity:1;} 100% {transform:scale(0); opacity:0;}}
+  @keyframes popReveal {0% {transform: scale(0.7) rotate(0deg);} 50% {transform: scale(1.1);} 100% {transform: scale(1);}}
 </style>
 </head>
 <body>
 
 <h1>
-🦋 Pull your daily card, Beautiful Soul 💖
-<span>Each affirmation in this deck is a whisper from your healed self — reminding you that you are love, light, and legacy.</span>
+🦋 Pull your card(s), Beautiful Soul 💖
+<span>Each affirmation in this deck is a whisper from your healed self.</span>
 <span class="signature">With unconditional love, Healing Minez 💖</span>
 </h1>
 
-<div id="cardContainer">
-  <img id="card" src="https://i.imgur.com/3xOO16W.png" alt="Your Card">
+<div id="spreadButtons">
+  <button data-spread="1">1 Card</button>
+  <button data-spread="3">3 Cards</button>
+  <button data-spread="5">5 Cards</button>
 </div>
 
+<div id="spreadDesc"></div>
+
+<div id="cardContainer"></div>
+
 <br>
-<button>✨ Reveal Card ✨</button>
+<button id="revealBtn">✨ Reveal Card(s) ✨</button>
 
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
 
 <script>
 const version = Date.now();
-const cards = [
-  `https://i.imgur.com/MB5MTZ4.png?v=${version}`, `https://i.imgur.com/HsSFp1G.png?v=${version}`, 
-  `https://i.imgur.com/HMDsIdj.png?v=${version}`, `https://i.imgur.com/pu3CPVv.png?v=${version}`, 
-  `https://i.imgur.com/pDONoKd.png?v=${version}`, `https://i.imgur.com/zgWvZtT.png?v=${version}`,
-  `https://i.imgur.com/Ybi9YzL.png?v=${version}`, `https://i.imgur.com/SjaDX9E.png?v=${version}`,
-  `https://i.imgur.com/oNN1KR0.png?v=${version}`, `https://i.imgur.com/hFDmOf8.png?v=${version}`,
-  `https://i.imgur.com/stl9kfH.png?v=${version}`, `https://i.imgur.com/IFpGZnY.png?v=${version}`,
-  `https://i.imgur.com/83CEyAl.png?v=${version}`, `https://i.imgur.com/oCfk4b9.png?v=${version}`,
-  `https://i.imgur.com/ZCB64Hj.png?v=${version}`, `https://i.imgur.com/45WAkja.png?v=${version}`,
-  `https://i.imgur.com/SPNVO1w.png?v=${version}`, `https://i.imgur.com/nGU5uLN.png?v=${version}`,
-  `https://i.imgur.com/edCCB8Q.png?v=${version}`, `https://i.imgur.com/nk6TWqa.png?v=${version}`,
-  `https://i.imgur.com/QVKWiAE.png?v=${version}`, `https://i.imgur.com/FvwfCbB.png?v=${version}`,
-  `https://i.imgur.com/JIRKI6G.png?v=${version}`, `https://i.imgur.com/A3XEdw5.png?v=${version}`,
-  `https://i.imgur.com/qWRTjhp.png?v=${version}`, `https://i.imgur.com/2gYwi28.png?v=${version}`,
-  `https://i.imgur.com/O76u6MX.png?v=${version}`, `https://i.imgur.com/jJDSLTv.png?v=${version}`,
-  `https://i.imgur.com/JsJDaix.png?v=${version}`, `https://i.imgur.com/Nl6azPe.png?v=${version}`,
-  `https://i.imgur.com/YdMZF0C.png?v=${version}`, `https://i.imgur.com/045ZqjC.png?v=${version}`,
-  `https://i.imgur.com/5LM9wuh.png?v=${version}`, `https://i.imgur.com/FlHotKa.png?v=${version}`,
-  `https://i.imgur.com/iCe198i.png?v=${version}`, `https://i.imgur.com/9kNPa9M.png?v=${version}`,
-  `https://i.imgur.com/1YjjwLo.png?v=${version}`, `https://i.imgur.com/lni4cEr.png?v=${version}`,
-  `https://i.imgur.com/d8cODxw.png?v=${version}`, `https://i.imgur.com/Depabhz.png?v=${version}`,
-  `https://i.imgur.com/TYGPk9e.png?v=${version}`, `https://i.imgur.com/34LjY4Z.png?v=${version}`,
-  `https://i.imgur.com/VXmeO5V.png?v=${version}`, `https://i.imgur.com/LHkLQ5O.png?v=${version}`,
-  `https://i.imgur.com/NJjbe5z.png?v=${version}`, `https://i.imgur.com/Nmv26ib.png?v=${version}`,
-  `https://i.imgur.com/iKj1B4Z.png?v=${version}`, `https://i.imgur.com/GHvbLzh.png?v=${version}`,
-  `https://i.imgur.com/lbHy6kp.png?v=${version}`, `https://i.imgur.com/tJ9JtNL.png?v=${version}`
+const deck = [
+  {front:`https://i.imgur.com/MB5MTZ4.png?v=${version}`, message:"Affirmation 1"},
+  {front:`https://i.imgur.com/HsSFp1G.png?v=${version}`, message:"Affirmation 2"},
+  {front:`https://i.imgur.com/HMDsIdj.png?v=${version}`, message:"Affirmation 3"},
+  {front:`https://i.imgur.com/pu3CPVv.png?v=${version}`, message:"Affirmation 4"},
+  {front:`https://i.imgur.com/pDONoKd.png?v=${version}`, message:"Affirmation 5"},
+  {front:`https://i.imgur.com/zgWvZtT.png?v=${version}`, message:"Affirmation 6"}
+  // add more cards as needed
 ];
+const goldBack = `https://i.imgur.com/3xOO16W.png`;
 
-const cardEl = document.getElementById('card');
-const button = document.querySelector('button');
-const chime = document.getElementById('chime');
 const cardContainer = document.getElementById('cardContainer');
+const revealBtn = document.getElementById('revealBtn');
+const chime = document.getElementById('chime');
+const spreadDesc = document.getElementById('spreadDesc');
+let selectedSpread = 1;
+let pulledCards = [];
 
-// Fade in initial card
-window.addEventListener('load', () => {
-  setTimeout(()=>{ cardEl.style.opacity = 1; }, 300);
+document.querySelectorAll('#spreadButtons button').forEach(btn=>{
+  btn.addEventListener('click', ()=> {
+    selectedSpread = parseInt(btn.dataset.spread);
+    spreadDesc.innerText = selectedSpread === 1 ? "Daily inspiration / journal prompt." :
+                           selectedSpread === 3 ? "Message from Divine: Past – Present – Future." :
+                           "Deep insight: 5-card guidance spread.";
+    cardContainer.innerHTML = '';
+    pulledCards = [];
+    revealBtn.style.display = 'inline-block';
+  });
 });
 
 // Generate background stars
@@ -169,64 +111,55 @@ for(let i=0;i<50;i++){
 
 function random(min,max){ return Math.random()*(max-min)+min; }
 
-button.addEventListener('click', ()=>{
-  const finalIndex = Math.floor(Math.random()*cards.length);
-  const finalCard = cards[finalIndex];
+function createGoldCards(num){
+  cardContainer.innerHTML = '';
+  for(let i=0;i<num;i++){
+    const img = document.createElement('img');
+    img.src = goldBack;
+    img.className = 'card';
+    cardContainer.appendChild(img);
+  }
+}
 
-  const shuffleSteps = 30;
-  let currentStep = 0;
-  let intervalTime = 50;
-  const maxSlide = 30;
+function shuffleAndReveal(){
+  createGoldCards(selectedSpread);
+  const cardsElems = Array.from(document.querySelectorAll('.card'));
+  pulledCards = [];
+  // randomly select actual cards
+  const deckCopy = [...deck];
+  for(let i=0;i<selectedSpread;i++){
+    const index = Math.floor(Math.random()*deckCopy.length);
+    pulledCards.push(deckCopy.splice(index,1)[0]);
+  }
 
-  const shuffleInterval = setInterval(() => {
-    const randomIndex = Math.floor(Math.random() * cards.length);
-    cardEl.src = cards[randomIndex];
-
-    const slide = (currentStep % 2 === 0 ? random(0, maxSlide) : random(-maxSlide, 0));
-    const tilt = random(-10,10);
-    const scale = 1 + random(0,0.05);
-    cardEl.style.transform = `translateX(${slide}px) rotate(${tilt}deg) scale(${scale})`;
-    cardEl.style.filter = `drop-shadow(0 0 ${random(10,20)}px #E6E6FA) drop-shadow(0 0 ${random(5,15)}px #FFD700)`;
-
-    if(Math.random() < 0.2){
-      const sparkle = document.createElement('div');
-      sparkle.classList.add('sparkle');
-      sparkle.style.left = Math.random()*cardEl.offsetWidth + 'px';
-      sparkle.style.top = Math.random()*cardEl.offsetHeight + 'px';
-      sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
-      sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
-      cardContainer.appendChild(sparkle);
-      setTimeout(()=>{ sparkle.remove(); },800);
-    }
-
-    currentStep++;
-    intervalTime += 3;
-
-    if(currentStep >= shuffleSteps){
-      clearInterval(shuffleInterval);
-
-      cardEl.src = finalCard;
-      cardEl.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
-      cardEl.style.filter = 'drop-shadow(0 0 20px #E6E6FA) drop-shadow(0 0 15px #FFD700)';
-      cardEl.style.animation = 'popReveal 0.6s ease forwards';
+  let step = 0;
+  const maxSteps = 20;
+  const interval = setInterval(()=>{
+    cardsElems.forEach(c=>{
+      const randCard = deck[Math.floor(Math.random()*deck.length)].front;
+      const tilt = random(-15,15);
+      const scale = 1 + random(0,0.05);
+      const slide = random(-15,15);
+      c.src = randCard;
+      c.style.transform = `translateX(${slide}px) rotate(${tilt}deg) scale(${scale})`;
+    });
+    step++;
+    if(step>=maxSteps){
+      clearInterval(interval);
+      // reveal actual cards
+      cardsElems.forEach((c,i)=>{
+        c.src = pulledCards[i].front;
+        c.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
+        c.style.opacity = 1;
+        c.style.animation = 'popReveal 0.6s ease forwards';
+      });
       chime.currentTime = 0;
       chime.play();
-
-      for(let j=0;j<25;j++){
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('sparkle');
-        const angle = Math.random()*2*Math.PI;
-        const radius = 20 + Math.random()*50;
-        sparkle.style.left = cardEl.offsetWidth/2 + Math.cos(angle)*radius + 'px';
-        sparkle.style.top = cardEl.offsetHeight/2 + Math.sin(angle)*radius + 'px';
-        sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
-        sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
-        cardContainer.appendChild(sparkle);
-        setTimeout(()=>{ sparkle.remove(); },800);
-      }
     }
-  }, intervalTime);
-});
+  }, 80);
+}
+
+revealBtn.addEventListener('click', shuffleAndReveal);
 </script>
 
 </body>
