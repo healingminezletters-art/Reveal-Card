@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healing Minez: Pull Your Daily Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin:0;
+    padding:0;
+    background: #40E0D0; /* soft turquoise */
+    overflow-x:hidden;
+    font-family: 'Playfair Display', serif;
+    color: black;
+    text-align:center;
+  }
+  h1 {
+    font-size:2em;
+    margin-top:20px;
+  }
+  h1 span {
+    display:block;
+    font-size:1em;
+    margin-top:10px;
+  }
+  .signature {
+    font-family:'Great Vibes', cursive;
+    font-size:1.5em;
+    display:block;
+    margin-top:10px;
+    color:#000;
+  }
+  #cardContainer {
+    margin:30px auto;
+    position:relative;
+    width:80%;
+    max-width:300px;
+    min-width:150px;
+    height:auto;
+  }
+  #card {
+    width:100%;
+    height:auto;
+    display:block;
+    margin:0 auto;
+    border-radius:10px;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  button {
+    background-color:#FF69B4;
+    color:white;
+    border:none;
+    padding:15px 30px;
+    font-size:1.2em;
+    border-radius:15px;
+    cursor:pointer;
+    transition: transform 0.2s;
+  }
+  button:hover {transform: scale(1.05);}
+  .star {
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    box-shadow:0 0 4px 1px gold;
+    animation: twinkle 2s infinite;
+  }
+  @keyframes twinkle {
+    0%,100% {opacity:0.3;}
+    50% {opacity:1;}
+  }
+  .sparkle {
+    position:absolute;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background: #FFD700;
+    box-shadow: 0 0 8px 3px #FFD700;
+    opacity:0;
+    pointer-events:none;
+    animation: sparkleAnim 0.8s ease-out forwards;
+  }
+  @keyframes sparkleAnim {
+    0% {transform:scale(0); opacity:1;}
+    50% {transform:scale(1.5); opacity:1;}
+    100% {transform:scale(0); opacity:0;}
+  }
+</style>
+</head>
+<body>
+
+<h1>
+🦋 Pull your daily card, Beautiful Soul 💖
+<span>Each affirmation in this deck is a whisper from your healed self — reminding you that you are love, light, and legacy.</span>
+<span class="signature">With unconditional love, Healing Minez 💖</span>
+</h1>
+
+<div id="cardContainer">
+  <img id="card" src="" alt="Your Card">
+</div>
+
+<br>
+<button>✨ Reveal Card ✨</button>
+
+<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
+
+<script>
+  const cards = [
+    "https://i.imgur.com/MB5MTZ4.png","https://i.imgur.com/HsSFp1G.png","https://i.imgur.com/HMDsIdj.png",
+    "https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png","https://i.imgur.com/zgWvZtT.png",
+    "https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png",
+    "https://i.imgur.com/hFDmOf8.png","https://i.imgur.com/stl9kfH.png","https://i.imgur.com/IFpGZnY.png",
+    "https://i.imgur.com/83CEyAl.png","https://i.imgur.com/oCfk4b9.png","https://i.imgur.com/ZCB64Hj.png",
+    "https://i.imgur.com/45WAkja.png","https://i.imgur.com/SPNVO1w.png","https://i.imgur.com/nGU5uLN.png",
+    "https://i.imgur.com/edCCB8Q.png","https://i.imgur.com/nk6TWqa.png","https://i.imgur.com/QVKWiAE.png",
+    "https://i.imgur.com/FvwfCbB.png","https://i.imgur.com/JIRKI6G.png","https://i.imgur.com/A3XEdw5.png",
+    "https://i.imgur.com/qWRTjhp.png","https://i.imgur.com/2gYwi28.png","https://i.imgur.com/O76u6MX.png",
+    "https://i.imgur.com/jJDSLTv.png","https://i.imgur.com/JsJDaix.png","https://i.imgur.com/Nl6azPe.png",
+    "https://i.imgur.com/YdMZF0C.png","https://i.imgur.com/045ZqjC.png","https://i.imgur.com/5LM9wuh.png",
+    "https://i.imgur.com/FlHotKa.png","https://i.imgur.com/iCe198i.png","https://i.imgur.com/9kNPa9M.png",
+    "https://i.imgur.com/1YjjwLo.png","https://i.imgur.com/lni4cEr.png","https://i.imgur.com/d8cODxw.png",
+    "https://i.imgur.com/Depabhz.png","https://i.imgur.com/TYGPk9e.png","https://i.imgur.com/34LjY4Z.png",
+    "https://i.imgur.com/VXmeO5V.png","https://i.imgur.com/LHkLQ5O.png","https://i.imgur.com/NJjbe5z.png",
+    "https://i.imgur.com/Nmv26ib.png","https://i.imgur.com/iKj1B4Z.png","https://i.imgur.com/GHvbLzh.png",
+    "https://i.imgur.com/lbHy6kp.png","https://i.imgur.com/tJ9JtNL.png"
+  ];
+
+  const cardEl = document.getElementById('card');
+  const button = document.querySelector('button');
+  const chime = document.getElementById('chime');
+  const cardContainer = document.getElementById('cardContainer');
+
+  // Generate background stars
+  for(let i=0;i<50;i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.top = Math.random()*100 + '%';
+    star.style.left = Math.random()*100 + '%';
+    star.style.width = Math.random()*3+1 + 'px';
+    star.style.height = star.style.width;
+    cardContainer.appendChild(star);
+  }
+
+  button.addEventListener('click', ()=>{
+    const shuffleCount = 25; // longer shuffle
+    let i = 0;
+
+    const shuffleInterval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * cards.length);
+      cardEl.src = cards[randomIndex];
+
+      // Tilt and glow
+      const tiltAngle = (Math.random() * 30) - 15;
+      cardEl.style.transform = `rotate(${tiltAngle}deg) scale(${1 + Math.random()*0.05})`;
+      cardEl.style.boxShadow = `0 0 ${10 + Math.random()*10}px gold`;
+
+      // Random sparkles while shuffling
+      if(Math.random() < 0.2){
+        const sparkle = document.createElement('div');
+        sparkle.classList.add('sparkle');
+        sparkle.style.left = Math.random()*cardEl.offsetWidth + 'px';
+        sparkle.style.top = Math.random()*cardEl.offsetHeight + 'px';
+        sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+        sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
+        cardContainer.appendChild(sparkle);
+        setTimeout(()=>{ sparkle.remove(); },800);
+      }
+
+      i++;
+      if(i >= shuffleCount){
+        clearInterval(shuffleInterval);
+
+        const finalIndex = Math.floor(Math.random() * cards.length);
+        cardEl.src = cards[finalIndex];
+        cardEl.style.transform = 'rotate(0deg) scale(1)';
+        cardEl.style.boxShadow = 'none';
+
+        chime.currentTime = 0;
+        chime.play();
+
+        // Final sparkle burst
+        for(let j=0;j<25;j++){
+          const sparkle = document.createElement('div');
+          sparkle.classList.add('sparkle');
+          const angle = Math.random()*2*Math.PI;
+          const radius = 20 + Math.random()*50;
+          sparkle.style.left = cardEl.offsetWidth/2 + Math.cos(angle)*radius + 'px';
+          sparkle.style.top = cardEl.offsetHeight/2 + Math.sin(angle)*radius + 'px';
+          sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+          sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
+          cardContainer.appendChild(sparkle);
+          setTimeout(()=>{ sparkle.remove(); },800);
+        }
+      }
+    }, 80); // faster flicker for smooth shuffle
+  });
+</script>
+
+</body>
+</html>
