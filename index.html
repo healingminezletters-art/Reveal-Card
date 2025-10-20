@@ -6,159 +6,151 @@
 <title>Healing Minez — Pull Your Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#40E0D0;
-    --accent:#FF69B4;
-    --gold:#FFD700;
-    --card-max:320px;
-  }
-  html,body{height:100%;}
-  body{
-    margin:0;
-    min-height:100%;
-    font-family:'Playfair Display',serif;
-    background:var(--bg);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    color:#000;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-    padding:18px;
-  }
+:root{
+  --bg:#40E0D0;
+  --accent:#FF69B4;
+  --gold:#FFD700;
+  --card-max:320px;
+}
+html,body{height:100%;}
+body{
+  margin:0;
+  min-height:100%;
+  font-family:'Playfair Display',serif;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:#000;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  padding:18px;
+}
+header{text-align:center; margin-top:6px; max-width:1100px; width:100%;}
+h1{margin:8px 0 6px; font-size:1.6rem; line-height:1.15;}
+h1 span{display:block; font-size:1rem; opacity:0.95; margin-top:6px;}
+.signature{font-family:'Great Vibes',cursive; font-size:1.5rem; display:block; margin-top:8px; color:#000; animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
 
-  header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
-  h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; }
-  h1 span{ display:block; font-size:1rem; opacity:0.95; margin-top:6px; }
-  .signature{ font-family:'Great Vibes',cursive; font-size:1.5rem; display:block; margin-top:8px; color:#000; animation:pulse 2s infinite; }
-  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+.controls{ margin:14px 0 6px; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; }
+#spreadButtons{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+#spreadButtons button{
+  background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
+}
+#spreadButtons button:active{ transform:scale(.98); }
+#spreadButtons button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  .controls{ margin:14px 0 6px; display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; }
-  #spreadButtons{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-  #spreadButtons button{
-    background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
-  }
-  #spreadButtons button:active{ transform:scale(.98); }
-  #spreadButtons button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+#spreadDesc{ margin-top:10px; font-size:0.98rem; text-align:center; color:#fff; font-style:italic; min-height:22px; }
 
-  #spreadDesc{
-    margin-top:10px;
-    font-size:0.98rem;
-    text-align:center;
-    color:#fff;
-    font-style:italic;
-  }
+#cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
+#cardContainer{
+  width:100%;
+  min-height:380px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  position:relative;
+  perspective:1600px;
+  gap: 18px;
+  padding:20px 10px;
+  box-sizing:border-box;
+}
 
-  #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
-  #cardContainer{
-    width:100%;
-    min-height:380px;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    position:relative;
-    perspective:1600px;
-    gap: 18px;
-    padding:20px 10px;
-    box-sizing:border-box;
-  }
+.card{
+  width: clamp(160px, 20vw, var(--card-max));
+  aspect-ratio: 7/9;
+  position:relative;
+  transform-style:preserve-3d;
+  -webkit-tap-highlight-color:transparent;
+  border-radius:12px;
+  opacity:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  will-change:transform, opacity;
+}
 
-  .card{
-    width: clamp(160px, 20vw, var(--card-max));
-    aspect-ratio: 7/9;
-    position:relative;
-    transform-style:preserve-3d;
-    -webkit-tap-highlight-color:transparent;
-    border-radius:12px;
-    opacity:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    will-change:transform, opacity;
-  }
+.inner {
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  transform-style:preserve-3d;
+  transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+  will-change: transform;
+}
 
-  .inner {
-    position:absolute;
-    inset:0;
-    border-radius:12px;
-    transform-style:preserve-3d;
-    transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
-    will-change: transform;
-  }
+.face{
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  background-size:cover;
+  background-position:center;
+  backface-visibility:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+}
+.face.back{ transform: rotateY(0deg); }
+.face.front{ transform: rotateY(180deg); }
+.flipped .inner{ transform: rotateY(180deg); }
 
-  .face{
-    position:absolute;
-    inset:0;
-    border-radius:12px;
-    background-size:cover;
-    background-position:center;
-    backface-visibility:hidden;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
-  }
-  .face.back{ transform: rotateY(0deg); }
-  .face.front{ transform: rotateY(180deg); }
-  .flipped .inner{ transform: rotateY(180deg); }
+.dust, .sparkle {
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  transform-origin:center;
+  opacity:0;
+  will-change: transform, opacity;
+}
 
-  .dust, .sparkle {
-    position:absolute;
-    border-radius:50%;
-    pointer-events:none;
-    transform-origin:center;
-    opacity:0;
-    will-change: transform, opacity;
-  }
+.bg-particle{
+  position:fixed;
+  width:6px; height:6px; border-radius:50%; pointer-events:none;
+  opacity:.12; filter:blur(6px);
+  animation: drift linear infinite;
+}
+@keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
 
-  .bg-particle{
-    position:fixed;
-    width:6px; height:6px; border-radius:50%; pointer-events:none;
-    opacity:.12; filter:blur(6px);
-    animation: drift linear infinite;
-  }
-  @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
+#revealBtn {
+  background: linear-gradient(135deg, #FFD700, #FF69B4, #F6C6FF);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 12px 28px;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  box-shadow: 0 6px 20px rgba(255,215,0,0.3), 0 0 12px rgba(255,182,193,0.4) inset;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  margin-top:12px;
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+#revealBtn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(230,190,255,0.4) 0%, rgba(230,190,255,0) 70%);
+  opacity: 0.6;
+  transform: scale(0.8);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulseGlow 2.8s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(0.8); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+#revealBtn:hover { transform: scale(1.05); box-shadow: 0 8px 28px rgba(255,215,0,0.4), 0 0 18px rgba(255,182,193,0.6) inset; }
+#revealBtn:active { transform: scale(0.97); box-shadow: 0 4px 12px rgba(255,215,0,0.2), 0 0 10px rgba(255,182,193,0.3) inset; }
 
-  /* Magical glowing Reveal button */
-  #revealBtn {
-    background: linear-gradient(135deg, #FFD700, #FF69B4, #F6C6FF);
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.05rem;
-    padding: 12px 28px;
-    border-radius: 20px;
-    border: 2px solid #fff;
-    box-shadow: 0 6px 20px rgba(255,215,0,0.3), 0 0 12px rgba(255,182,193,0.4) inset;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.25s ease;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    margin-top:12px;
-    position: relative;
-    z-index: 0;
-    overflow: hidden;
-  }
-  #revealBtn::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(230,190,255,0.4) 0%, rgba(230,190,255,0) 70%);
-    opacity: 0.6;
-    transform: scale(0.8);
-    border-radius: 50%;
-    z-index: -1;
-    animation: pulseGlow 2.8s ease-in-out infinite;
-  }
-  @keyframes pulseGlow {
-    0%, 100% { transform: scale(0.8); opacity: 0.6; }
-    50% { transform: scale(1.1); opacity: 1; }
-  }
-  #revealBtn:hover { transform: scale(1.05); box-shadow: 0 8px 28px rgba(255,215,0,0.4), 0 0 18px rgba(255,182,193,0.6) inset; }
-  #revealBtn:active { transform: scale(0.97); box-shadow: 0 4px 12px rgba(255,215,0,0.2), 0 0 10px rgba(255,182,193,0.3) inset; }
-
-  footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-  .hidden{ display:none!important; }
-  @media (max-width:520px){ h1{ font-size:1.25rem; } }
+footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
+.hidden{ display:none!important; }
+@media (max-width:520px){ h1{ font-size:1.25rem; } }
 </style>
 </head>
 <body>
@@ -177,10 +169,8 @@
     <button data-spread="5" aria-pressed="false">5 Cards</button>
   </div>
 
-  <!-- Dynamic spread description -->
   <div id="spreadDesc">Daily inspiration / journal prompt.</div>
 
-  <!-- Reveal button -->
   <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 </div>
 
@@ -189,20 +179,38 @@
 </div>
 
 <footer aria-hidden="true"></footer>
-
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 
 <script>
-/* ==========================
-   Full original card JS from your site
-   CARDS array, GOLD, shuffleAndReveal(), emitDust(), revealSparkles(), etc.
-========================== */
-
-/* Spread description update + event wiring */
+/* =====================
+ Original card logic from your site
+===================== */
+const CARDS = [
+  "https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2",
+  "https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2"
+  // ... add remaining cards
+];
+const GOLD = "https://i.imgur.com/3xOO16W.png?v=2";
+const cardContainer = document.getElementById('cardContainer');
+const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-let selectedSpread = 1;
+const chime = document.getElementById('chime');
 
+let selectedSpread = 1;
+let busy = false;
+
+/* helper: pick unique cards */
+function pickUniqueIndices(n, len){
+  const arr = Array.from({length:len},(_,i)=>i);
+  for(let i=len-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr.slice(0,n);
+}
+
+/* update spread description & active button */
 function setActiveSpread(n){
   selectedSpread = n;
   spreadButtons.forEach(btn => btn.setAttribute('aria-pressed', Number(btn.dataset.spread) === n ? 'true' : 'false'));
@@ -211,42 +219,68 @@ function setActiveSpread(n){
                      : "Deep insight: 5-card guidance spread.";
 }
 
-/* Event listeners for buttons (also triggers your original showGoldCards function) */
-spreadButtons.forEach(btn=>{
-  btn.addEventListener('click', e=>{
-    const n = Number(btn.dataset.spread) || 1;
-    setActiveSpread(n);
-    if(typeof showGoldCards === 'function') showGoldCards(n); // call original function
-  });
-});
-
-/* Reveal button wiring (calls original shuffleAndReveal) */
-document.getElementById('revealBtn').addEventListener('click', ()=>{
-  if(typeof shuffleAndReveal==='function') shuffleAndReveal();
-});
-
-/* Initial setup */
-setActiveSpread(1);
-if(typeof showGoldCards === 'function') showGoldCards(1);
-
-/* Background floating particles (keep original effect) */
-(function createBackgroundParticles(){
-  const colors = ['#FFD700', '#FFB6C1', '#D8B0FF', '#FFFFFF'];
-  const total = 28;
-  for(let i=0;i<total;i++){
-    const p = document.createElement('div');
-    p.className = 'bg-particle';
-    const size = 4 + Math.random()*6;
-    p.style.width = p.style.height = `${size}px`;
-    p.style.left = `${Math.random()*100}%`;
-    p.style.top = `${60 + Math.random()*40}%`;
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.opacity = (0.08 + Math.random()*0.18).toString();
-    p.style.animationDuration = `${8 + Math.random()*10}s`;
-    p.style.animationDelay = `${-(Math.random()*10)}s`;
-    document.body.appendChild(p);
+/* Show gold cards */
+function showGoldCards(n){
+  cardContainer.innerHTML='';
+  const finals = pickUniqueIndices(n,CARDS.length).map(i=>CARDS[i]);
+  for(let i=0;i<n;i++){
+    const card = document.createElement('div');
+    card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${finals[i]})`;
+    inner.appendChild(back); inner.appendChild(front); card.appendChild(inner);
+    card.dataset.final=finals[i];
+    card.style.opacity='0';
+    const offset = i-(n-1)/2;
+    const offsetX = offset*(window.innerWidth<520?70:110);
+    const angle = offset*6;
+    card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
+    setTimeout(()=>{ card.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
+      card.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`; card.style.opacity='1';
+    }, 120+i*110);
+    cardContainer.appendChild(card);
   }
-})();
+}
+
+/* Emit dust & sparkles (same as original) */
+function emitDust(parent,count=6){for(let i=0;i<count;i++){const d=document.createElement('div');const size=3+Math.random()*7;d.style.width=d.style.height=`${size}px`;d.style.background=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;d.style.opacity='1';d.style.transform='translateY(0) scale(.6)';d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;parent.appendChild(d);requestAnimationFrame(()=>{d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`;d.style.opacity='0';});setTimeout(()=>d.remove(),1400+Math.random()*500);}}
+function revealSparkles(parent,count=12){for(let i=0;i<count;i++){const s=document.createElement('div');const size=4+Math.random()*8;s.style.width=s.style.height=`${size}px`;s.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;s.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;s.style.background=['#FFD700','#FF69B4','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];s.style.opacity='1';s.style.transition=`transform ${500+Math.random()*600}ms ease-out, opacity ${500+Math.random()*600}ms`;parent.appendChild(s);requestAnimationFrame(()=>{s.style.transform=`translateY(${-40-Math.random()*70}px) scale(0.2)`;s.style.opacity='0';});setTimeout(()=>s.remove(),900+Math.random()*600);}}
+
+async function shuffleAndReveal(){
+  if(busy)return; busy=true; revealBtn.disabled=true;
+  const cards=Array.from(cardContainer.querySelectorAll('.card')); if(cards.length===0){busy=false; revealBtn.disabled=false;return;}
+  cards.forEach(c=>{if(!c.dataset.final){const idx=Math.floor(Math.random()*CARDS.length);c.dataset.final=CARDS[idx];c.querySelector('.face.front').style.backgroundImage=`url(${c.dataset.final})`;}});
+
+  // Soft metallic 3-4 sec shuffle
+  const rounds=16; const shuffleDelayBase=40;
+  for(let r=0;r<rounds;r++){
+    cards.forEach((card,i)=>{const jitterX=(Math.random()-0.5)*(20+r*2); const jitterY=-10-Math.random()*20-(r%2===0?5:0); const rot=(Math.random()-0.5)*35; card.style.transition=`transform ${shuffleDelayBase+Math.random()*60}ms ease`; card.style.transform=`translateX(${jitterX+(i-(cards.length-1)/2)*(window.innerWidth<520?60:90)}px) translateY(${jitterY}px) rotate(${rot}deg)`; if(Math.random()<0.45) emitDust(card,2);});
+    await new Promise(r=>setTimeout(r, 80+Math.random()*40));
+  }
+
+  // settle
+  cards.forEach((card,i)=>{const offset=(i-(cards.length-1)/2)*(window.innerWidth<520?72:120); const angle=(i-(cards.length-1)/2)*6; card.style.transition='transform 420ms cubic-bezier(.2,.9,.25,1)'; card.style.transform=`translateX(${offset}px) translateY(0px) rotate(${angle}deg)`;});
+  await new Promise(r=>setTimeout(r,420));
+
+  // reveal
+  cards.forEach((card,i)=>{setTimeout(()=>{card.classList.add('flipped'); card.style.boxShadow='0 10px 40px rgba(255,215,0,0.18)'; revealSparkles(card,10); card.style.transition='transform 520ms cubic-bezier(.2,.9,.25,1), box-shadow 300ms';},i*160);});
+  setTimeout(()=>{chime.currentTime=0; chime.play().catch(()=>{});},180+cards.length*120);
+
+  await new Promise(r=>setTimeout(r,180+cards.length*160+600));
+  cards.forEach(card=>{card.style.boxShadow=''; const inner=card.querySelector('.inner'); inner.style.transform='rotateY(180deg)'; card.classList.remove('flipped');});
+  busy=false; revealBtn.disabled=false;
+}
+
+/* events */
+spreadButtons.forEach(btn=>{btn.addEventListener('click',()=>{setActiveSpread(Number(btn.dataset.spread)); showGoldCards(Number(btn.dataset.spread));});});
+revealBtn.addEventListener('click',()=>{if(busy)return; shuffleAndReveal();});
+
+/* initial setup */
+setActiveSpread(1); showGoldCards(1);
+
+/* background particles */
+(function createBackgroundParticles(){const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF'];const total=28;for(let i=0;i<total;i++){const p=document.createElement('div');const size=4+Math.random()*6;p.style.width=p.style.height=`${size}px`;p.style.left=`${Math.random()*100}%`;p.style.top=`${60+Math.random()*40}%`;p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.opacity=(0.08+Math.random()*0.18).toString();p.style.animationDuration=`${8+Math.random()*10}s`;p.style.animationDelay=`${-(Math.random()*10)}s`;p.className='bg-particle';document.body.appendChild(p);}})();
 </script>
 </body>
 </html>
