@@ -29,7 +29,8 @@
 
   header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
   h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:#000; }
-  h1 span.signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
+  h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
+  .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
   .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
@@ -41,8 +42,9 @@
   .controls button:active{ transform:scale(.98); }
   .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; color:#fff; }
+  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
 
+  /* card area */
   #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
   #cardContainer{
     width:100%;
@@ -57,6 +59,7 @@
     box-sizing:border-box;
   }
 
+  /* card sizing responsive */
   .card{
     width: clamp(160px, 20vw, var(--card-max));
     aspect-ratio: 7/9;
@@ -64,7 +67,6 @@
     transform-style:preserve-3d;
     -webkit-tap-highlight-color:transparent;
     border-radius:12px;
-    opacity:1;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -146,7 +148,7 @@
   <div id="spreadButtons" role="group" aria-label="Choose card spread">
     <button data-spread="1" aria-pressed="true">1 Card</button>
     <button data-spread="3" aria-pressed="false">3 Cards</button>
-    <button data-spread="5" aria-pressed="false">5 Cards</button>
+    <button data-spread="4" aria-pressed="false">4 Cards</button>
   </div>
   <div id="spreadDesc">Daily inspiration / journal prompt.</div>
 </div>
@@ -169,7 +171,7 @@ const CARDS = [
   "https://i.imgur.com/oNN1KR0.png"
 ];
 
-const GOLD = "https://i.imgur.com/3xOO16W.png";
+const COVER = "https://i.imgur.com/3xOO16W.png";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
@@ -180,56 +182,58 @@ const swoosh = document.getElementById('swoosh');
 let selectedSpread = 1;
 let busy = false;
 
-// Show cover cards initially
-function showCoverCards(n){
-  cardContainer.innerHTML='';
-  for(let i=0;i<n;i++){
-    const card=document.createElement('div');
-    card.className='card';
-    const inner=document.createElement('div'); inner.className='inner';
-    const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
-    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${GOLD})`;
-    inner.appendChild(back); inner.appendChild(front);
-    card.appendChild(inner);
-    cardContainer.appendChild(card);
-  }
-}
-
-// Pick unique indices
 function pickUniqueIndices(n, len){
-  const arr=Array.from({length:len},(_,i)=>i);
+  const arr = Array.from({length:len},(_,i)=>i);
   for(let i=len-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
+    const j = Math.floor(Math.random()*(i+1));
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
   return arr.slice(0,n);
 }
 
 function setActiveSpread(n){
-  selectedSpread=n;
+  selectedSpread = n;
   spreadButtons.forEach(btn=>{
-    const s=Number(btn.dataset.spread);
+    const s = Number(btn.dataset.spread);
     btn.setAttribute('aria-pressed', s===n ? 'true' : 'false');
   });
   spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
                      : n===3 ? "Message from Divine: Past — Present — Future."
-                     : "Deep insight: 5-card guidance spread.";
+                     : "Deep insight: 4-card guidance spread.";
   showCoverCards(n);
 }
 
-function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+function showCoverCards(n){
+  cardContainer.innerHTML='';
+  for(let i=0;i<n;i++){
+    const card = document.createElement('div');
+    card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
+    const front = document.createElement('div'); front.className='face front';
+    inner.appendChild(back); inner.appendChild(front);
+    card.appendChild(inner);
+    cardContainer.appendChild(card);
+
+    const offset = (i - (n-1)/2);
+    const offsetX = offset * 90;
+    card.style.transform = `translateX(${offsetX}px) translateY(0px)`;
+  }
+}
+
+function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
   for(let i=0;i<count;i++){
     const d=document.createElement('div'); d.className='dust';
-    const size=3+Math.random()*7;
+    const size = 3+Math.random()*7;
     d.style.width=d.style.height=`${size}px`;
-    d.style.background=palette[Math.floor(Math.random()*palette.length)];
+    d.style.background = palette[Math.floor(Math.random()*palette.length)];
     d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
     d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
     d.style.opacity='1';
     d.style.transform='translateY(0) scale(.6)';
     d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
     parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    requestAnimationFrame(()=> { d.style.transform = `translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
     setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
 }
@@ -238,48 +242,29 @@ async function shuffleAndReveal(){
   if(busy) return; busy=true;
   chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-  // Remove old cards
   const cards = Array.from(cardContainer.children);
-  if(cards.length){
-    cards.forEach((c,i)=>{
-      const dx=(Math.random()-0.5)*300, dy=-200-Math.random()*120, angle=(Math.random()-0.5)*90;
-      c.style.transition='transform 600ms ease-in, opacity 400ms ease-in';
-      c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`; 
-      c.style.opacity='0';
-    });
-    await new Promise(r=>setTimeout(r,650));
-  }
+  cards.forEach((c,i)=>{
+    const dx=(Math.random()-0.5)*300, dy=-200-Math.random()*120, angle=(Math.random()-0.5)*90;
+    c.style.transition='transform 600ms ease-in, opacity 400ms ease-in';
+    c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`;
+    c.style.opacity='0';
+  });
+  await new Promise(r=>setTimeout(r,650));
 
-  // Show new shuffled cards
-  const finals=pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
   cardContainer.innerHTML='';
-  finals.forEach((src,i)=>{
-    const card=document.createElement('div'); card.className='card';
-    const inner=document.createElement('div'); inner.className='inner';
-    const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
-    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
+  const finals = pickUniqueIndices(selectedSpread, CARDS.length).map(i=>CARDS[i]);
+  for(let i=0;i<selectedSpread;i++){
+    const card = document.createElement('div');
+    card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${finals[i]})`;
     inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
     cardContainer.appendChild(card);
-  });
-
-  // Animate cards
-  const newCards=document.querySelectorAll('.card');
-  newCards.forEach((c,i)=>{
-    c.style.opacity='0';
-    setTimeout(()=>{
-      const offset=(i-(selectedSpread-1)/2);
-      const offsetX=offset*((window.innerWidth<520)?70:110);
-      const angle=offset*6;
-      c.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
-      c.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
-      c.style.opacity='1';
-    }, i*120);
-  });
-
-  await new Promise(r=>setTimeout(r,700));
-  newCards.forEach((c,i)=>setTimeout(()=>c.classList.add('flipped'), i*150));
-  newCards.forEach(c=>emitDust(c,6));
+    setTimeout(()=>card.classList.add('flipped'), i*150);
+    emitDust(card,6);
+  }
 
   busy=false;
 }
@@ -287,6 +272,18 @@ async function shuffleAndReveal(){
 spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
 revealBtn.addEventListener('click',shuffleAndReveal);
 setActiveSpread(1);
+
+(function createBackgroundParticles(){
+  const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF']; const total=28;
+  for(let i=0;i<total;i++){ const p=document.createElement('div'); p.className='bg-particle';
+    const size=4+Math.random()*6; p.style.width=p.style.height=`${size}px`;
+    p.style.left=`${Math.random()*100}%`; p.style.top=`${60+Math.random()*40}%`;
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.opacity=(0.08+Math.random()*0.18).toString();
+    p.style.animationDuration=`${8+Math.random()*10}s`; p.style.animationDelay=`-${Math.random()*10}s`;
+    document.body.appendChild(p);
+  }
+})();
 </script>
 </body>
 </html>
