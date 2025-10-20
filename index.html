@@ -3,117 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Magical Shuffle Deck</title>
+<title>Healing Minez: Pull Your Daily Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
   body {
-    background-color: #40E0D0; /* turquoise page background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    font-family: sans-serif;
-    overflow: hidden;
+    margin:0;
+    padding:0;
+    background: #40E0D0; /* soft turquoise */
+    overflow-x:hidden;
+    font-family: 'Playfair Display', serif;
+    color: black;
+    text-align:center;
   }
-
-  #card-container {
-    position: relative;
-    width: 300px;
-    height: 450px;
-    perspective: 1200px;
-    cursor: pointer;
+  h1 {
+    font-size:2em;
+    margin-top:20px;
   }
-
-  .card {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    backface-visibility: hidden;
-    transform-style: preserve-3d;
-    transition: transform 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+  h1 span {
+    display:block;
+    font-size:1em;
+    margin-top:10px;
   }
-
-  /* Shimmer glow effect */
-  .shimmer {
-    filter: drop-shadow(0 0 20px #E6E6FA) drop-shadow(0 0 10px #FFD700);
+  .signature {
+    font-family:'Great Vibes', cursive;
+    font-size:1.5em;
+    display:block;
+    margin-top:10px;
+    color:#000;
+  }
+  #cardContainer {
+    margin:30px auto;
+    position:relative;
+    width:80%;
+    max-width:300px;
+    min-width:150px;
+    height:auto;
+  }
+  #card {
+    width:100%;
+    height:auto;
+    display:block;
+    margin:0 auto;
+    border-radius:10px;
+    opacity:0;
+    filter: drop-shadow(0 0 15px #E6E6FA) drop-shadow(0 0 10px #FFD700);
+    transition: opacity 1.5s ease, transform 0.1s, box-shadow 0.1s, filter 0.2s;
+  }
+  button {
+    background-color:#FF69B4;
+    color:white;
+    border:none;
+    padding:15px 30px;
+    font-size:1.2em;
+    border-radius:15px;
+    cursor:pointer;
+    transition: transform 0.2s;
+  }
+  button:hover {transform: scale(1.05);}
+  .star {
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    box-shadow:0 0 4px 1px gold;
+    animation: twinkle 2s infinite;
+  }
+  @keyframes twinkle {
+    0%,100% {opacity:0.3;}
+    50% {opacity:1;}
+  }
+  .sparkle {
+    position:absolute;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background: #FFD700;
+    box-shadow: 0 0 8px 3px #FFD700;
+    opacity:0;
+    pointer-events:none;
+    animation: sparkleAnim 0.8s ease-out forwards;
+  }
+  @keyframes sparkleAnim {
+    0% {transform:scale(0); opacity:1;}
+    50% {transform:scale(1.5); opacity:1;}
+    100% {transform:scale(0); opacity:0;}
+  }
+  @keyframes popReveal {
+    0% {transform: scale(0.7) rotate(0deg);}
+    50% {transform: scale(1.1) rotate(0deg);}
+    100% {transform: scale(1) rotate(0deg);}
   }
 </style>
 </head>
 <body>
 
-<div id="card-container">
-  <!-- Multiple cards for shuffle effect -->
-  <img class="card shimmer" src="https://i.imgur.com/3xOO16W.png" alt="Card 1">
-  <img class="card shimmer" src="https://i.imgur.com/3xOO16W.png" alt="Card 2">
-  <img class="card shimmer" src="https://i.imgur.com/3xOO16W.png" alt="Card 3">
-  <img class="card shimmer" src="https://i.imgur.com/3xOO16W.png" alt="Main Card" id="main-card">
+<h1>
+🦋 Pull your daily card, Beautiful Soul 💖
+<span>Each affirmation in this deck is a whisper from your healed self — reminding you that you are love, light, and legacy.</span>
+<span class="signature">With unconditional love, Healing Minez 💖</span>
+</h1>
+
+<div id="cardContainer">
+  <img id="card" src="https://i.imgur.com/3xOO16W.png" alt="Your Card">
 </div>
 
-<!-- Soft chime sound -->
-<audio id="chime-sound" src="https://freesound.org/data/previews/341/341695_6245390-lq.mp3" preload="auto"></audio>
+<br>
+<button>✨ Reveal Card ✨</button>
+
+<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
 
 <script>
-const cards = document.querySelectorAll('#card-container .card');
-const chime = document.getElementById('chime-sound');
+const version = Date.now();
+const cards = [
+  `https://i.imgur.com/MB5MTZ4.png?v=${version}`, `https://i.imgur.com/HsSFp1G.png?v=${version}`, 
+  `https://i.imgur.com/HMDsIdj.png?v=${version}`, `https://i.imgur.com/pu3CPVv.png?v=${version}`, 
+  `https://i.imgur.com/pDONoKd.png?v=${version}`, `https://i.imgur.com/zgWvZtT.png?v=${version}`,
+  `https://i.imgur.com/Ybi9YzL.png?v=${version}`, `https://i.imgur.com/SjaDX9E.png?v=${version}`,
+  `https://i.imgur.com/oNN1KR0.png?v=${version}`, `https://i.imgur.com/hFDmOf8.png?v=${version}`,
+  `https://i.imgur.com/stl9kfH.png?v=${version}`, `https://i.imgur.com/IFpGZnY.png?v=${version}`,
+  `https://i.imgur.com/83CEyAl.png?v=${version}`, `https://i.imgur.com/oCfk4b9.png?v=${version}`,
+  `https://i.imgur.com/ZCB64Hj.png?v=${version}`, `https://i.imgur.com/45WAkja.png?v=${version}`,
+  `https://i.imgur.com/SPNVO1w.png?v=${version}`, `https://i.imgur.com/nGU5uLN.png?v=${version}`,
+  `https://i.imgur.com/edCCB8Q.png?v=${version}`, `https://i.imgur.com/nk6TWqa.png?v=${version}`,
+  `https://i.imgur.com/QVKWiAE.png?v=${version}`, `https://i.imgur.com/FvwfCbB.png?v=${version}`,
+  `https://i.imgur.com/JIRKI6G.png?v=${version}`, `https://i.imgur.com/A3XEdw5.png?v=${version}`,
+  `https://i.imgur.com/qWRTjhp.png?v=${version}`, `https://i.imgur.com/2gYwi28.png?v=${version}`,
+  `https://i.imgur.com/O76u6MX.png?v=${version}`, `https://i.imgur.com/jJDSLTv.png?v=${version}`,
+  `https://i.imgur.com/JsJDaix.png?v=${version}`, `https://i.imgur.com/Nl6azPe.png?v=${version}`,
+  `https://i.imgur.com/YdMZF0C.png?v=${version}`, `https://i.imgur.com/045ZqjC.png?v=${version}`,
+  `https://i.imgur.com/5LM9wuh.png?v=${version}`, `https://i.imgur.com/FlHotKa.png?v=${version}`,
+  `https://i.imgur.com/iCe198i.png?v=${version}`, `https://i.imgur.com/9kNPa9M.png?v=${version}`,
+  `https://i.imgur.com/1YjjwLo.png?v=${version}`, `https://i.imgur.com/lni4cEr.png?v=${version}`,
+  `https://i.imgur.com/d8cODxw.png?v=${version}`, `https://i.imgur.com/Depabhz.png?v=${version}`,
+  `https://i.imgur.com/TYGPk9e.png?v=${version}`, `https://i.imgur.com/34LjY4Z.png?v=${version}`,
+  `https://i.imgur.com/VXmeO5V.png?v=${version}`, `https://i.imgur.com/LHkLQ5O.png?v=${version}`,
+  `https://i.imgur.com/NJjbe5z.png?v=${version}`, `https://i.imgur.com/Nmv26ib.png?v=${version}`,
+  `https://i.imgur.com/iKj1B4Z.png?v=${version}`, `https://i.imgur.com/GHvbLzh.png?v=${version}`,
+  `https://i.imgur.com/lbHy6kp.png?v=${version}`, `https://i.imgur.com/tJ9JtNL.png?v=${version}`
+];
 
-// Helper: generate random number in range
-function random(min, max) {
-  return Math.random() * (max - min) + min;
+const cardEl = document.getElementById('card');
+const button = document.querySelector('button');
+const chime = document.getElementById('chime');
+const cardContainer = document.getElementById('cardContainer');
+
+// Fade in initial card on page load
+window.addEventListener('load', () => {
+  setTimeout(()=> {
+    cardEl.style.opacity = 1;
+  }, 300); // small delay for smooth fade
+});
+
+// Generate background stars
+for(let i=0;i<50;i++){
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.top = Math.random()*100 + '%';
+  star.style.left = Math.random()*100 + '%';
+  star.style.width = Math.random()*3+1 + 'px';
+  star.style.height = star.style.width;
+  cardContainer.appendChild(star);
 }
 
-// Trigger dynamic shuffle
-function shuffleDeck() {
-  chime.currentTime = 0;
-  chime.play();
+// Helper: random number
+function random(min,max){ return Math.random()*(max-min)+min; }
 
-  cards.forEach(card => {
-    if(card.id !== 'main-card') {
-      // Reset
-      card.style.display = 'block';
+button.addEventListener('click', ()=>{
+  const shuffleCount = 25;
+  let i = 0;
 
-      // Randomize positions, rotation, and opacity
-      const translateX = random(-80, 80);
-      const translateY = random(-50, 50);
-      const rotateY = random(180, 720);
-      const rotateX = random(-30, 30);
-      const opacity = random(0.5, 1);
+  const shuffleInterval = setInterval(() => {
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    cardEl.src = cards[randomIndex];
 
-      card.style.transform = `translate(${translateX}px, ${translateY}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-      card.style.opacity = opacity;
+    // Dynamic magical shuffle effect
+    const tiltAngle = random(-15,15);
+    const scale = 1 + random(0,0.05);
+    cardEl.style.transform = `rotate(${tiltAngle}deg) scale(${scale})`;
+    cardEl.style.filter = `drop-shadow(0 0 ${random(10,20)}px #E6E6FA) drop-shadow(0 0 ${random(5,15)}px #FFD700)`;
+
+    // Sparkles while shuffling
+    if(Math.random() < 0.2){
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      sparkle.style.left = Math.random()*cardEl.offsetWidth + 'px';
+      sparkle.style.top = Math.random()*cardEl.offsetHeight + 'px';
+      sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+      sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
+      cardContainer.appendChild(sparkle);
+      setTimeout(()=>{ sparkle.remove(); },800);
     }
-  });
 
-  // After 3.5 sec, hide all but main card
-  setTimeout(() => {
-    cards.forEach(card => {
-      if(card.id !== 'main-card') card.style.display = 'none';
-    });
-    document.getElementById('main-card').classList.add('shimmer');
-    // Reset main card transform
-    document.getElementById('main-card').style.transform = 'translate(0px,0px) rotateY(0deg) rotateX(0deg)';
-  }, 3500);
-}
+    i++;
+    if(i >= shuffleCount){
+      clearInterval(shuffleInterval);
 
-// Reset all cards for next click
-function resetDeck() {
-  cards.forEach(card => {
-    card.style.transition = 'none';
-    card.style.transform = 'translate(0px,0px) rotateY(0deg) rotateX(0deg)';
-    card.style.opacity = 1;
-    card.style.display = 'block';
-    // Force reflow to allow transition again
-    void card.offsetWidth;
-    card.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-  });
-}
+      const finalIndex = Math.floor(Math.random() * cards.length);
+      cardEl.src = cards[finalIndex];
 
-// Click to shuffle
-document.getElementById('card-container').addEventListener('click', () => {
-  resetDeck();
-  shuffleDeck();
+      // Pop reveal animation
+      cardEl.style.animation = 'popReveal 0.6s ease forwards';
+      cardEl.style.filter = 'drop-shadow(0 0 20px #E6E6FA) drop-shadow(0 0 15px #FFD700)';
+
+      chime.currentTime = 0;
+      chime.play();
+
+      // Final sparkle burst
+      for(let j=0;j<25;j++){
+        const sparkle = document.createElement('div');
+        sparkle.classList.add('sparkle');
+        const angle = Math.random()*2*Math.PI;
+        const radius = 20 + Math.random()*50;
+        sparkle.style.left = cardEl.offsetWidth/2 + Math.cos(angle)*radius + 'px';
+        sparkle.style.top = cardEl.offsetHeight/2 + Math.sin(angle)*radius + 'px';
+        sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+        sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
+        cardContainer.appendChild(sparkle);
+        setTimeout(()=>{ sparkle.remove(); },800);
+      }
+    }
+  }, 80);
 });
 </script>
 
