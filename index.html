@@ -27,17 +27,18 @@
     padding:18px;
   }
 
-  header{ text-align:center; margin-top:6px; max-width:1100px; width:100%;}
+  header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
   h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; }
-  h1 span.signature{ font-family:'Great Vibes',cursive; font-size:1.8rem; display:block; margin-top:12px; color:#FFD700; animation:pulse 2s infinite; }
+  h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
+  .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; flex-direction:column; }
-  .controls #spreadButtons{ display:flex; gap:10px; justify-content:center; }
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
   .controls button{
     background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
   }
+  .controls button:hover{ background:#FF85C1; }
   .controls button:active{ transform:scale(.98); }
   .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
@@ -114,27 +115,22 @@
   @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
 
   #revealBtn{
-    margin-top:14px;
-    background:linear-gradient(135deg,#FFD700,#FF69B4);
-    border:none;
+    margin-top:18px;
+    background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1);
     color:#fff;
     font-size:1.2rem;
     font-weight:bold;
+    border-radius:18px;
     padding:14px 28px;
-    border-radius:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.28);
     cursor:pointer;
-    box-shadow:0 6px 16px rgba(0,0,0,0.18);
-    transition:all 0.25s ease;
+    transition:transform 0.15s ease, box-shadow 0.3s;
   }
-  #revealBtn:hover{ transform:scale(1.05); }
+  #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
   #revealBtn:active{ transform:scale(0.97); }
 
   footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-
   .hidden{ display:none!important; }
-  @media (max-width:520px){
-    h1{ font-size:1.25rem; }
-  }
 </style>
 </head>
 <body>
@@ -165,36 +161,35 @@
 
 <footer aria-hidden="true"></footer>
 
+<!-- audio -->
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
+<audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
 const CARDS = [
-  "https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2",
-  "https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2","https://i.imgur.com/oNN1KR0.png?v=2",
-  "https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2",
-  "https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2","https://i.imgur.com/edCCB8Q.png?v=2",
-  "https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2",
-  "https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2","https://i.imgur.com/JsJDaix.png?v=2",
-  "https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2",
-  "https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2","https://i.imgur.com/d8cODxw.png?v=2",
-  "https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2",
-  "https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2","https://i.imgur.com/lbHy6kp.png?v=2",
-  "https://i.imgur.com/tJ9JtNL.png?v=2"
-];
+  "https://i.imgur.com/HsSFp1G.png",
+  "https://i.imgur.com/HMDsIdj.png",
+  "https://i.imgur.com/pu3CPVv.png",
+  "https://i.imgur.com/pDONoKd.png",
+  "https://i.imgur.com/zgWvZtT.png",
+  "https://i.imgur.com/Ybi9YzL.png",
+  "https://i.imgur.com/SjaDX9E.png",
+  "https://i.imgur.com/oNN1KR0.png"
+]; // cards 1 and 2 removed
 
-const GOLD = "https://i.imgur.com/3xOO16W.png?v=2";
+const GOLD = "https://i.imgur.com/3xOO16W.png";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-const message = document.getElementById('message');
 const chime = document.getElementById('chime');
+const swoosh = document.getElementById('swoosh');
+const message = document.getElementById('message');
 
 let selectedSpread = 1;
 let busy = false;
 
-/* helper: pick N unique random indices */
-function pickUniqueIndices(n,len){
+function pickUniqueIndices(n, len){
   const arr = Array.from({length:len},(_,i)=>i);
   for(let i=len-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
@@ -222,137 +217,81 @@ function showGoldCards(n){
     card.className = 'card';
     const inner = document.createElement('div');
     inner.className = 'inner';
-    const back = document.createElement('div');
-    back.className = 'face back';
-    back.style.backgroundImage = `url(${GOLD})`;
-    const front = document.createElement('div');
-    front.className = 'face front';
-    front.style.backgroundImage = `url(${finals[i]})`;
-    inner.appendChild(back);
-    inner.appendChild(front);
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${finals[i]})`;
+    inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
     card.dataset.final = finals[i];
-    card.style.opacity = '0';
+    card.style.opacity='0';
     cardContainer.appendChild(card);
-    const offset = (i-(n-1)/2);
-    const offsetX = offset*((window.innerWidth<520)?70:110);
-    const angle = offset*6;
+    const offset = (i - (n-1)/2);
+    const offsetX = offset * ((window.innerWidth<520)?70:110);
+    const angle = offset * 6;
     card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
     setTimeout(()=>{
       card.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
-      card.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
+      card.style.transform = `translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
       card.style.opacity='1';
-    },120+i*110);
+    }, 120+i*110);
   }
 }
 
-function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
   for(let i=0;i<count;i++){
-    const d=document.createElement('div');
-    d.className='dust';
-    const size=3+Math.random()*7;
+    const d=document.createElement('div'); d.className='dust';
+    const size = 3+Math.random()*7;
     d.style.width=d.style.height=`${size}px`;
-    d.style.background=palette[Math.floor(Math.random()*palette.length)];
+    d.style.background = palette[Math.floor(Math.random()*palette.length)];
     d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
     d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
     d.style.opacity='1';
     d.style.transform='translateY(0) scale(.6)';
     d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
     parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    requestAnimationFrame(()=> { d.style.transform = `translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
     setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
 }
 
-function revealSparkles(parent,count=12){
-  for(let i=0;i<count;i++){
-    const s=document.createElement('div');
-    s.className='sparkle';
-    const size=4+Math.random()*8;
-    s.style.width=s.style.height=`${size}px`;
-    s.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
-    s.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
-    s.style.background=['#FFD700','#FF69B4','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];
-    s.style.opacity='1';
-    s.style.transition=`transform ${500+Math.random()*600}ms ease-out, opacity ${500+Math.random()*600}ms`;
-    parent.appendChild(s);
-    requestAnimationFrame(()=>{ s.style.transform=`translateY(${-40-Math.random()*70}px) scale(0.2)`; s.style.opacity='0'; });
-    setTimeout(()=>s.remove(),900+Math.random()*600);
-  }
-}
-
 async function shuffleAndReveal(){
-  if(busy) return;
-  busy=true;
-  revealBtn.disabled=true;
+  if(busy) return; busy=true;
+  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-  // Show new gold cards for reshuffle
-  showGoldCards(selectedSpread);
-
-  const cards = Array.from(cardContainer.querySelectorAll('.card'));
-  cards.forEach(c=>{ c.classList.remove('flipped'); c.querySelector('.inner').style.transform='rotateY(0deg)'; });
-
-  await new Promise(r=>setTimeout(r,450)); // wait for fly-in
-
-  // Shuffle animation
-  const rounds=12;
-  for(let r=0;r<rounds;r++){
-    cards.forEach((card,i)=>{
-      const jitterX=(Math.random()-0.5)*(20+r*2);
-      const jitterY=-10-Math.random()*20-(r%2===0?5:0);
-      const rot=(Math.random()-0.5)*35;
-      card.style.transition=`transform ${40+Math.random()*60}ms ease`;
-      card.style.transform=`translateX(${jitterX+(i-(cards.length-1)/2)*(window.innerWidth<520?60:90)}px) translateY(${jitterY}px) rotate(${rot}deg)`;
-      if(Math.random()<0.45) emitDust(card,2);
+  const cards = Array.from(cardContainer.children);
+  if(cards.length){
+    cards.forEach((c,i)=>{
+      const dx=(Math.random()-0.5)*300, dy=-200-Math.random()*120, angle=(Math.random()-0.5)*90;
+      c.style.transition='transform 600ms ease-in, opacity 400ms ease-in';
+      c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`; c.style.opacity='0';
     });
-    await new Promise(r=>setTimeout(r,80+Math.random()*40));
+    await new Promise(r=>setTimeout(r,650));
   }
+  showGoldCards(selectedSpread);
+  const newCards = document.querySelectorAll('.card');
+  newCards.forEach((c,i)=>{ c.style.opacity='0'; setTimeout(()=>{ const offset=(i-(selectedSpread-1)/2); const offsetX=offset*((window.innerWidth<520)?70:110); const angle=offset*6; c.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms'; c.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`; c.style.opacity='1'; }, i*120); });
+  await new Promise(r=>setTimeout(r,700));
+  newCards.forEach((c,i)=>setTimeout(()=>c.classList.add('flipped'), i*150));
+  newCards.forEach(c=>emitDust(c,6));
 
-  // settle before flip
-  cards.forEach((card,i)=>{
-    const offset=(i-(cards.length-1)/2)*(window.innerWidth<520?72:120);
-    const angle=(i-(cards.length-1)/2)*6;
-    card.style.transition='transform 420ms cubic-bezier(.2,.9,.25,1)';
-    card.style.transform=`translateX(${offset}px) translateY(0px) rotate(${angle}deg)`;
-  });
-
-  await new Promise(r=>setTimeout(r,420));
-
-  cards.forEach((card,i)=>{
-    setTimeout(()=>{
-      card.classList.add('flipped');
-      card.style.boxShadow='0 10px 40px rgba(255,215,0,0.18)';
-      revealSparkles(card,10);
-      card.style.transition='transform 520ms cubic-bezier(.18,.9,.32,1), box-shadow .3s';
-    }, i*180);
-  });
-
-  // Add signature after first reveal
-  if(!document.querySelector('.signature')){
-    message.innerHTML += `<br><span class="signature">With unconditional love, Healing Minez 💖</span>`;
-  }
-
-  // Play chime
-  chime.currentTime=0; chime.play().catch(()=>{});
-
-  await new Promise(r=>setTimeout(r,500+cards.length*180));
-  revealBtn.disabled=false;
+  if(!document.querySelector('.signature')) message.innerHTML += `<br><span class="signature">With unconditional love, Healing Minez 💖</span>`;
   busy=false;
 }
 
-spreadButtons.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    setActiveSpread(Number(btn.dataset.spread));
-  });
-});
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); showGoldCards(Number(btn.dataset.spread)); }));
+revealBtn.addEventListener('click',shuffleAndReveal);
+setActiveSpread(1); showGoldCards(1);
 
-revealBtn.addEventListener('click',()=>{ shuffleAndReveal(); });
-
-// initialize
-setActiveSpread(1);
-showGoldCards(1);
-
+(function createBackgroundParticles(){
+  const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF']; const total=28;
+  for(let i=0;i<total;i++){ const p=document.createElement('div'); p.className='bg-particle';
+    const size=4+Math.random()*6; p.style.width=p.style.height=`${size}px`;
+    p.style.left=`${Math.random()*100}%`; p.style.top=`${60+Math.random()*40}%`;
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.opacity=(0.08+Math.random()*0.18).toString();
+    p.style.animationDuration=`${8+Math.random()*10}s`; p.style.animationDelay=`-${Math.random()*10}s`;
+    document.body.appendChild(p);
+  }
+})();
 </script>
-
 </body>
 </html>
