@@ -186,59 +186,52 @@ for(let i=0;i<50;i++){
   cardContainer.appendChild(star);
 }
 
-// calculate width for fanned cards
-function getCardWidth(n){
-  const containerWidth = Math.min(cardContainer.clientWidth,600);
-  const maxWidth = n===5 ? 180 : 250;
-  const available = containerWidth - (n-1)*20;
-  return Math.floor(Math.min(maxWidth, available/n));
-}
-
-function fanPositions(n,width){
-  const positions = [];
-  const spacing = n>1 ? 30 : 0;
-  for(let i=0;i<n;i++){
-    positions.push(50 + (i-(n-1)/2)*spacing);
-  }
-  return positions;
+// card positions
+function fanPositions(n){
+  if(n===1) return [50];
+  if(n===3) return [25,50,75];
+  if(n===5) return [10,30,50,70,90];
+  return [50];
 }
 
 revealBtn.addEventListener('click', () => {
   cardContainer.innerHTML = ''; 
-  const width = getCardWidth(currentSpread);
-  const positions = fanPositions(currentSpread,width);
+  const positions = fanPositions(currentSpread);
   const cardsInPlay = [];
 
+  // create gold cards first
   for(let i=0;i<currentSpread;i++){
     const gold = document.createElement('img');
     gold.className='card';
     gold.src = goldCards[Math.floor(Math.random()*goldCards.length)] + '?v=' + Date.now();
-    gold.style.width = width + 'px';
+    gold.style.width = '180px';
     gold.style.left = positions[i] + '%';
     gold.style.zIndex = i+1;
     cardContainer.appendChild(gold);
     cardsInPlay.push(gold);
   }
 
-  let shuffleCount = 20;
+  // shuffle gold cards
+  let shuffleCount = 12;
   const shuffleInterval = setInterval(()=>{
     cardsInPlay.forEach(c=>{
       c.src = goldCards[Math.floor(Math.random()*goldCards.length)] + '?v=' + Date.now();
-      const angle = (Math.random()-0.5)*15;
+      const angle = (Math.random()-0.5)*20;
       c.style.transform = `translateX(-50%) rotate(${angle}deg)`;
     });
     shuffleCount--;
     if(shuffleCount<=0){
       clearInterval(shuffleInterval);
+      // reveal message cards
       cardsInPlay.forEach((c,i)=>{
         setTimeout(()=>{
           c.src = messageCards[Math.floor(Math.random()*messageCards.length)] + '?v=' + Date.now();
-          c.style.transform = `translateX(-50%) rotate(0deg)`;
-          for(let j=0;j<20;j++){
+          c.style.transform = 'translateX(-50%) rotate(0deg)';
+          for(let j=0;j<15;j++){
             const sparkle = document.createElement('div');
             sparkle.className='sparkle';
-            sparkle.style.left = (Math.random()*width) + 'px';
-            sparkle.style.top = (Math.random()*width) + 'px';
+            sparkle.style.left = (Math.random()*180) + 'px';
+            sparkle.style.top = (Math.random()*180) + 'px';
             sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
             sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
             c.parentElement.appendChild(sparkle);
