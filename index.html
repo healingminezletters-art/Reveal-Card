@@ -1,214 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Healing Minez: Pull Your Daily Card</title>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Healing Minez — Pull Your Daily Card</title>
 <style>
-  body {
-    margin:0;
-    padding:0;
-    background: #40E0D0; /* soft turquoise */
+  :root{
+    --turquoise:#40E0D0;
+    --lilac:#E8D7F5;
+    --gold-1:linear-gradient(135deg,#d4af37,#ffd97a);
+    --card-radius:14px;
+  }
+  html,body{height:100%;margin:0;}
+  body{
+    background: var(--turquoise);
+    font-family: system-ui,-apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 18px;
+    box-sizing:border-box;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
     overflow-x:hidden;
-    font-family: 'Playfair Display', serif;
-    color: black;
+  }
+
+  .page {
+    width:100%;
+    max-width:840px;
     text-align:center;
+    z-index:10;
+    position:relative;
   }
-  h1 {
-    font-size:2em;
-    margin-top:20px;
+
+  header{
+    margin-bottom:10px;
   }
-  h1 span {
+  h1{
+    font-size:1.35rem;
+    margin:0 auto;
+    line-height:1.35;
+    color:#000;
+    font-weight:600;
+    max-width:680px;
+  }
+  h1 .sub{
     display:block;
-    font-size:1em;
-    margin-top:10px;
-  }
-  .signature {
-    font-family:'Great Vibes', cursive;
-    font-size:1.5em;
-    display:block;
+    font-size:0.95rem;
     margin-top:10px;
     color:#000;
   }
-  #cardContainer {
-    margin:30px auto;
-    position:relative;
-    width:80%;
-    max-width:300px;
-    min-width:150px;
-    height:auto;
-  }
-  #card {
-    width:100%;
-    height:auto;
+  .signature{
     display:block;
-    margin:0 auto;
-    border-radius:10px;
-    transition: transform 0.1s, box-shadow 0.1s;
+    margin-top:10px;
+    font-family: "Great Vibes", cursive;
+    font-size:1.35rem;
+    color:#b76e79;
   }
-  button {
-    background-color:#FF69B4;
-    color:white;
-    border:none;
-    padding:15px 30px;
-    font-size:1.2em;
-    border-radius:15px;
-    cursor:pointer;
-    transition: transform 0.2s;
+
+  /* card area */
+  .card-stage{
+    margin:26px auto 10px;
+    width:80%;
+    max-width:340px;
+    min-width:160px;
+    aspect-ratio: 3 / 4;
+    position:relative;
+    perspective:1200px;
   }
-  button:hover {transform: scale(1.05);}
-  .star {
+
+  /* visible card (final) */
+  .card {
     position:absolute;
-    width:2px;
-    height:2px;
-    background:white;
-    border-radius:50%;
-    box-shadow:0 0 4px 1px gold;
-    animation: twinkle 2s infinite;
+    inset:0;
+    margin:auto;
+    width:100%;
+    height:100%;
+    border-radius:var(--card-radius);
+    background:#fff;
+    background-size:cover;
+    background-position:center;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    transform-origin:center center;
+    transform-style:preserve-3d;
+    backface-visibility: hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
   }
-  @keyframes twinkle {
-    0%,100% {opacity:0.3;}
-    50% {opacity:1;}
+
+  /* hidden back for flip if needed */
+  .card.back{
+    transform: rotateY(180deg);
   }
+
+  /* flip class */
+  .flipping{
+    transition: transform 520ms cubic-bezier(.2,.9,.2,1);
+    transform: rotateY(0deg) !important;
+  }
+
+  /* the button */
+  .controls{
+    margin-top:14px;
+  }
+  button.reveal{
+    background: linear-gradient(90deg,#ff69b4,#ff9fb8);
+    color:#fff;
+    border:0;
+    padding:12px 28px;
+    border-radius:28px;
+    font-size:1.05rem;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(255,105,180,0.18);
+  }
+  button.reveal[disabled]{
+    opacity:0.55;
+    cursor:default;
+  }
+
+  /* shuffle layer (cards that move) */
+  .shuffle-layer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+    overflow:visible;
+  }
+  .shuffle-card{
+    position:absolute;
+    width:40%;
+    max-width:200px;
+    aspect-ratio:3/4;
+    border-radius:var(--card-radius);
+    transform-origin:center center;
+    backface-visibility:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    will-change: transform, opacity;
+  }
+
+  /* metallic gold look when used as back */
+  .gold-back{
+    background: var(--gold-1);
+    background-size: 200% 200%;
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 6px 26px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .blush-back{
+    background: linear-gradient(135deg,#ffd7e6,#ffb6c1);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+
+  /* small sparkle */
   .sparkle {
     position:absolute;
-    width:4px;
-    height:4px;
-    border-radius:50%;
-    background: #FFD700;
-    box-shadow: 0 0 8px 3px #FFD700;
-    opacity:0;
+    width:6px;height:6px;border-radius:50%;
     pointer-events:none;
-    animation: sparkleAnim 0.8s ease-out forwards;
+    transform: translate(-50%,-50%);
+    filter: blur(0.8px);
+    opacity:0;
   }
-  @keyframes sparkleAnim {
-    0% {transform:scale(0); opacity:1;}
-    50% {transform:scale(1.5); opacity:1;}
-    100% {transform:scale(0); opacity:0;}
+
+  /* particle container behind everything */
+  #particleContainer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+  }
+  .particle{
+    position:absolute;
+    width:3px;height:3px;border-radius:50%;
+    background:rgba(255,215,0,0.9);
+    filter:blur(2px);
+    opacity:0.85;
+  }
+
+  /* responsive */
+  @media (max-width:480px){
+    h1{font-size:1.05rem;}
+    .signature{font-size:1.1rem;}
+    .card-stage{width:90%;}
   }
 </style>
 </head>
 <body>
 
-<h1>
-🦋 Pull your daily card, Beautiful Soul 💖
-<span>Each affirmation in this deck is a whisper from your healed self — reminding you that you are love, light, and legacy.</span>
-<span class="signature">With unconditional love, Healing Minez 💖</span>
-</h1>
+<!-- particle back -->
+<div id="particleContainer" aria-hidden="true"></div>
 
-<div id="cardContainer">
-  <img id="card" src="" alt="Your Card">
+<div class="page" role="main" aria-live="polite">
+  <header>
+    <h1>
+      🦋 Pull your daily card, Beautiful Soul 💖
+      <span class="sub">Each affirmation in this deck is a whisper from your healed self — reminding you that you are love, light, and legacy.</span>
+      <span class="signature">With unconditional love, Healing Minez 💖</span>
+    </h1>
+  </header>
+
+  <div class="card-stage" id="stage">
+    <!-- final card that displays result -->
+    <div class="card" id="finalCard" aria-hidden="false"></div>
+
+    <!-- shuffle layer sits on top for animations -->
+    <div class="shuffle-layer" id="shuffleLayer" aria-hidden="true"></div>
+  </div>
+
+  <div class="controls">
+    <button class="reveal" id="revealBtn" aria-pressed="false">✨ Reveal Card ✨</button>
+  </div>
 </div>
 
-<br>
-<button>✨ Reveal Card ✨</button>
-
-<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
-
 <script>
-  const version = Date.now(); // forces fresh load of images
-  const cards = [
-    `https://i.imgur.com/MB5MTZ4.png?v=${version}`, `https://i.imgur.com/HsSFp1G.png?v=${version}`, 
-    `https://i.imgur.com/HMDsIdj.png?v=${version}`, `https://i.imgur.com/pu3CPVv.png?v=${version}`, 
-    `https://i.imgur.com/pDONoKd.png?v=${version}`, `https://i.imgur.com/zgWvZtT.png?v=${version}`,
-    `https://i.imgur.com/Ybi9YzL.png?v=${version}`, `https://i.imgur.com/SjaDX9E.png?v=${version}`,
-    `https://i.imgur.com/oNN1KR0.png?v=${version}`, `https://i.imgur.com/hFDmOf8.png?v=${version}`,
-    `https://i.imgur.com/stl9kfH.png?v=${version}`, `https://i.imgur.com/IFpGZnY.png?v=${version}`,
-    `https://i.imgur.com/83CEyAl.png?v=${version}`, `https://i.imgur.com/oCfk4b9.png?v=${version}`,
-    `https://i.imgur.com/ZCB64Hj.png?v=${version}`, `https://i.imgur.com/45WAkja.png?v=${version}`,
-    `https://i.imgur.com/SPNVO1w.png?v=${version}`, `https://i.imgur.com/nGU5uLN.png?v=${version}`,
-    `https://i.imgur.com/edCCB8Q.png?v=${version}`, `https://i.imgur.com/nk6TWqa.png?v=${version}`,
-    `https://i.imgur.com/QVKWiAE.png?v=${version}`, `https://i.imgur.com/FvwfCbB.png?v=${version}`,
-    `https://i.imgur.com/JIRKI6G.png?v=${version}`, `https://i.imgur.com/A3XEdw5.png?v=${version}`,
-    `https://i.imgur.com/qWRTjhp.png?v=${version}`, `https://i.imgur.com/2gYwi28.png?v=${version}`,
-    `https://i.imgur.com/O76u6MX.png?v=${version}`, `https://i.imgur.com/jJDSLTv.png?v=${version}`,
-    `https://i.imgur.com/JsJDaix.png?v=${version}`, `https://i.imgur.com/Nl6azPe.png?v=${version}`,
-    `https://i.imgur.com/YdMZF0C.png?v=${version}`, `https://i.imgur.com/045ZqjC.png?v=${version}`,
-    `https://i.imgur.com/5LM9wuh.png?v=${version}`, `https://i.imgur.com/FlHotKa.png?v=${version}`,
-    `https://i.imgur.com/iCe198i.png?v=${version}`, `https://i.imgur.com/9kNPa9M.png?v=${version}`,
-    `https://i.imgur.com/1YjjwLo.png?v=${version}`, `https://i.imgur.com/lni4cEr.png?v=${version}`,
-    `https://i.imgur.com/d8cODxw.png?v=${version}`, `https://i.imgur.com/Depabhz.png?v=${version}`,
-    `https://i.imgur.com/TYGPk9e.png?v=${version}`, `https://i.imgur.com/34LjY4Z.png?v=${version}`,
-    `https://i.imgur.com/VXmeO5V.png?v=${version}`, `https://i.imgur.com/LHkLQ5O.png?v=${version}`,
-    `https://i.imgur.com/NJjbe5z.png?v=${version}`, `https://i.imgur.com/Nmv26ib.png?v=${version}`,
-    `https://i.imgur.com/iKj1B4Z.png?v=${version}`, `https://i.imgur.com/GHvbLzh.png?v=${version}`,
-    `https://i.imgur.com/lbHy6kp.png?v=${version}`, `https://i.imgur.com/tJ9JtNL.png?v=${version}`
-  ];
+/* -------------------------
+  Config & deck images
+---------------------------*/
+const deck = [
+  "https://i.imgur.com/MB5MTZ4.png","https://i.imgur.com/HsSFp1G.png","https://i.imgur.com/HMDsIdj.png",
+  "https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png","https://i.imgur.com/zgWvZtT.png",
+  "https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png",
+  "https://i.imgur.com/hFDmOf8.png","https://i.imgur.com/stl9kfH.png","https://i.imgur.com/IFpGZnY.png",
+  "https://i.imgur.com/83CEyAl.png","https://i.imgur.com/oCfk4b9.png","https://i.imgur.com/ZCB64Hj.png",
+  "https://i.imgur.com/45WAkja.png","https://i.imgur.com/SPNVO1w.png","https://i.imgur.com/nGU5uLN.png",
+  "https://i.imgur.com/edCCB8Q.png","https://i.imgur.com/nk6TWqa.png","https://i.imgur.com/QVKWiAE.png",
+  "https://i.imgur.com/FvwfCbB.png","https://i.imgur.com/JIRKI6G.png","https://i.imgur.com/A3XEdw5.png",
+  "https://i.imgur.com/qWRTjhp.png","https://i.imgur.com/2gYwi28.png","https://i.imgur.com/O76u6MX.png",
+  "https://i.imgur.com/jJDSLTv.png","https://i.imgur.com/JsJDaix.png","https://i.imgur.com/Nl6azPe.png",
+  "https://i.imgur.com/YdMZF0C.png","https://i.imgur.com/045ZqjC.png","https://i.imgur.com/5LM9wuh.png",
+  "https://i.imgur.com/FlHotKa.png","https://i.imgur.com/iCe198i.png","https://i.imgur.com/9kNPa9M.png",
+  "https://i.imgur.com/1YjjwLo.png","https://i.imgur.com/lni4cEr.png","https://i.imgur.com/d8cODxw.png",
+  "https://i.imgur.com/Depabhz.png","https://i.imgur.com/TYGPk9e.png","https://i.imgur.com/34LjY4Z.png",
+  "https://i.imgur.com/VXmeO5V.png","https://i.imgur.com/LHkLQ5O.png","https://i.imgur.com/NJjbe5z.png",
+  "https://i.imgur.com/Nmv26ib.png","https://i.imgur.com/iKj1B4Z.png","https://i.imgur.com/GHvbLzh.png",
+  "https://i.imgur.com/lbHy6kp.png","https://i.imgur.com/tJ9JtNL.png"
+];
 
-  const cardEl = document.getElementById('card');
-  const button = document.querySelector('button');
-  const chime = document.getElementById('chime');
-  const cardContainer = document.getElementById('cardContainer');
+const revealBtn = document.getElementById('revealBtn');
+const shuffleLayer = document.getElementById('shuffleLayer');
+const finalCard = document.getElementById('finalCard');
+const stage = document.getElementById('stage');
+const particleContainer = document.getElementById('particleContainer');
 
-  // Generate background stars
-  for(let i=0;i<50;i++){
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.top = Math.random()*100 + '%';
-    star.style.left = Math.random()*100 + '%';
-    star.style.width = Math.random()*3+1 + 'px';
-    star.style.height = star.style.width;
-    cardContainer.appendChild(star);
+/* -------------------------
+  Create subtle gold floating particles (background)
+---------------------------*/
+(function createParticles(){
+  const count = 40;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 1 + Math.random()*3;
+    p.style.width = p.style.height = size+'px';
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.top = 100 + Math.random()*200 + 'vh';
+    p.style.opacity = 0.5 + Math.random()*0.5;
+    p.style.transform = `translateY(0)`;
+    p.style.transition = `transform ${8+Math.random()*10}s linear`;
+    particleContainer.appendChild(p);
+    // animate upward loop
+    (function animateParticle(el){
+      setTimeout(function loop(){
+        el.style.transform = `translateY(-120vh) translateX(${(Math.random()-0.5)*30}px)`;
+        setTimeout(()=>{
+          el.style.left = Math.random()*100 + 'vw';
+          el.style.top = 100 + Math.random()*150 + 'vh';
+          el.style.transform = 'translateY(0)';
+          setTimeout(loop, 800 + Math.random()*2000);
+        }, 9000 + Math.random()*3000);
+      }, Math.random()*2000);
+    })(p);
+  }
+})();
+
+/* -------------------------
+  WebAudio: whoosh (shuffle) + chime (bell)
+  - generates sounds in browser so no external audio files
+---------------------------*/
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const ac = new AudioCtx();
+
+function playWhoosh(duration=1400){
+  // create white noise and filter sweep for whoosh
+  const bufferSize = ac.sampleRate * duration/1000;
+  const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){
+    data[i] = (Math.random()*2-1) * (1 - i/bufferSize); // fade out
+  }
+  const noise = ac.createBufferSource();
+  noise.buffer = buffer;
+
+  const band = ac.createBiquadFilter();
+  band.type = "lowpass";
+  band.frequency.value = 8000;
+
+  // sweep lowpass down
+  band.frequency.setValueAtTime(8000, ac.currentTime);
+  band.frequency.exponentialRampToValueAtTime(500, ac.currentTime + duration/1000);
+
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(0.001, ac.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.6, ac.currentTime + 0.08);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + duration/1000);
+
+  noise.connect(band);
+  band.connect(gain);
+  gain.connect(ac.destination);
+  noise.start();
+  noise.stop(ac.currentTime + duration/1000 + 0.1);
+}
+
+function playChime(){
+  // bell-like chime using two oscillators + reverb-ish gain envelope
+  const now = ac.currentTime;
+  const o1 = ac.createOscillator();
+  const o2 = ac.createOscillator();
+  const g = ac.createGain();
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 9000;
+
+  o1.type = 'sine'; o2.type='sine';
+  o1.frequency.value = 880; // A5-ish
+  o2.frequency.value = 1320; // A5 *1.5 for shimmer
+
+  o1.detune.value = -5;
+  o2.detune.value = 7;
+
+  g.gain.setValueAtTime(0, now);
+  g.gain.linearRampToValueAtTime(0.12, now + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0005, now + 2.2);
+
+  o1.connect(g); o2.connect(g);
+  g.connect(filter);
+  filter.connect(ac.destination);
+
+  o1.start(now); o2.start(now);
+  o1.stop(now + 2.2); o2.stop(now + 2.2);
+}
+
+/* -------------------------
+  Utility: random helpers
+---------------------------*/
+function rand(min,max){ return min + Math.random()*(max-min); }
+function choose(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* -------------------------
+  Shuffle animation (dramatic 3.5s)
+---------------------------*/
+let animLock = false;
+function doShuffleAndReveal(){
+  if(animLock) return;
+  animLock = true;
+  revealBtn.disabled = true;
+  revealBtn.setAttribute('aria-pressed','true');
+
+  // transition page background turquoise -> lilac
+  document.body.style.transition = 'background 650ms ease';
+  document.body.style.background = 'var(--lilac)';
+
+  // create many moving shuffle cards
+  shuffleLayer.innerHTML = ''; // clear
+  const totalShuffleCards = 12; // mix of gold backs + some real cards
+  const startRect = stage.getBoundingClientRect();
+
+  for(let i=0;i<totalShuffleCards;i++){
+    const sc = document.createElement('div');
+    sc.className = 'shuffle-card';
+    // size variety
+    const w = Math.min(220, startRect.width * (0.32 + Math.random()*0.18));
+    sc.style.width = w + 'px';
+    sc.style.left = (startRect.width/2 - w/2) + 'px';
+    sc.style.top = (startRect.height/2 - (w/ (3/4))/2) + 'px';
+    // choose gold/back or real image
+    if(Math.random() < 0.55){
+      sc.classList.add('gold-back');
+    } else {
+      sc.style.backgroundImage = `url(${choose(deck)})`;
+      sc.style.backgroundSize = 'cover';
+      sc.style.backgroundPosition = 'center';
+    }
+    // random initial rotation and z
+    sc.style.transform = `translate3d(${rand(-40,40)}px, ${rand(-20,20)}px, 0) rotate(${rand(-18,18)}deg)`;
+    sc.style.opacity = 0.95;
+    shuffleLayer.appendChild(sc);
+    // animate each: fly outward in arcs and rotate
+    animateShuffleCard(sc, i, totalShuffleCards);
   }
 
-  button.addEventListener('click', ()=>{
-    const shuffleCount = 25;
-    let i = 0;
+  // play whoosh
+  try{ playWhoosh(1400 + 200); } catch(e){ /* audio may be blocked until user interacts, but we are in click so it's fine */ }
 
-    const shuffleInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * cards.length);
-      cardEl.src = cards[randomIndex];
+  // total shuffle duration ~ 3500ms
+  setTimeout(()=>{
+    // pick final card
+    const finalImg = choose(deck);
+    // clear shuffle layer gracefully
+    shuffleLayer.innerHTML = '';
 
-      // Tilt and glow
-      const tiltAngle = (Math.random() * 30) - 15;
-      cardEl.style.transform = `rotate(${tiltAngle}deg) scale(${1 + Math.random()*0.05})`;
-      cardEl.style.boxShadow = `0 0 ${10 + Math.random()*10}px gold`;
+    // create flipping reveal animation for final card
+    finalCard.style.backgroundImage = `url(${finalImg})`;
+    finalCard.style.backgroundSize = 'cover';
+    finalCard.style.backgroundPosition = 'center';
+    // start with small scale & rotated, then animate
+    finalCard.style.transform = 'rotate(8deg) scale(0.92) translateZ(0)';
+    finalCard.style.opacity = 1;
 
-      // Random sparkles while shuffling
-      if(Math.random() < 0.2){
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('sparkle');
-        sparkle.style.left = Math.random()*cardEl.offsetWidth + 'px';
-        sparkle.style.top = Math.random()*cardEl.offsetHeight + 'px';
-        sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
-        sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
-        cardContainer.appendChild(sparkle);
-        setTimeout(()=>{ sparkle.remove(); },800);
-      }
-
-      i++;
-      if(i >= shuffleCount){
-        clearInterval(shuffleInterval);
-
-        const finalIndex = Math.floor(Math.random() * cards.length);
-        cardEl.src = cards[finalIndex];
-        cardEl.style.transform = 'rotate(0deg) scale(1)';
-        cardEl.style.boxShadow = 'none';
-
-        chime.currentTime = 0;
-        chime.play();
-
-        // Final sparkle burst
-        for(let j=0;j<25;j++){
-          const sparkle = document.createElement('div');
-          sparkle.classList.add('sparkle');
-          const angle = Math.random()*2*Math.PI;
-          const radius = 20 + Math.random()*50;
-          sparkle.style.left = cardEl.offsetWidth/2 + Math.cos(angle)*radius + 'px';
-          sparkle.style.top = cardEl.offsetHeight/2 + Math.sin(angle)*radius + 'px';
-          sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
-          sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
-          cardContainer.appendChild(sparkle);
-          setTimeout(()=>{ sparkle.remove(); },800);
-        }
-      }
+    // animate flip-in
+    setTimeout(()=>{
+      finalCard.style.transition = 'transform 520ms cubic-bezier(.2,.9,.2,1), box-shadow 420ms';
+      finalCard.style.transform = 'rotate(0deg) scale(1)';
+      finalCard.style.boxShadow = '0 12px 36px rgba(0,0,0,0.28)';
+      // chime on reveal
+      try{ playChime(); }catch(e){}
+      // final sparkle burst
+      sparkleBurst();
     }, 80);
-  });
-</script>
 
+    // after overall done, reset background to turquoise and unlock
+    setTimeout(()=>{
+      document.body.style.background = 'var(--turquoise)';
+      revealBtn.disabled = false;
+      revealBtn.setAttribute('aria-pressed','false');
+      animLock = false;
+    }, 1200 + 2200); // ensures sparkle and chime finished before enabling again
+
+  }, 3500); // end of shuffle
+}
+
+/* animate single shuffle card: fast arc + rotation */
+function animateShuffleCard(el, idx, total){
+  const stageRect = stage.getBoundingClientRect();
+  // random target positions forming arcs
+  const angle = (idx/total) * Math.PI*2 + rand(-0.8,0.8);
+  const distance = rand(stageRect.width*0.6, stageRect.width*1.1);
+  const dx = Math.cos(angle)*distance;
+  const dy = Math.sin(angle)*distance * 0.35;
+
+  const delay = rand(0, 140); // stagger
+  const dur = 1200 + rand(300,1100); // variable duration for natural look
+
+  el.animate([
+    { transform: el.style.transform, opacity:0.95, offset:0 },
+    { transform: `translate3d(${dx*0.25}px, ${dy*0.25}px, 0) rotate(${rand(-40,40)}deg)`, opacity:0.95, offset:0.25 },
+    { transform: `translate3d(${dx*0.65}px, ${dy*0.65}px, 0) rotate(${rand(-120,120)}deg)`, opacity:0.9, offset:0.65 },
+    { transform: `translate3d(${dx}px, ${dy}px, 0) rotate(${rand(-240,240)}deg)`, opacity:0, offset:1 }
+  ], {
+    duration: dur,
+    delay: delay,
+    easing: 'cubic-bezier(.2,.9,.2,1)',
+    iterations: 1,
+    fill: 'forwards'
+  });
+}
+
+/* sparkle burst at center of card */
+function sparkleBurst(){
+  const count = 26;
+  const rect = finalCard.getBoundingClientRect();
+  const parentRect = cardContainer.getBoundingClientRect ? cardContainer.getBoundingClientRect() : finalCard.getBoundingClientRect();
+
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const color = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
+    s.style.background = color;
+    s.style.boxShadow = `0 0 10px 3px ${color}`;
+    // place at roughly center of card
+    const cx = rect.width/2;
+    const cy = rect.height/2;
+    const angle = Math.random()*Math.PI*2;
+    const r = 20 + Math.random()*80;
+    s.style.left = (cx + Math.cos(angle)*8) + 'px';
+    s.style.top = (cy + Math.sin(angle)*8) + 'px';
+    s.style.opacity = 1;
+    finalCard.appendChild(s);
+    // animate outwards
+    const tx = Math.cos(angle)*r;
+    const ty = Math.sin(angle)*r;
+    s.animate([
+      { transform: 'translate(0,0) scale(0.6)', opacity:1 },
+      { transform: `translate(${tx}px, ${ty}px) scale(1.1)`, opacity:0.9, offset:0.5 },
+      { transform: `translate(${tx*1.6}px, ${ty*1.6}px) scale(0.2)`, opacity:0 }
+    ], {
+      duration: 700 + Math.random()*220,
+      easing: 'cubic-bezier(.2,.9,.2,1)',
+      fill: 'forwards'
+    });
+    setTimeout(()=> s.remove(), 950);
+  }
+}
+
+/* -------------------------
+  Event binding
+---------------------------*/
+revealBtn.addEventListener('click', () => {
+  // ensure audio context is resumed on user gesture (mobile browsers)
+  if (ac.state === 'suspended') ac.resume().catch(()=>{});
+  doShuffleAndReveal();
+});
+
+/* set an initial placeholder card image (optional: a faded deck cover) */
+finalCard.style.background = 'linear-gradient(180deg,#fff,#f8f8f8)';
+finalCard.innerHTML = ''; // no text; image-only card
+
+/* Accessibility: keyboard support */
+revealBtn.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    revealBtn.click();
+  }
+});
+
+/* ensure stage dimensions used by animations update on resize */
+window.addEventListener('resize', ()=>{ /* noop - animations measure at runtime */ });
+
+</script>
 </body>
 </html>
