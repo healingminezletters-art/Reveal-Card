@@ -6,7 +6,7 @@
 <title>Healing Minez: Magical Card Pull</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
-body { margin:0; padding:0; background:#40E0D0; font-family:'Playfair Display', serif; color:black; text-align:center; overflow-x:hidden; }
+body { margin:0; padding:0; background:#40E0D0; font-family:'Playfair Display', serif; color:black; text-align:center; overflow-x:hidden; position:relative;}
 h1 { font-size:2em; margin-top:20px; }
 h1 span { display:block; font-size:1em; margin-top:10px; }
 .signature { font-family:'Great Vibes', cursive; font-size:1.5em; color:#000; margin-top:10px; animation: pulse 2s infinite; }
@@ -15,12 +15,11 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 #spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
 #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
 #cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:450px; display:flex; justify-content:center; align-items:flex-start; perspective:2000px; flex-wrap: wrap; gap: 40px;}
-.card { width:280px; height:380px; border-radius:10px; background-size: cover; background-position: center; position:relative; cursor:pointer; transition: transform 0.6s ease, box-shadow 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
-.cardMessage { position:relative; width:100%; color:#000; font-size:1em; text-align:center; margin-top:10px; opacity:0; transition: opacity 1s ease; }
+.card { width:280px; height:380px; border-radius:10px; background-size: cover; background-position: center; position:relative; cursor:pointer; transition: transform 0.6s ease, box-shadow 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); opacity:0; }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
-.sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 0.9s ease-out forwards; }
-@keyframes particleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(2); opacity:1;} 100% {transform:scale(0); opacity:0;}}
+.sparkle, .dust, .particle { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 2s linear infinite; }
+@keyframes particleAnim {0% {transform:translateY(0) scale(0); opacity:0.5;} 50% {transform:translateY(-50px) scale(1); opacity:1;} 100% {transform:translateY(-100px) scale(0); opacity:0;}}
 </style>
 </head>
 <body>
@@ -28,8 +27,8 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 <h1>
 🦋 Pull your card(s), Beautiful Soul 💖
 <span>Each affirmation in this deck is a whisper from your healed self. This is a safe space.</span>
-<span class="signature">With unconditional love, Healing Minez 💖</span>
 </h1>
+<span class="signature">With unconditional love, Healing Minez 💖</span>
 
 <div id="spreadButtons">
   <button data-spread="1">1 Card</button>
@@ -44,25 +43,29 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 <br>
 <button id="revealBtn">✨ Reveal Card(s) ✨</button>
 
+<footer>
+<p>💡 Pro tip: Adding ?v=2 at the end of the URL forces a fresh load.</p>
+</footer>
+
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 
 <script>
-const version = 2; 
+const version = 2;
 const deck = [
-  {front:`https://i.imgur.com/MB5MTZ4.png?v=${version}`, message:"Affirmation 1"},
-  {front:`https://i.imgur.com/HsSFp1G.png?v=${version}`, message:"Affirmation 2"},
-  {front:`https://i.imgur.com/HMDsIdj.png?v=${version}`, message:"Affirmation 3"},
-  {front:`https://i.imgur.com/pu3CPVv.png?v=${version}`, message:"Affirmation 4"},
-  {front:`https://i.imgur.com/pDONoKd.png?v=${version}`, message:"Affirmation 5"},
-  {front:`https://i.imgur.com/zgWvZtT.png?v=${version}`, message:"Affirmation 6"}
+"https://i.imgur.com/3xOO16W.png?v=2","https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2",
+"https://i.imgur.com/oNN1KR0.png?v=2","https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2","https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2",
+"https://i.imgur.com/edCCB8Q.png?v=2","https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2","https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2",
+"https://i.imgur.com/JsJDaix.png?v=2","https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2","https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2",
+"https://i.imgur.com/d8cODxw.png?v=2","https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2","https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2",
+"https://i.imgur.com/lbHy6kp.png?v=2","https://i.imgur.com/tJ9JtNL.png?v=2"
 ];
-const goldBack = `https://i.imgur.com/3xOO16W.png?v=${version}`;
+
+const goldBack = "https://i.imgur.com/3xOO16W.png?v=2";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const chime = document.getElementById('chime');
 const spreadDesc = document.getElementById('spreadDesc');
 let selectedSpread = 1;
-let pulledCards = [];
 
 // Floating stars
 for(let i=0;i<50;i++){
@@ -75,18 +78,20 @@ for(let i=0;i<50;i++){
   document.body.appendChild(star);
 }
 
-// Show gold cards fanned
+// Display gold cards initially
 function showGoldCards(num){
   cardContainer.innerHTML=''; 
   for(let i=0;i<num;i++){
     const card=document.createElement('div');
     card.className='card';
     card.style.backgroundImage=`url(${goldBack})`;
-    card.style.transform = `rotate(${(i-(num-1)/2)*15}deg) translateY(0px)`;
-    const msg = document.createElement('div');
-    msg.className='cardMessage';
-    card.appendChild(msg);
+    card.style.transform=`translateY(-500px)`;
     cardContainer.appendChild(card);
+    setTimeout(()=>{
+      card.style.transition='transform 1s ease-out, opacity 1s ease-out';
+      card.style.transform=`translateY(0) rotate(${(i-(num-1)/2)*10}deg)`;
+      card.style.opacity=1;
+    }, i*150);
   }
 }
 
@@ -99,105 +104,21 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
                            selectedSpread===3?"Message from Divine: Past – Present – Future.":
                            "Deep insight: 5-card guidance spread.";
     showGoldCards(selectedSpread);
-    pulledCards=[];
   });
 });
 
-function shuffleDeck(cardsElems, duration=1800){
-  return new Promise(resolve=>{
-    let start = Date.now();
-    const interval = setInterval(()=>{
-      const t = Date.now() - start;
-      cardsElems.forEach((c,i)=>{
-        const x = Math.sin((t/180+i)*Math.PI*2)*50 + Math.random()*10;
-        const y = Math.cos((t/140+i)*Math.PI*3)*20 + Math.random()*5;
-        const rot = Math.sin((t/120+i))*15;
-        c.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;
-      });
-      if(t>=duration){
-        clearInterval(interval);
-        resolve();
-      }
-    },30);
+// Reveal cards
+revealBtn.addEventListener('click', ()=>{
+  const cards = cardContainer.querySelectorAll('.card');
+  cards.forEach((card,i)=>{
+    setTimeout(()=>{
+      const randIndex=Math.floor(Math.random()*deck.length);
+      card.style.backgroundImage=`url(${deck[randIndex]})`;
+      card.style.transform='rotate(0deg)';
+      card.style.boxShadow='0 0 20px gold';
+    }, i*300);
   });
-}
-
-function fanOutCards(cardsElems){
-  const gap = 100;
-  const total = cardsElems.length;
-  cardsElems.forEach((c,i)=>{
-    const offset = (i-(total-1)/2)*gap;
-    c.style.transition = 'transform 0.8s ease-out';
-    c.style.transform = `translateX(${offset}px) rotate(${offset/10}deg)`;
-  });
-}
-
-function createSparkles(cardElem, count=50){
-  for(let j=0;j<count;j++){
-    const sparkle=document.createElement('div');
-    sparkle.classList.add('sparkle');
-    const angle=Math.random()*2*Math.PI;
-    const radius=Math.random()*80+50;
-    const size=Math.random()*4+4;
-    sparkle.style.width = size+'px';
-    sparkle.style.height = size+'px';
-    sparkle.style.left=cardElem.offsetWidth/2 + Math.cos(angle)*radius + 'px';
-    sparkle.style.top=cardElem.offsetHeight/2 + Math.sin(angle)*radius + 'px';
-    const colors=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'];
-    const color=colors[Math.floor(Math.random()*colors.length)];
-    sparkle.style.background=color;
-    sparkle.style.boxShadow=`0 0 ${size*2}px ${size}px ${color}`;
-    cardContainer.appendChild(sparkle);
-    setTimeout(()=>sparkle.remove(),2000);
-  }
-}
-
-function createDustTrail(cardElem){
-  const trail = setInterval(()=>{
-    const dust=document.createElement('div');
-    dust.classList.add('dust');
-    const size=Math.random()*3+2;
-    dust.style.width = size+'px';
-    dust.style.height = size+'px';
-    const rect=cardElem.getBoundingClientRect();
-    dust.style.left = (rect.left + Math.random()*cardElem.offsetWidth) + 'px';
-    dust.style.top = (rect.top + Math.random()*cardElem.offsetHeight) + 'px';
-    const colors=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'];
-    dust.style.background=colors[Math.floor(Math.random()*colors.length)];
-    document.body.appendChild(dust);
-    setTimeout(()=>dust.remove(),1200);
-  },50);
-  setTimeout(()=>clearInterval(trail),1500);
-}
-
-revealBtn.addEventListener('click', async ()=>{
-  const cardsElems=Array.from(cardContainer.children);
-  if(cardsElems.length!==selectedSpread) return;
-  createDustTrail(cardsElems[0]);
-  await shuffleDeck(cardsElems);
-
-  fanOutCards(cardsElems);
-
-  pulledCards=[];
-  const indices=[];
-  while(pulledCards.length<selectedSpread){
-    const rand=Math.floor(Math.random()*deck.length);
-    if(!indices.includes(rand)){
-      indices.push(rand);
-      pulledCards.push(deck[rand]);
-    }
-  }
-
-  cardsElems.forEach((c,i)=>{
-    const cardData = pulledCards[i];
-    c.style.backgroundImage=`url(${cardData.front})`;
-    createSparkles(c,50);
-    const msg = c.querySelector('.cardMessage');
-    msg.innerText = cardData.message;
-    msg.style.opacity = 1;
-  });
-  chime.currentTime=0;
-  chime.play();
+  setTimeout(()=>{ chime.play(); }, 500);
 });
 </script>
 
