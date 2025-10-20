@@ -33,12 +33,15 @@
   #spreadButtons button:hover { transform: scale(1.05); }
   #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
   #cardContainer {
-    margin:30px auto; position:relative; width:90%; max-width:600px; min-height:200px;
-    display:flex; justify-content:center; align-items:center; gap:15px;
+    margin:30px auto; position:relative; width:90%; max-width:800px; min-height:300px;
+    display:flex; justify-content:center; align-items:center; gap:25px;
   }
   .card {
-    width:120px; max-width:20%; border-radius:10px; transition: transform 0.3s, box-shadow 0.3s;
-    cursor:pointer; opacity:1;
+    width:180px; height:280px; border-radius:10px; cursor:pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    backface-visibility: hidden;
+    position: relative;
   }
   #revealBtn {
     background-color:#FF69B4; color:white; border:none; padding:15px 30px;
@@ -50,10 +53,10 @@
     box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite;
   }
   @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
-  .sparkle { position:absolute; width:4px; height:4px; border-radius:50%; background:#FFD700;
-    box-shadow:0 0 8px 3px #FFD700; opacity:0; pointer-events:none; animation:sparkleAnim 0.8s ease-out forwards;}
+  .sparkle { position:absolute; width:6px; height:6px; border-radius:50%; background:#FFD700;
+    box-shadow:0 0 10px 3px #FFD700; opacity:0; pointer-events:none; animation:sparkleAnim 0.8s ease-out forwards;}
   @keyframes sparkleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(1.5); opacity:1;} 100% {transform:scale(0); opacity:0;}}
-  @keyframes popReveal {0% {transform: scale(0.7) rotate(0deg);} 50% {transform: scale(1.1);} 100% {transform: scale(1);}}
+  @keyframes popReveal {0% {transform: scale(0.7) rotateY(0deg);} 50% {transform: scale(1.1);} 100% {transform: scale(1);}}
 </style>
 </head>
 <body>
@@ -98,7 +101,7 @@ const spreadDesc = document.getElementById('spreadDesc');
 let selectedSpread = 1;
 let pulledCards = [];
 
-// Initial cover card on page load
+// Initial gold card(s) on load
 function showInitialCard() {
   cardContainer.innerHTML = '';
   const img = document.createElement('img');
@@ -108,6 +111,7 @@ function showInitialCard() {
 }
 showInitialCard();
 
+// Spread buttons
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   btn.addEventListener('click', ()=> {
     selectedSpread = parseInt(btn.dataset.spread);
@@ -120,7 +124,7 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   });
 });
 
-// Generate floating stars
+// Floating stars
 for(let i=0;i<50;i++){
   const star = document.createElement('div');
   star.className = 'star';
@@ -131,8 +135,10 @@ for(let i=0;i<50;i++){
   document.body.appendChild(star);
 }
 
+// Random helper
 function random(min,max){ return Math.random()*(max-min)+min; }
 
+// Create gold back cards
 function createGoldCards(num){
   cardContainer.innerHTML = '';
   for(let i=0;i<num;i++){
@@ -143,6 +149,7 @@ function createGoldCards(num){
   }
 }
 
+// Shuffle and reveal cards
 function shuffleAndReveal(){
   createGoldCards(selectedSpread);
   const cardsElems = Array.from(document.querySelectorAll('.card'));
@@ -154,7 +161,7 @@ function shuffleAndReveal(){
   }
 
   let step = 0;
-  const maxSteps = 20;
+  const maxSteps = 25;
   const interval = setInterval(()=>{
     cardsElems.forEach(c=>{
       const randCard = deck[Math.floor(Math.random()*deck.length)].front;
@@ -162,15 +169,24 @@ function shuffleAndReveal(){
       const scale = 1 + random(0,0.05);
       const slide = random(-15,15);
       c.src = randCard;
-      c.style.transform = `translateX(${slide}px) rotate(${tilt}deg) scale(${scale})`;
+      c.style.transform = `translateX(${slide}px) rotateY(${tilt}deg) scale(${scale})`;
+      // Sparkle effect
+      if(Math.random()<0.3){
+        const sparkle = document.createElement('div');
+        sparkle.classList.add('sparkle');
+        sparkle.style.left = random(0,c.offsetWidth)+'px';
+        sparkle.style.top = random(0,c.offsetHeight)+'px';
+        cardContainer.appendChild(sparkle);
+        setTimeout(()=>sparkle.remove(),800);
+      }
     });
     step++;
     if(step>=maxSteps){
       clearInterval(interval);
-      // reveal actual cards
+      // Reveal actual cards
       cardsElems.forEach((c,i)=>{
         c.src = pulledCards[i].front;
-        c.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
+        c.style.transform = 'translateX(0px) rotateY(0deg) scale(1)';
         c.style.animation = 'popReveal 0.6s ease forwards';
       });
       chime.currentTime = 0;
