@@ -15,7 +15,7 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 #spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
 #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
 #cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:400px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
-.card { width:280px; height:380px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.6s ease, left 0.6s ease, top 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
+.card { width:280px; height:380px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.6s ease, left 0.6s ease, top 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); background-size: cover; background-position: center; }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
 .sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 0.9s ease-out forwards; }
@@ -79,20 +79,18 @@ for(let i=0;i<50;i++){
 function showGoldCards(num){
   cardContainer.innerHTML=''; // clear
   for(let i=0;i<num;i++){
-    const img=document.createElement('img');
-    img.src=goldBack;
+    const img=document.createElement('div');
     img.className='card';
-    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*2)+'px';
+    img.style.backgroundImage=`url(${goldBack})`;
+    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*10)+'px';
     img.style.top=(i*2)+'px';
     img.style.zIndex=num-i;
     cardContainer.appendChild(img);
   }
 }
 
-// Ensure gold cards show on first load
-window.addEventListener('load', ()=>{
-  showGoldCards(selectedSpread);
-});
+// Initial load
+window.addEventListener('load', ()=>{ showGoldCards(selectedSpread); });
 
 // Spread buttons
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
@@ -147,7 +145,7 @@ function createSparkles(cardElem, count=80){
   }
 }
 
-// Magical dust trail while cards move
+// Dust trail
 function createDustTrail(cardElem){
   const trail = setInterval(()=>{
     const dust=document.createElement('div');
@@ -177,12 +175,11 @@ revealBtn.addEventListener('click', async ()=>{
     pulledCards.push(deck[idx]);
   }
 
-  // Create gold back cards for animation
   const cardsElems=[];
   for(let i=0;i<selectedSpread;i++){
-    const img=document.createElement('img');
-    img.src=goldBack;
+    const img=document.createElement('div');
     img.className='card';
+    img.style.backgroundImage=`url(${goldBack})`;
     img.style.left=(cardContainer.offsetWidth/2 - 140 + i*10)+'px';
     img.style.top=(i*2)+'px';
     img.style.zIndex=selectedSpread-i;
@@ -193,9 +190,8 @@ revealBtn.addEventListener('click', async ()=>{
   createDustTrail(cardsElems[0]); // Dust trail
   await shuffleDeck(cardsElems);
 
-  // Reveal final cards fanned out
   cardsElems.forEach((c,i)=>{
-    c.src = pulledCards[i].front;
+    c.style.backgroundImage = `url(${pulledCards[i].front})`;
     const offsetX = (i*300-(selectedSpread-1)*150);
     c.style.transform = `translate(${offsetX}px,0px) rotate(${(i-selectedSpread/2)*5}deg)`;
     c.style.animation='popReveal 0.8s ease forwards';
