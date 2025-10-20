@@ -33,7 +33,7 @@
   .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; flex-direction:column; }
   .controls button{
     background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
     box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
@@ -42,7 +42,7 @@
   .controls button:active{ transform:scale(.98); }
   .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; color:#fff; }
+  #spreadDesc{ margin-top:10px; font-size:0.98rem; text-align:center; min-height:22px; color:#fff; }
 
   /* card area */
   #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
@@ -59,7 +59,6 @@
     box-sizing:border-box;
   }
 
-  /* card sizing responsive */
   .card{
     width: clamp(160px, 20vw, var(--card-max));
     aspect-ratio: 7/9;
@@ -130,7 +129,6 @@
   #revealBtn:active{ transform:scale(0.97); }
 
   footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-  .hidden{ display:none!important; }
 </style>
 </head>
 <body>
@@ -184,7 +182,6 @@ const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
 const chime = document.getElementById('chime');
 const swoosh = document.getElementById('swoosh');
-const message = document.getElementById('message');
 
 let selectedSpread = 1;
 let busy = false;
@@ -207,6 +204,7 @@ function setActiveSpread(n){
   spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
                      : n===3 ? "Message from Divine: Past — Present — Future."
                      : "Deep insight: 5-card guidance spread.";
+  cardContainer.innerHTML=''; // Clear cards until Reveal button is clicked
 }
 
 function showGoldCards(n){
@@ -278,7 +276,6 @@ async function shuffleAndReveal(){
 spreadButtons.forEach(btn=>{
   btn.addEventListener('click',()=>{
     setActiveSpread(Number(btn.dataset.spread));
-    cardContainer.innerHTML=''; // only clear, do not reveal
   });
 });
 revealBtn.addEventListener('click',shuffleAndReveal);
