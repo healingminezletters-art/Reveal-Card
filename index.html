@@ -14,8 +14,8 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 #spreadButtons button, #revealBtn { background:#FF69B4; color:white; border:none; padding:15px 30px; margin:5px; border-radius:15px; cursor:pointer; font-size:1.2em; transition: transform 0.2s; }
 #spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
 #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
-#cardContainer { margin:30px auto; position:relative; width:90%; max-width:1000px; min-height:360px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
-.card { width:260px; height:360px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.6s ease, left 0.6s ease, top 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
+#cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:400px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
+.card { width:280px; height:380px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.6s ease, left 0.6s ease, top 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
 .sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 0.9s ease-out forwards; }
@@ -37,7 +37,7 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
   <button data-spread="5">5 Cards</button>
 </div>
 
-<div id="spreadDesc"></div>
+<div id="spreadDesc">Daily inspiration / journal prompt.</div>
 
 <div id="cardContainer"></div>
 
@@ -77,18 +77,22 @@ for(let i=0;i<50;i++){
 
 // Show gold cards stacked
 function showGoldCards(num){
-  cardContainer.innerHTML='';
+  cardContainer.innerHTML=''; // clear
   for(let i=0;i<num;i++){
     const img=document.createElement('img');
     img.src=goldBack;
     img.className='card';
-    img.style.left=(cardContainer.offsetWidth/2 - 130)+'px';
-    img.style.top=(i*5)+'px';
-    img.style.zIndex=i;
+    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*2)+'px';
+    img.style.top=(i*2)+'px';
+    img.style.zIndex=num-i;
     cardContainer.appendChild(img);
   }
 }
-showGoldCards(selectedSpread);
+
+// Ensure gold cards show on first load
+window.addEventListener('load', ()=>{
+  showGoldCards(selectedSpread);
+});
 
 // Spread buttons
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
@@ -166,25 +170,36 @@ function createDustTrail(cardElem){
 
 // Reveal cards
 revealBtn.addEventListener('click', async ()=>{
-  const cardsElems = Array.from(document.querySelectorAll('.card'));
-  const deckCopy = [...deck];
+  cardContainer.innerHTML=''; // clear existing gold cards
   pulledCards=[];
   for(let i=0;i<selectedSpread;i++){
-    const idx=Math.floor(Math.random()*deckCopy.length);
-    pulledCards.push(deckCopy.splice(idx,1)[0]);
+    const idx=Math.floor(Math.random()*deck.length);
+    pulledCards.push(deck[idx]);
   }
 
-  createDustTrail(cardsElems[0]); // Dust for first card
+  // Create gold back cards for animation
+  const cardsElems=[];
+  for(let i=0;i<selectedSpread;i++){
+    const img=document.createElement('img');
+    img.src=goldBack;
+    img.className='card';
+    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*10)+'px';
+    img.style.top=(i*2)+'px';
+    img.style.zIndex=selectedSpread-i;
+    cardContainer.appendChild(img);
+    cardsElems.push(img);
+  }
+
+  createDustTrail(cardsElems[0]); // Dust trail
   await shuffleDeck(cardsElems);
 
   // Reveal final cards fanned out
   cardsElems.forEach((c,i)=>{
     c.src = pulledCards[i].front;
-    const offsetX = (i*280-(selectedSpread-1)*140);
+    const offsetX = (i*300-(selectedSpread-1)*150);
     c.style.transform = `translate(${offsetX}px,0px) rotate(${(i-selectedSpread/2)*5}deg)`;
     c.style.animation='popReveal 0.8s ease forwards';
-
-    createSparkles(c, 80); // high-quality sparkles
+    createSparkles(c, 80);
   });
 
   chime.currentTime=0;
