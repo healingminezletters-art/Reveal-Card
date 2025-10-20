@@ -29,16 +29,11 @@
 
   header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
   h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:#000; }
-  h1 span.signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
+  h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
+  .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; flex-direction:column; }
-  #spreadButtons{
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    flex-wrap:wrap;
-  }
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
   .controls button{
     background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
     box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
@@ -47,7 +42,7 @@
   .controls button:active{ transform:scale(.98); }
   .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  #spreadDesc{ margin-top:10px; font-size:0.98rem; text-align:center; min-height:22px; color:#fff; }
+  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; color:#fff; }
 
   /* card area */
   #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
@@ -64,6 +59,7 @@
     box-sizing:border-box;
   }
 
+  /* card sizing responsive */
   .card{
     width: clamp(160px, 20vw, var(--card-max));
     aspect-ratio: 7/9;
@@ -144,7 +140,7 @@
     🦋 Pull your card(s), Beautiful Soul 💖<br>
     Each affirmation in this deck is a whisper from your healed self. This is a safe space.<br>
     Take a gentle breath, open your heart, and let these messages guide you. 💫<br>
-    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸<br>
+    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸
     <span class="signature">With unconditional love, Healing Minez 💖</span>
   </h1>
 </header>
@@ -172,14 +168,9 @@
 
 <script>
 const CARDS = [
-  "https://i.imgur.com/HsSFp1G.png",
-  "https://i.imgur.com/HMDsIdj.png",
-  "https://i.imgur.com/pu3CPVv.png",
-  "https://i.imgur.com/pDONoKd.png",
-  "https://i.imgur.com/zgWvZtT.png",
-  "https://i.imgur.com/Ybi9YzL.png",
-  "https://i.imgur.com/SjaDX9E.png",
-  "https://i.imgur.com/oNN1KR0.png"
+  "https://i.imgur.com/HsSFp1G.png","https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png",
+  "https://i.imgur.com/pDONoKd.png","https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png",
+  "https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
 ];
 
 const GOLD = "https://i.imgur.com/3xOO16W.png";
@@ -213,33 +204,6 @@ function setActiveSpread(n){
                      : "Deep insight: 5-card guidance spread.";
 }
 
-function showGoldCards(n){
-  cardContainer.innerHTML='';
-  const finals = pickUniqueIndices(n, CARDS.length).map(i=>CARDS[i]);
-  for(let i=0;i<n;i++){
-    const card = document.createElement('div');
-    card.className = 'card';
-    const inner = document.createElement('div');
-    inner.className = 'inner';
-    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
-    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${finals[i]})`;
-    inner.appendChild(back); inner.appendChild(front);
-    card.appendChild(inner);
-    card.dataset.final = finals[i];
-    card.style.opacity='0';
-    cardContainer.appendChild(card);
-    const offset = (i - (n-1)/2);
-    const offsetX = offset * ((window.innerWidth<520)?70:110);
-    const angle = offset * 6;
-    card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
-    setTimeout(()=>{
-      card.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
-      card.style.transform = `translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
-      card.style.opacity='1';
-    }, 120+i*110);
-  }
-}
-
 function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
   for(let i=0;i<count;i++){
     const d=document.createElement('div'); d.className='dust';
@@ -259,38 +223,62 @@ function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8
 
 async function shuffleAndReveal(){
   if(busy) return; busy=true;
-  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
+  chime.currentTime=0; chime.play().catch(()=>{});
+  swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-  const cards = Array.from(cardContainer.children);
-  if(cards.length){
-    cards.forEach((c,i)=>{
+  const oldCards = Array.from(cardContainer.children);
+  if(oldCards.length){
+    oldCards.forEach((c,i)=>{
       const dx=(Math.random()-0.5)*300, dy=-200-Math.random()*120, angle=(Math.random()-0.5)*90;
       c.style.transition='transform 600ms ease-in, opacity 400ms ease-in';
-      c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`; c.style.opacity='0';
+      c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`; 
+      c.style.opacity='0';
     });
     await new Promise(r=>setTimeout(r,650));
   }
-  showGoldCards(selectedSpread);
-  const newCards = document.querySelectorAll('.card');
-  newCards.forEach((c,i)=>{
-    c.style.opacity='0';
+
+  // pick new random cards
+  const finals = pickUniqueIndices(selectedSpread, CARDS.length).map(i=>CARDS[i]);
+
+  cardContainer.innerHTML='';
+  finals.forEach((src,i)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
+    inner.appendChild(back); inner.appendChild(front);
+    card.appendChild(inner);
+    cardContainer.appendChild(card);
+
+    const offset = (i-(selectedSpread-1)/2);
+    const offsetX = offset*((window.innerWidth<520)?70:110);
+    const angle = offset*6;
+    card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
+    card.style.opacity='0';
+
     setTimeout(()=>{
-      const offset=(i-(selectedSpread-1)/2);
-      const offsetX=offset*((window.innerWidth<520)?70:110);
-      const angle=offset*6;
-      c.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
-      c.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
-      c.style.opacity='1';
+      card.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
+      card.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
+      card.style.opacity='1';
     }, i*120);
   });
+
+  const newCards = document.querySelectorAll('.card');
   await new Promise(r=>setTimeout(r,700));
   newCards.forEach((c,i)=>setTimeout(()=>c.classList.add('flipped'), i*150));
   newCards.forEach(c=>emitDust(c,6));
+
+  busy=false;
 }
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); showGoldCards(Number(btn.dataset.spread)); }));
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  setActiveSpread(Number(btn.dataset.spread)); 
+  shuffleAndReveal();
+}));
 revealBtn.addEventListener('click',shuffleAndReveal);
-setActiveSpread(1); showGoldCards(1);
+setActiveSpread(1);
+shuffleAndReveal();
 
 (function createBackgroundParticles(){
   const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF']; const total=28;
