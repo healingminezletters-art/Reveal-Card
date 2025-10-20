@@ -14,13 +14,13 @@ h1 span { display:block; font-size:1em; margin-top:10px; }
 #spreadButtons button, #revealBtn { background:#FF69B4; color:white; border:none; padding:15px 30px; margin:5px; border-radius:15px; cursor:pointer; font-size:1.2em; transition: transform 0.2s; }
 #spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
 #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
-#cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:400px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
+#cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:450px; display:flex; justify-content:center; align-items:center; perspective:2000px; }
 .card { width:280px; height:380px; border-radius:10px; position:absolute; cursor:pointer; transition: transform 0.6s ease, left 0.6s ease, top 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); background-size: cover; background-position: center; }
+.cardMessage { position:absolute; width:280px; color:#000; font-size:1em; text-align:center; top:400px; left:0; opacity:0; transition: opacity 1s ease; }
 .star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
 .sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; animation:particleAnim 0.9s ease-out forwards; }
 @keyframes particleAnim {0% {transform:scale(0); opacity:1;} 50% {transform:scale(2); opacity:1;} 100% {transform:scale(0); opacity:0;}}
-@keyframes popReveal {0% {transform: scale(0.5) rotate(-10deg);} 50% {transform: scale(1.2) rotate(5deg);} 100% {transform: scale(1) rotate(0deg);}}
 </style>
 </head>
 <body>
@@ -75,24 +75,33 @@ for(let i=0;i<50;i++){
   document.body.appendChild(star);
 }
 
-// Show gold cards stacked
+// Show gold cards fanned
 function showGoldCards(num){
-  cardContainer.innerHTML=''; // clear
+  cardContainer.innerHTML=''; 
+  const fanAngle = num>1 ? 30/(num-1) : 0;
+  const centerX = cardContainer.offsetWidth/2;
+  const centerY = 50;
   for(let i=0;i<num;i++){
-    const img=document.createElement('div');
-    img.className='card';
-    img.style.backgroundImage=`url(${goldBack})`;
-    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*10)+'px';
-    img.style.top=(i*2)+'px';
-    img.style.zIndex=num-i;
-    cardContainer.appendChild(img);
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.backgroundImage=`url(${goldBack})`;
+    const angle = (i-(num-1)/2)*fanAngle;
+    const offsetX = Math.sin(angle*Math.PI/180)*80;
+    const offsetY = Math.abs(Math.cos(angle*Math.PI/180)*20);
+    card.style.left = centerX - 140 + offsetX + 'px';
+    card.style.top = centerY + offsetY + 'px';
+    card.style.transform = `rotate(${angle}deg)`;
+    card.style.zIndex = i+10;
+    // Add message container
+    const msg = document.createElement('div');
+    msg.className='cardMessage';
+    card.appendChild(msg);
+    cardContainer.appendChild(card);
   }
 }
 
-// Initial load
 window.addEventListener('load', ()=>{ showGoldCards(selectedSpread); });
 
-// Spread buttons
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   btn.addEventListener('click',()=>{
     selectedSpread=parseInt(btn.dataset.spread);
@@ -104,7 +113,6 @@ document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   });
 });
 
-// Shuffle animation
 function shuffleDeck(cardsElems, duration=2200){
   return new Promise(resolve=>{
     let start = Date.now();
@@ -124,7 +132,6 @@ function shuffleDeck(cardsElems, duration=2200){
   });
 }
 
-// High-quality sparkles
 function createSparkles(cardElem, count=80){
   for(let j=0;j<count;j++){
     const sparkle=document.createElement('div');
@@ -145,7 +152,6 @@ function createSparkles(cardElem, count=80){
   }
 }
 
-// Dust trail
 function createDustTrail(cardElem){
   const trail = setInterval(()=>{
     const dust=document.createElement('div');
@@ -156,48 +162,50 @@ function createDustTrail(cardElem){
     const rect=cardElem.getBoundingClientRect();
     dust.style.left = (rect.left + Math.random()*cardElem.offsetWidth) + 'px';
     dust.style.top = (rect.top + Math.random()*cardElem.offsetHeight) + 'px';
-    const colors=['#FFFACD','#FFE4E1','#FFD700','#FFB6C1'];
-    const color=colors[Math.floor(Math.random()*colors.length)];
-    dust.style.background=color;
-    dust.style.boxShadow=`0 0 ${size*2}px ${size} ${color}`;
+    const colors=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'];
+    dust.style.background=colors[Math.floor(Math.random()*colors.length)];
     document.body.appendChild(dust);
     setTimeout(()=>dust.remove(),1200);
   },50);
-  setTimeout(()=>clearInterval(trail),2000);
+  setTimeout(()=>clearInterval(trail),1500);
 }
 
-// Reveal cards
 revealBtn.addEventListener('click', async ()=>{
-  cardContainer.innerHTML=''; // clear existing gold cards
-  pulledCards=[];
-  for(let i=0;i<selectedSpread;i++){
-    const idx=Math.floor(Math.random()*deck.length);
-    pulledCards.push(deck[idx]);
-  }
-
-  const cardsElems=[];
-  for(let i=0;i<selectedSpread;i++){
-    const img=document.createElement('div');
-    img.className='card';
-    img.style.backgroundImage=`url(${goldBack})`;
-    img.style.left=(cardContainer.offsetWidth/2 - 140 + i*10)+'px';
-    img.style.top=(i*2)+'px';
-    img.style.zIndex=selectedSpread-i;
-    cardContainer.appendChild(img);
-    cardsElems.push(img);
-  }
-
-  createDustTrail(cardsElems[0]); // Dust trail
+  const cardsElems=Array.from(cardContainer.children);
+  if(cardsElems.length!==selectedSpread) return;
+  createDustTrail(cardsElems[0]);
   await shuffleDeck(cardsElems);
 
-  cardsElems.forEach((c,i)=>{
-    c.style.backgroundImage = `url(${pulledCards[i].front})`;
-    const offsetX = (i*300-(selectedSpread-1)*150);
-    c.style.transform = `translate(${offsetX}px,0px) rotate(${(i-selectedSpread/2)*5}deg)`;
-    c.style.animation='popReveal 0.8s ease forwards';
-    createSparkles(c, 80);
-  });
+  pulledCards=[];
+  const indices=[];
+  while(pulledCards.length<selectedSpread){
+    const rand=Math.floor(Math.random()*deck.length);
+    if(!indices.includes(rand)){
+      indices.push(rand);
+      pulledCards.push(deck[rand]);
+    }
+  }
 
+  const fanAngle = selectedSpread>1 ? 30/(selectedSpread-1) : 0;
+  const centerX = cardContainer.offsetWidth/2;
+  const centerY = 50;
+
+  cardsElems.forEach((c,i)=>{
+    const cardData = pulledCards[i];
+    c.style.backgroundImage=`url(${cardData.front})`;
+    const angle = (i-(selectedSpread-1)/2)*fanAngle;
+    const offsetX = Math.sin(angle*Math.PI/180)*80;
+    const offsetY = Math.abs(Math.cos(angle*Math.PI/180)*20);
+    c.style.left = centerX - 140 + offsetX + 'px';
+    c.style.top = centerY + offsetY + 'px';
+    c.style.transform = `rotate(${angle}deg)`;
+    c.style.zIndex = i+20;
+    createSparkles(c,50);
+    // Show message
+    const msg = c.querySelector('.cardMessage');
+    msg.innerText = cardData.message;
+    msg.style.opacity = 1;
+  });
   chime.currentTime=0;
   chime.play();
 });
