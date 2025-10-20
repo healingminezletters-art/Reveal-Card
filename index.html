@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Healing Minez: Pull Your Daily Card</title>
+<title>Healing Minez: Pull Your Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
   body {
     margin:0;
     padding:0;
-    background: #40E0D0; 
-    font-family: 'Playfair Display', serif;
+    background:#40E0D0;
+    font-family:'Playfair Display', serif;
     color:black;
     text-align:center;
   }
@@ -37,26 +37,43 @@
     50%{ transform: scale(1.1); }
   }
 
+  #spreadButtons {
+    margin-top:15px;
+  }
+  #spreadButtons button {
+    margin:0 5px;
+    background-color:#FF69B4;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    font-size:1em;
+    border-radius:12px;
+    cursor:pointer;
+  }
+  #spreadButtons button:hover { transform: scale(1.05); }
+
+  #spreadDesc {
+    margin-top:6px;
+    font-size:1rem;
+  }
+
   #cardContainer {
     margin:20px auto;
     position:relative;
     width:90%;
     max-width:600px;
-    height:350px;
+    height:360px;
   }
 
   .card {
     position:absolute;
     top:0;
-    left:50%;
-    transform: translateX(-50%);
+    transform:translateX(-50%);
     transition: transform 0.5s, box-shadow 0.5s;
     border-radius:10px;
-    max-width:320px;
-    width:100%;
   }
 
-  button {
+  #revealBtn {
     background-color:#FF69B4;
     color:white;
     border:none;
@@ -68,7 +85,7 @@
     z-index:100;
     position:relative;
   }
-  button:hover { transform: scale(1.05); }
+  #revealBtn:hover { transform: scale(1.05); }
 
   .star {
     position:absolute;
@@ -101,16 +118,6 @@
     100% { transform: scale(0); opacity:0; }
   }
 
-  #spreadButtons {
-    margin-top:15px;
-  }
-  #spreadButtons button { margin:0 5px; }
-
-  #spreadDesc {
-    margin-top:6px;
-    font-size:1rem;
-    text-align:center;
-  }
 </style>
 </head>
 <body>
@@ -131,7 +138,7 @@ Each affirmation in this deck is a whisper from your healed self. This is a safe
 <div id="spreadDesc">1 card pull for daily inspiration or journal prompt</div>
 
 <div id="cardContainer">
-  <img id="coverCard" class="card" src="https://i.imgur.com/3xOO16W.png" alt="Cover Card">
+  <img id="coverCard" class="card" src="https://i.imgur.com/3xOO16W.png" alt="Cover Card" style="width:250px; left:50%;">
 </div>
 
 <button id="revealBtn">✨ Reveal Card(s) ✨</button>
@@ -139,7 +146,6 @@ Each affirmation in this deck is a whisper from your healed self. This is a safe
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
 
 <script>
-const version = Date.now();
 const goldCards = [
   'https://i.imgur.com/MB5MTZ4.png','https://i.imgur.com/HsSFp1G.png',
   'https://i.imgur.com/HMDsIdj.png','https://i.imgur.com/pu3CPVv.png',
@@ -157,8 +163,8 @@ const revealBtn = document.getElementById('revealBtn');
 const chime = document.getElementById('chime');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-
 let currentSpread = 1;
+
 spreadButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     currentSpread = parseInt(btn.dataset.cards);
@@ -180,17 +186,27 @@ for(let i=0;i<50;i++){
   cardContainer.appendChild(star);
 }
 
-function computeCardWidth(n){
-  const containerWidth = Math.max(cardContainer.clientWidth, 320);
-  const gapTotal = (n-1) * 20;
-  const available = containerWidth - gapTotal - 40; 
-  const maxW = n===5 ? 220 : 320;
-  return Math.floor(Math.max(140, Math.min(maxW, available / n)));
+// calculate width for fanned cards
+function getCardWidth(n){
+  const containerWidth = Math.min(cardContainer.clientWidth,600);
+  const maxWidth = n===5 ? 180 : 250;
+  const available = containerWidth - (n-1)*20;
+  return Math.floor(Math.min(maxWidth, available/n));
+}
+
+function fanPositions(n,width){
+  const positions = [];
+  const spacing = n>1 ? 30 : 0;
+  for(let i=0;i<n;i++){
+    positions.push(50 + (i-(n-1)/2)*spacing);
+  }
+  return positions;
 }
 
 revealBtn.addEventListener('click', () => {
   cardContainer.innerHTML = ''; 
-  const width = computeCardWidth(currentSpread);
+  const width = getCardWidth(currentSpread);
+  const positions = fanPositions(currentSpread,width);
   const cardsInPlay = [];
 
   for(let i=0;i<currentSpread;i++){
@@ -198,25 +214,25 @@ revealBtn.addEventListener('click', () => {
     gold.className='card';
     gold.src = goldCards[Math.floor(Math.random()*goldCards.length)] + '?v=' + Date.now();
     gold.style.width = width + 'px';
-    gold.style.left = 50 + (i-(currentSpread-1)/2)*30 + '%';
+    gold.style.left = positions[i] + '%';
+    gold.style.zIndex = i+1;
     cardContainer.appendChild(gold);
     cardsInPlay.push(gold);
   }
 
-  let shuffleTimes = 20;
+  let shuffleCount = 20;
   const shuffleInterval = setInterval(()=>{
     cardsInPlay.forEach(c=>{
       c.src = goldCards[Math.floor(Math.random()*goldCards.length)] + '?v=' + Date.now();
-      const angle = (Math.random()-0.5)*30;
+      const angle = (Math.random()-0.5)*15;
       c.style.transform = `translateX(-50%) rotate(${angle}deg)`;
     });
-    shuffleTimes--;
-    if(shuffleTimes<=0){
+    shuffleCount--;
+    if(shuffleCount<=0){
       clearInterval(shuffleInterval);
       cardsInPlay.forEach((c,i)=>{
         setTimeout(()=>{
-          const randomIndex = Math.floor(Math.random()*messageCards.length);
-          c.src = messageCards[randomIndex] + '?v=' + Date.now();
+          c.src = messageCards[Math.floor(Math.random()*messageCards.length)] + '?v=' + Date.now();
           c.style.transform = `translateX(-50%) rotate(0deg)`;
           for(let j=0;j<20;j++){
             const sparkle = document.createElement('div');
@@ -236,6 +252,5 @@ revealBtn.addEventListener('click', () => {
   },100);
 });
 </script>
-
 </body>
 </html>
