@@ -6,171 +6,141 @@
 <title>Healing Minez — Pull Your Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#40E0D0;
-  --accent:#FF69B4;
-  --gold:#FFD700;
-  --card-max:320px;
-}
-html,body{height:100%;}
-body{
-  margin:0;
-  min-height:100%;
-  font-family:'Playfair Display',serif;
-  background:var(--bg);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  color:#000;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-  padding:18px;
-}
+  :root{
+    --bg:#40E0D0;
+    --accent:#FF69B4;
+    --gold:#FFD700;
+    --card-max:320px;
+  }
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    font-family:'Playfair Display',serif;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    color:#000;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    padding:18px;
+  }
 
-header{ text-align:center; margin-top:6px; max-width:1100px; width:100%;}
-h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; }
-h1 span{ display:block; font-size:1rem; opacity:0.95; margin-top:6px; }
+  header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
+  h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; }
+  h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
+  .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-.message{
-  margin:10px 0 14px;
-  font-size:1rem;
-  text-align:center;
-  line-height:1.35;
-}
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .controls button{
+    background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
+  }
+  .controls button:hover{ background:#FF85C1; }
+  .controls button:active{ transform:scale(.98); }
+  .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-.signature{
-  font-family:'Great Vibes',cursive;
-  font-size:1.5rem;
-  display:block;
-  margin-top:8px;
-  background: linear-gradient(45deg, #FF69B4, #FFD700);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; }
 
-.controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  /* card area */
+  #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
+  #cardContainer{
+    width:100%;
+    min-height:380px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    position:relative;
+    perspective:1600px;
+    gap: 18px;
+    padding:20px 10px;
+    box-sizing:border-box;
+  }
 
-#spreadButtons{ display:flex; gap:10px; }
+  /* card sizing responsive */
+  .card{
+    width: clamp(160px, 20vw, var(--card-max));
+    aspect-ratio: 7/9;
+    position:relative;
+    transform-style:preserve-3d;
+    -webkit-tap-highlight-color:transparent;
+    border-radius:12px;
+    opacity:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    will-change:transform, opacity;
+  }
 
-#spreadButtons button{
-  background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
-  box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
-}
-#spreadButtons button:active{ transform:scale(.98); }
-#spreadButtons button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+  .inner {
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    transform-style:preserve-3d;
+    transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+    will-change: transform;
+  }
 
-#spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; }
+  .face{
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    background-size:cover;
+    background-position:center;
+    backface-visibility:hidden;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  }
+  .face.back{ transform: rotateY(0deg); }
+  .face.front{ transform: rotateY(180deg); }
 
-/* card area */
-#cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
-#cardContainer{
-  width:100%;
-  min-height:380px;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  position:relative;
-  perspective:1600px;
-  gap: 18px;
-  padding:20px 10px;
-  box-sizing:border-box;
-}
+  .flipped .inner{ transform: rotateY(180deg); }
 
-/* card sizing responsive */
-.card{
-  width: clamp(160px, 20vw, var(--card-max));
-  aspect-ratio: 7/9;
-  position:relative;
-  transform-style:preserve-3d;
-  -webkit-tap-highlight-color:transparent;
-  border-radius:12px;
-  opacity:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  will-change:transform, opacity;
-}
+  .dust, .sparkle {
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    transform-origin:center;
+    opacity:0;
+    will-change: transform, opacity;
+  }
 
-/* inner flip wrapper */
-.inner {
-  position:absolute;
-  inset:0;
-  border-radius:12px;
-  transform-style:preserve-3d;
-  transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
-  will-change: transform;
-}
+  .bg-particle{
+    position:fixed;
+    width:6px; height:6px; border-radius:50%; pointer-events:none;
+    opacity:.12; filter:blur(6px);
+    animation: drift linear infinite;
+  }
+  @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
 
-.face{
-  position:absolute;
-  inset:0;
-  border-radius:12px;
-  background-size:cover;
-  background-position:center;
-  backface-visibility:hidden;
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
-}
-.face.back{ transform: rotateY(0deg); }
-.face.front{ transform: rotateY(180deg); }
+  #revealBtn{
+    margin-top:18px;
+    background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1);
+    color:#fff;
+    font-size:1.2rem;
+    font-weight:bold;
+    border-radius:18px;
+    padding:14px 28px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.28);
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.3s;
+  }
+  #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
+  #revealBtn:active{ transform:scale(0.97); }
 
-/* when flipped we'll rotate the inner */
-.flipped .inner{ transform: rotateY(180deg); }
-
-/* sparkle & dust small elements */
-.dust, .sparkle {
-  position:absolute;
-  border-radius:50%;
-  pointer-events:none;
-  transform-origin:center;
-  opacity:0;
-  will-change: transform, opacity;
-}
-
-/* background floating subtles */
-.bg-particle{
-  position:fixed;
-  width:6px; height:6px; border-radius:50%; pointer-events:none;
-  opacity:.12; filter:blur(6px);
-  animation: drift linear infinite;
-}
-@keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
-
-#revealBtn{
-  background: linear-gradient(45deg, #FF69B4, #FFD700);
-  color:white;
-  font-size:1.1rem;
-  font-weight:bold;
-  padding:12px 24px;
-  border-radius:22px;
-  border:none;
-  box-shadow:0 6px 20px rgba(0,0,0,0.18);
-  cursor:pointer;
-  transition: transform 0.15s ease, box-shadow 0.3s ease;
-}
-#revealBtn:active{ transform:scale(0.97); box-shadow:0 4px 12px rgba(0,0,0,0.18); }
-
-footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-
-.hidden{ display:none!important; }
-@media (max-width:520px){
-  h1{ font-size:1.25rem; }
-}
+  footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
+  .hidden{ display:none!important; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🦋 Pull your card(s), Beautiful Soul 💖</h1>
-  <span class="signature">With unconditional love, Healing Minez 💖</span>
+  <h1 id="message">
+    🦋 Pull your card(s), Beautiful Soul 💖<br>
+    Each affirmation in this deck is a whisper from your healed self. This is a safe space.
+  </h1>
 </header>
-
-<div class="message">
-Each affirmation in this deck is a whisper from your healed self. This is a safe space.<br>
-Take a gentle breath, open your heart, and let these messages guide you. 💫<br>
-Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸
-</div>
 
 <div class="controls" role="toolbar" aria-label="Spread controls">
   <div id="spreadButtons" role="group" aria-label="Choose card spread">
@@ -178,44 +148,37 @@ Trust the timing, trust yourself, and receive the insight meant just for you tod
     <button data-spread="3" aria-pressed="false">3 Cards</button>
     <button data-spread="5" aria-pressed="false">5 Cards</button>
   </div>
+  <div id="spreadDesc">Daily inspiration / journal prompt.</div>
 </div>
-
-<div id="spreadDesc">Daily inspiration / journal prompt.</div>
 
 <div id="cardWrap">
   <section id="cardContainer" aria-live="polite" aria-label="Card display area"></section>
 </div>
 
-<br>
-<div style="display:flex;gap:12px;align-items:center;justify-content:center;">
-  <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
-</div>
+<button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
 <footer aria-hidden="true"></footer>
 
+<!-- audio -->
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
+<audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
 const CARDS = [
-  "https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2",
-  "https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2","https://i.imgur.com/oNN1KR0.png?v=2",
-  "https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2",
-  "https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2","https://i.imgur.com/edCCB8Q.png?v=2",
-  "https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2",
-  "https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2","https://i.imgur.com/JsJDaix.png?v=2",
-  "https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2",
-  "https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2","https://i.imgur.com/d8cODxw.png?v=2",
-  "https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2",
-  "https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2","https://i.imgur.com/lbHy6kp.png?v=2",
-  "https://i.imgur.com/tJ9JtNL.png?v=2"
+  "https://i.imgur.com/ByGNT8v.png","https://i.imgur.com/MB5MTZ4.png","https://i.imgur.com/HsSFp1G.png",
+  "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
+  "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png",
+  "https://i.imgur.com/oNN1KR0.png"
 ];
 
-const GOLD = "https://i.imgur.com/3xOO16W.png?v=2";
+const GOLD = "https://i.imgur.com/3xOO16W.png";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
 const chime = document.getElementById('chime');
+const swoosh = document.getElementById('swoosh');
+const message = document.getElementById('message');
 
 let selectedSpread = 1;
 let busy = false;
@@ -248,67 +211,78 @@ function showGoldCards(n){
     card.className = 'card';
     const inner = document.createElement('div');
     inner.className = 'inner';
-    const back = document.createElement('div');
-    back.className = 'face back';
-    back.style.backgroundImage = `url(${GOLD})`;
-    const front = document.createElement('div');
-    front.className = 'face front';
-    front.style.backgroundImage = `url(${finals[i]})`;
-    inner.appendChild(back);
-    inner.appendChild(front);
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${GOLD})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${finals[i]})`;
+    inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
     card.dataset.final = finals[i];
-    card.style.opacity = '0';
+    card.style.opacity='0';
     cardContainer.appendChild(card);
-
     const offset = (i - (n-1)/2);
-    const offsetX = offset * ( (window.innerWidth < 520) ? 70 : 110 );
+    const offsetX = offset * ((window.innerWidth<520)?70:110);
     const angle = offset * 6;
     card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
     setTimeout(()=>{
-      card.style.transition = 'transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
+      card.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
       card.style.transform = `translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
-      card.style.opacity = '1';
-    }, 120 + i*110);
+      card.style.opacity='1';
+    }, 120+i*110);
   }
 }
 
-// Existing shuffleAndReveal function unchanged
-// Wire spread buttons
-spreadButtons.forEach(btn => {
-  btn.addEventListener('click', e => {
-    const n = Number(btn.dataset.spread) || 1;
-    setActiveSpread(n);
-    showGoldCards(n);
-  });
-});
+function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div'); d.className='dust';
+    const size = 3+Math.random()*7;
+    d.style.width=d.style.height=`${size}px`;
+    d.style.background = palette[Math.floor(Math.random()*palette.length)];
+    d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
+    d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
+    d.style.opacity='1';
+    d.style.transform='translateY(0) scale(.6)';
+    d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
+    parent.appendChild(d);
+    requestAnimationFrame(()=> { d.style.transform = `translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    setTimeout(()=>d.remove(),1400+Math.random()*500);
+  }
+}
 
-// Update reveal button to reshuffle new cards if clicked again
-revealBtn.addEventListener('click', () => {
-  if(busy) return;
-  shuffleAndReveal().then(() => {
-    setTimeout(()=>showGoldCards(selectedSpread), 800);
-  });
-});
+async function shuffleAndReveal(){
+  if(busy) return; busy=true;
+  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-setActiveSpread(1);
-showGoldCards(1);
+  const cards = Array.from(cardContainer.children);
+  if(cards.length){
+    cards.forEach((c,i)=>{
+      const dx=(Math.random()-0.5)*300, dy=-200-Math.random()*120, angle=(Math.random()-0.5)*90;
+      c.style.transition='transform 600ms ease-in, opacity 400ms ease-in';
+      c.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`; c.style.opacity='0';
+    });
+    await new Promise(r=>setTimeout(r,650));
+  }
+  showGoldCards(selectedSpread);
+  const newCards = document.querySelectorAll('.card');
+  newCards.forEach((c,i)=>{ c.style.opacity='0'; setTimeout(()=>{ const offset=(i-(selectedSpread-1)/2); const offsetX=offset*((window.innerWidth<520)?70:110); const angle=offset*6; c.style.transition='transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms'; c.style.transform=`translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`; c.style.opacity='1'; }, i*120); });
+  await new Promise(r=>setTimeout(r,700));
+  newCards.forEach((c,i)=>setTimeout(()=>c.classList.add('flipped'), i*150));
+  newCards.forEach(c=>emitDust(c,6));
 
-/* subtle background floating particles */
+  if(!document.querySelector('.signature')) message.innerHTML += `<br><span class="signature">With unconditional love, Healing Minez 💖</span>`;
+  busy=false;
+}
+
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); showGoldCards(Number(btn.dataset.spread)); }));
+revealBtn.addEventListener('click',shuffleAndReveal);
+setActiveSpread(1); showGoldCards(1);
+
 (function createBackgroundParticles(){
-  const colors = ['#FFD700', '#FFB6C1', '#D8B0FF', '#FFFFFF'];
-  const total = 28;
-  for(let i=0;i<total;i++){
-    const p = document.createElement('div');
-    p.className = 'bg-particle';
-    const size = 4 + Math.random()*6;
-    p.style.width = p.style.height = `${size}px`;
-    p.style.left = `${Math.random()*100}%`;
-    p.style.top = `${60 + Math.random()*40}%`;
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.opacity = (0.08 + Math.random()*0.18).toString();
-    p.style.animationDuration = `${8 + Math.random()*10}s`;
-    p.style.animationDelay = `${-(Math.random()*10)}s`;
+  const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF']; const total=28;
+  for(let i=0;i<total;i++){ const p=document.createElement('div'); p.className='bg-particle';
+    const size=4+Math.random()*6; p.style.width=p.style.height=`${size}px`;
+    p.style.left=`${Math.random()*100}%`; p.style.top=`${60+Math.random()*40}%`;
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.opacity=(0.08+Math.random()*0.18).toString();
+    p.style.animationDuration=`${8+Math.random()*10}s`; p.style.animationDelay=`-${Math.random()*10}s`;
     document.body.appendChild(p);
   }
 })();
