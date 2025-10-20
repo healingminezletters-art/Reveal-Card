@@ -17,10 +17,18 @@
   }
   h1 { font-size:2em; margin-top:20px; }
   h1 span { display:block; font-size:1em; margin-top:10px; }
-  .signature { font-family:'Great Vibes', cursive; font-size:1.5em; color:#000; margin-top:10px; }
+  .signature { 
+    font-family:'Great Vibes', cursive; 
+    font-size:1.5em; color:#000; margin-top:10px; 
+    animation: pulse 2s infinite; 
+  }
+  @keyframes pulse {
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.1); }
+  }
   #spreadButtons button {
-    background:#FF69B4; color:white; border:none; padding:10px 20px;
-    margin:5px; border-radius:12px; cursor:pointer; font-size:1em; transition: transform 0.2s;
+    background:#FF69B4; color:white; border:none; padding:15px 30px;
+    margin:5px; border-radius:15px; cursor:pointer; font-size:1.2em; transition: transform 0.2s;
   }
   #spreadButtons button:hover { transform: scale(1.05); }
   #spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
@@ -30,8 +38,13 @@
   }
   .card {
     width:120px; max-width:20%; border-radius:10px; transition: transform 0.3s, box-shadow 0.3s;
-    opacity:0; cursor:pointer;
+    cursor:pointer; opacity:1;
   }
+  #revealBtn {
+    background-color:#FF69B4; color:white; border:none; padding:15px 30px;
+    font-size:1.2em; border-radius:15px; cursor:pointer; transition: transform 0.2s;
+  }
+  #revealBtn:hover { transform: scale(1.05); }
   .star {
     position:absolute; width:2px; height:2px; background:white; border-radius:50%;
     box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite;
@@ -47,7 +60,7 @@
 
 <h1>
 🦋 Pull your card(s), Beautiful Soul 💖
-<span>Each affirmation in this deck is a whisper from your healed self.</span>
+<span>Each affirmation in this deck is a whisper from your healed self. This is a safe space.</span>
 <span class="signature">With unconditional love, Healing Minez 💖</span>
 </h1>
 
@@ -75,7 +88,6 @@ const deck = [
   {front:`https://i.imgur.com/pu3CPVv.png?v=${version}`, message:"Affirmation 4"},
   {front:`https://i.imgur.com/pDONoKd.png?v=${version}`, message:"Affirmation 5"},
   {front:`https://i.imgur.com/zgWvZtT.png?v=${version}`, message:"Affirmation 6"}
-  // add more cards as needed
 ];
 const goldBack = `https://i.imgur.com/3xOO16W.png`;
 
@@ -86,19 +98,29 @@ const spreadDesc = document.getElementById('spreadDesc');
 let selectedSpread = 1;
 let pulledCards = [];
 
+// Initial cover card on page load
+function showInitialCard() {
+  cardContainer.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = goldBack;
+  img.className = 'card';
+  cardContainer.appendChild(img);
+}
+showInitialCard();
+
 document.querySelectorAll('#spreadButtons button').forEach(btn=>{
   btn.addEventListener('click', ()=> {
     selectedSpread = parseInt(btn.dataset.spread);
     spreadDesc.innerText = selectedSpread === 1 ? "Daily inspiration / journal prompt." :
                            selectedSpread === 3 ? "Message from Divine: Past – Present – Future." :
                            "Deep insight: 5-card guidance spread.";
-    cardContainer.innerHTML = '';
+    showInitialCard();
     pulledCards = [];
     revealBtn.style.display = 'inline-block';
   });
 });
 
-// Generate background stars
+// Generate floating stars
 for(let i=0;i<50;i++){
   const star = document.createElement('div');
   star.className = 'star';
@@ -106,7 +128,7 @@ for(let i=0;i<50;i++){
   star.style.left = Math.random()*100 + '%';
   star.style.width = Math.random()*3+1 + 'px';
   star.style.height = star.style.width;
-  cardContainer.appendChild(star);
+  document.body.appendChild(star);
 }
 
 function random(min,max){ return Math.random()*(max-min)+min; }
@@ -125,7 +147,6 @@ function shuffleAndReveal(){
   createGoldCards(selectedSpread);
   const cardsElems = Array.from(document.querySelectorAll('.card'));
   pulledCards = [];
-  // randomly select actual cards
   const deckCopy = [...deck];
   for(let i=0;i<selectedSpread;i++){
     const index = Math.floor(Math.random()*deckCopy.length);
@@ -150,7 +171,6 @@ function shuffleAndReveal(){
       cardsElems.forEach((c,i)=>{
         c.src = pulledCards[i].front;
         c.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
-        c.style.opacity = 1;
         c.style.animation = 'popReveal 0.6s ease forwards';
       });
       chime.currentTime = 0;
@@ -161,6 +181,5 @@ function shuffleAndReveal(){
 
 revealBtn.addEventListener('click', shuffleAndReveal);
 </script>
-
 </body>
 </html>
