@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Healing Minez: Pull Your Daily Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <style>
   body {
     margin:0;
     padding:0;
-    background: #40E0D0; /* soft turquoise */
-    overflow-x:hidden;
+    background: #40E0D0; 
     font-family: 'Playfair Display', serif;
-    color: black;
+    color:black;
     text-align:center;
   }
 
   header h1 {
-    font-size: 2rem;
-    line-height: 1.2;
+    font-size:2rem;
     margin-top:20px;
+    line-height:1.3;
   }
   header h1 span {
     display:block;
@@ -34,21 +30,19 @@
     font-size:2rem;
     display:block;
     margin-top:14px;
-    color:#000;
     animation: pulse 2s infinite;
   }
   @keyframes pulse {
-    0%,100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    0%,100%{ transform: scale(1); }
+    50%{ transform: scale(1.1); }
   }
 
   #cardContainer {
-    margin:30px auto;
+    margin:20px auto;
     position:relative;
     width:90%;
     max-width:600px;
-    min-width:150px;
-    height:auto;
+    height:350px;
   }
 
   .card {
@@ -58,6 +52,8 @@
     transform: translateX(-50%);
     transition: transform 0.5s, box-shadow 0.5s;
     border-radius:10px;
+    max-width:320px;
+    width:100%;
   }
 
   button {
@@ -68,10 +64,11 @@
     font-size:1.2em;
     border-radius:15px;
     cursor:pointer;
-    transition: transform 0.2s;
-    margin-top:20px;
+    margin-top:10px;
+    z-index:100;
+    position:relative;
   }
-  button:hover {transform: scale(1.05);}
+  button:hover { transform: scale(1.05); }
 
   .star {
     position:absolute;
@@ -83,8 +80,8 @@
     animation: twinkle 2s infinite;
   }
   @keyframes twinkle {
-    0%,100% {opacity:0.3;}
-    50% {opacity:1;}
+    0%,100%{opacity:0.3;}
+    50%{opacity:1;}
   }
 
   .sparkle {
@@ -93,32 +90,27 @@
     height:4px;
     border-radius:50%;
     background: #FFD700;
-    box-shadow: 0 0 8px 3px #FFD700;
+    box-shadow:0 0 8px 3px #FFD700;
     opacity:0;
     pointer-events:none;
     animation: sparkleAnim 0.8s ease-out forwards;
   }
   @keyframes sparkleAnim {
-    0% {transform:scale(0); opacity:1;}
-    50% {transform:scale(1.5); opacity:1;}
-    100% {transform:scale(0); opacity:0;}
+    0% { transform: scale(0); opacity:1; }
+    50% { transform: scale(1.5); opacity:1; }
+    100% { transform: scale(0); opacity:0; }
   }
 
   #spreadButtons {
-    margin-top:20px;
+    margin-top:15px;
   }
-
-  #spreadButtons button {
-    margin:0 5px;
-  }
+  #spreadButtons button { margin:0 5px; }
 
   #spreadDesc {
     margin-top:6px;
-    font-size: 1rem;
-    text-align: center;
-    width: 100%;
+    font-size:1rem;
+    text-align:center;
   }
-
 </style>
 </head>
 <body>
@@ -142,7 +134,6 @@ Each affirmation in this deck is a whisper from your healed self. This is a safe
   <img id="coverCard" class="card" src="https://i.imgur.com/3xOO16W.png" alt="Cover Card">
 </div>
 
-<br>
 <button id="revealBtn">✨ Reveal Card(s) ✨</button>
 
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3"></audio>
@@ -150,24 +141,16 @@ Each affirmation in this deck is a whisper from your healed self. This is a safe
 <script>
 const version = Date.now();
 const goldCards = [
-  'https://i.imgur.com/MB5MTZ4.png',
-  'https://i.imgur.com/HsSFp1G.png',
-  'https://i.imgur.com/HMDsIdj.png',
-  'https://i.imgur.com/pu3CPVv.png',
+  'https://i.imgur.com/MB5MTZ4.png','https://i.imgur.com/HsSFp1G.png',
+  'https://i.imgur.com/HMDsIdj.png','https://i.imgur.com/pu3CPVv.png',
   'https://i.imgur.com/pDONoKd.png'
 ];
+
 const messageCards = [
-  'https://i.imgur.com/zgWvZtT.png',
-  'https://i.imgur.com/Ybi9YzL.png',
-  'https://i.imgur.com/SjaDX9E.png',
-  'https://i.imgur.com/oNN1KR0.png',
-  'https://i.imgur.com/hFDmOf8.png',
-  'https://i.imgur.com/stl9kfH.png',
-  'https://i.imgur.com/IFpGZnY.png',
-  'https://i.imgur.com/83CEyAl.png',
-  'https://i.imgur.com/oCfk4b9.png',
-  'https://i.imgur.com/ZCB64Hj.png'
-]; // add all 50 if needed
+  'https://i.imgur.com/zgWvZtT.png','https://i.imgur.com/Ybi9YzL.png',
+  'https://i.imgur.com/SjaDX9E.png','https://i.imgur.com/oNN1KR0.png',
+  'https://i.imgur.com/hFDmOf8.png'
+];
 
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
@@ -180,8 +163,8 @@ spreadButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     currentSpread = parseInt(btn.dataset.cards);
     const desc = currentSpread===1 ? "1 card pull for daily inspiration or journal prompt" :
-                currentSpread===3 ? "3 card spread: a message from the Divine" :
-                "5 card spread: deep insight & guidance";
+                 currentSpread===3 ? "3 card spread: a message from the Divine" :
+                 "5 card spread: deep insight & guidance";
     spreadDesc.textContent = desc;
   });
 });
@@ -189,10 +172,10 @@ spreadButtons.forEach(btn => {
 // stars
 for(let i=0;i<50;i++){
   const star = document.createElement('div');
-  star.className = 'star';
-  star.style.top = Math.random()*100 + '%';
-  star.style.left = Math.random()*100 + '%';
-  star.style.width = Math.random()*3+1 + 'px';
+  star.className='star';
+  star.style.top = Math.random()*100+'%';
+  star.style.left = Math.random()*100+'%';
+  star.style.width = Math.random()*3+1+'px';
   star.style.height = star.style.width;
   cardContainer.appendChild(star);
 }
@@ -202,28 +185,24 @@ function computeCardWidth(n){
   const gapTotal = (n-1) * 20;
   const available = containerWidth - gapTotal - 40; 
   const maxW = n===5 ? 220 : 320;
-  const w = Math.floor(Math.max(140, Math.min(maxW, available / n)));
-  return w;
+  return Math.floor(Math.max(140, Math.min(maxW, available / n)));
 }
 
 revealBtn.addEventListener('click', () => {
-  cardContainer.innerHTML = ''; // clear previous
+  cardContainer.innerHTML = ''; 
   const width = computeCardWidth(currentSpread);
   const cardsInPlay = [];
 
-  // gold cards
   for(let i=0;i<currentSpread;i++){
     const gold = document.createElement('img');
     gold.className='card';
     gold.src = goldCards[Math.floor(Math.random()*goldCards.length)] + '?v=' + Date.now();
     gold.style.width = width + 'px';
-    gold.style.zIndex = i;
     gold.style.left = 50 + (i-(currentSpread-1)/2)*30 + '%';
     cardContainer.appendChild(gold);
     cardsInPlay.push(gold);
   }
 
-  // shuffle animation
   let shuffleTimes = 20;
   const shuffleInterval = setInterval(()=>{
     cardsInPlay.forEach(c=>{
@@ -234,13 +213,11 @@ revealBtn.addEventListener('click', () => {
     shuffleTimes--;
     if(shuffleTimes<=0){
       clearInterval(shuffleInterval);
-      // reveal message cards fresh
       cardsInPlay.forEach((c,i)=>{
         setTimeout(()=>{
           const randomIndex = Math.floor(Math.random()*messageCards.length);
           c.src = messageCards[randomIndex] + '?v=' + Date.now();
           c.style.transform = `translateX(-50%) rotate(0deg)`;
-          // sparkle
           for(let j=0;j<20;j++){
             const sparkle = document.createElement('div');
             sparkle.className='sparkle';
@@ -249,14 +226,14 @@ revealBtn.addEventListener('click', () => {
             sparkle.style.background = ['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
             sparkle.style.boxShadow = `0 0 8px 3px ${sparkle.style.background}`;
             c.parentElement.appendChild(sparkle);
-            setTimeout(()=>{sparkle.remove();},800);
+            setTimeout(()=>{ sparkle.remove(); },800);
           }
         }, i*200);
       });
       chime.currentTime=0;
       chime.play();
     }
-  }, 100);
+  },100);
 });
 </script>
 
