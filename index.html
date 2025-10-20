@@ -12,7 +12,7 @@
   body {
     margin:0;
     padding:0;
-    background: #40E0D0; /* soft turquoise */
+    background: #40E0D0;
     overflow-x:hidden;
     font-family: 'Playfair Display', serif;
     color: black;
@@ -151,11 +151,9 @@ const button = document.querySelector('button');
 const chime = document.getElementById('chime');
 const cardContainer = document.getElementById('cardContainer');
 
-// Fade in initial card on page load
+// Fade in initial card
 window.addEventListener('load', () => {
-  setTimeout(()=> {
-    cardEl.style.opacity = 1;
-  }, 300); // small delay for smooth fade
+  setTimeout(()=>{ cardEl.style.opacity = 1; }, 300);
 });
 
 // Generate background stars
@@ -169,24 +167,27 @@ for(let i=0;i<50;i++){
   cardContainer.appendChild(star);
 }
 
-// Helper: random number
 function random(min,max){ return Math.random()*(max-min)+min; }
 
 button.addEventListener('click', ()=>{
-  const shuffleCount = 25;
-  let i = 0;
+  const finalIndex = Math.floor(Math.random()*cards.length);
+  const finalCard = cards[finalIndex];
+
+  const shuffleSteps = 30;
+  let currentStep = 0;
+  let intervalTime = 50;
+  const maxSlide = 30;
 
   const shuffleInterval = setInterval(() => {
     const randomIndex = Math.floor(Math.random() * cards.length);
     cardEl.src = cards[randomIndex];
 
-    // Dynamic magical shuffle effect
-    const tiltAngle = random(-15,15);
+    const slide = (currentStep % 2 === 0 ? random(0, maxSlide) : random(-maxSlide, 0));
+    const tilt = random(-10,10);
     const scale = 1 + random(0,0.05);
-    cardEl.style.transform = `rotate(${tiltAngle}deg) scale(${scale})`;
+    cardEl.style.transform = `translateX(${slide}px) rotate(${tilt}deg) scale(${scale})`;
     cardEl.style.filter = `drop-shadow(0 0 ${random(10,20)}px #E6E6FA) drop-shadow(0 0 ${random(5,15)}px #FFD700)`;
 
-    // Sparkles while shuffling
     if(Math.random() < 0.2){
       const sparkle = document.createElement('div');
       sparkle.classList.add('sparkle');
@@ -198,21 +199,19 @@ button.addEventListener('click', ()=>{
       setTimeout(()=>{ sparkle.remove(); },800);
     }
 
-    i++;
-    if(i >= shuffleCount){
+    currentStep++;
+    intervalTime += 3;
+
+    if(currentStep >= shuffleSteps){
       clearInterval(shuffleInterval);
 
-      const finalIndex = Math.floor(Math.random() * cards.length);
-      cardEl.src = cards[finalIndex];
-
-      // Pop reveal animation
-      cardEl.style.animation = 'popReveal 0.6s ease forwards';
+      cardEl.src = finalCard;
+      cardEl.style.transform = 'translateX(0px) rotate(0deg) scale(1)';
       cardEl.style.filter = 'drop-shadow(0 0 20px #E6E6FA) drop-shadow(0 0 15px #FFD700)';
-
+      cardEl.style.animation = 'popReveal 0.6s ease forwards';
       chime.currentTime = 0;
       chime.play();
 
-      // Final sparkle burst
       for(let j=0;j<25;j++){
         const sparkle = document.createElement('div');
         sparkle.classList.add('sparkle');
@@ -226,7 +225,7 @@ button.addEventListener('click', ()=>{
         setTimeout(()=>{ sparkle.remove(); },800);
       }
     }
-  }, 80);
+  }, intervalTime);
 });
 </script>
 
