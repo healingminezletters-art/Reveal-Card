@@ -1,159 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Healing Minez: Magical Card Pull</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Healing Minez — Pull Your Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
-body { margin:0; padding:0; background:#40E0D0; font-family:'Playfair Display', serif; color:black; text-align:center; overflow-x:hidden; position:relative;}
-h1 { font-size:2em; margin-top:20px; }
-h1 span { display:block; font-size:1em; margin-top:10px; }
-.signature { font-family:'Great Vibes', cursive; font-size:1.5em; color:#000; margin-top:10px; animation: pulse 2s infinite; }
-@keyframes pulse {0%,100%{ transform:scale(1); }50%{ transform:scale(1.1); }}
-#spreadButtons button, #revealBtn { background:#FF69B4; color:white; border:none; padding:15px 30px; margin:5px; border-radius:15px; cursor:pointer; font-size:1.2em; transition: transform 0.2s; }
-#spreadButtons button:hover, #revealBtn:hover { transform: scale(1.05); }
-#spreadDesc { font-size:1.1em; margin:10px 0; min-height:24px; }
-#cardContainer { margin:30px auto; position:relative; width:90%; max-width:1200px; min-height:450px; display:flex; justify-content:center; align-items:flex-start; perspective:2000px; flex-wrap: wrap; gap: 40px;}
-.card { width:280px; height:380px; border-radius:10px; background-size: cover; background-position: center; position:relative; cursor:pointer; transition: transform 0.6s ease, box-shadow 0.6s ease; box-shadow:0 0 5px rgba(0,0,0,0.2); opacity:0; }
-.star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; box-shadow:0 0 4px 1px gold; animation: twinkle 2s infinite; }
-@keyframes twinkle {0%,100% {opacity:0.3;} 50% {opacity:1;}}
-.sparkle, .dust { position:absolute; border-radius:50%; opacity:0; pointer-events:none; }
+  :root{
+    --bg:#40E0D0;
+    --accent:#FF69B4;
+    --gold:#FFD700;
+    --card-max:320px;
+  }
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    font-family:'Playfair Display',serif;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    color:#000;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    padding:18px;
+  }
+
+  header{ text-align:center; margin-top:6px; max-width:1100px; width:100%;}
+  h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; }
+  h1 span{ display:block; font-size:1rem; opacity:0.95; margin-top:6px; }
+  .signature{ font-family:'Great Vibes',cursive; font-size:1.5rem; display:block; margin-top:8px; color:#000; animation:pulse 2s infinite; }
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .controls button{
+    background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease;
+  }
+  .controls button:active{ transform:scale(.98); }
+  .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+
+  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; }
+
+  /* card area */
+  #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
+  #cardContainer{
+    width:100%;
+    min-height:380px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    position:relative;
+    perspective:1600px;
+    gap: 18px;
+    padding:20px 10px;
+    box-sizing:border-box;
+  }
+
+  /* card sizing responsive */
+  .card{
+    width: clamp(160px, 20vw, var(--card-max));
+    aspect-ratio: 7/9;
+    position:relative;
+    transform-style:preserve-3d;
+    -webkit-tap-highlight-color:transparent;
+    border-radius:12px;
+    opacity:0;
+    /* front/back faces handled inside .inner */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    will-change:transform, opacity;
+  }
+
+  /* inner flip wrapper */
+  .inner {
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    transform-style:preserve-3d;
+    transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+    will-change: transform;
+  }
+
+  .face{
+    position:absolute;
+    inset:0;
+    border-radius:12px;
+    background-size:cover;
+    background-position:center;
+    backface-visibility:hidden;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  }
+  .face.back{ transform: rotateY(0deg); }
+  .face.front{ transform: rotateY(180deg); }
+
+  /* when flipped we'll rotate the inner */
+  .flipped .inner{ transform: rotateY(180deg); }
+
+  /* sparkle & dust small elements */
+  .dust, .sparkle {
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    transform-origin:center;
+    opacity:0;
+    will-change: transform, opacity;
+  }
+
+  /* background floating subtles (very soft) */
+  .bg-particle{
+    position:fixed;
+    width:6px; height:6px; border-radius:50%; pointer-events:none;
+    opacity:.12; filter:blur(6px);
+    animation: drift linear infinite;
+  }
+  @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-220px)} }
+
+  footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
+
+  /* small utilities */
+  .hidden{ display:none!important; }
+  @media (max-width:520px){
+    h1{ font-size:1.25rem; }
+  }
 </style>
 </head>
 <body>
 
-<h1>
-🦋 Pull your card(s), Beautiful Soul 💖
-<span>Each affirmation in this deck is a whisper from your healed self. This is a safe space.</span>
-</h1>
-<span class="signature">With unconditional love, Healing Minez 💖</span>
+<header>
+  <h1>🦋 Pull your card(s), Beautiful Soul 💖
+    <span>Each affirmation in this deck is a whisper from your healed self. This is a safe space.</span>
+  </h1>
+  <span class="signature">With unconditional love, Healing Minez 💖</span>
+</header>
 
-<div id="spreadButtons">
-  <button data-spread="1">1 Card</button>
-  <button data-spread="3">3 Cards</button>
-  <button data-spread="5">5 Cards</button>
+<div class="controls" role="toolbar" aria-label="Spread controls">
+  <div id="spreadButtons" role="group" aria-label="Choose card spread">
+    <button data-spread="1" aria-pressed="true">1 Card</button>
+    <button data-spread="3" aria-pressed="false">3 Cards</button>
+    <button data-spread="5" aria-pressed="false">5 Cards</button>
+  </div>
+  <div style="width:12px"></div>
+  <div id="spreadDesc">Daily inspiration / journal prompt.</div>
 </div>
 
-<div id="spreadDesc">Daily inspiration / journal prompt.</div>
-
-<div id="cardContainer"></div>
+<div id="cardWrap">
+  <section id="cardContainer" aria-live="polite" aria-label="Card display area"></section>
+</div>
 
 <br>
-<button id="revealBtn">✨ Reveal Card(s) ✨</button>
+<div style="display:flex;gap:12px;align-items:center;justify-content:center;">
+  <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
+</div>
 
+<footer aria-hidden="true"></footer>
+
+<!-- audio -->
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 
 <script>
-const deck = [
-"https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2","https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2","https://i.imgur.com/oNN1KR0.png?v=2",
-"https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2","https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2","https://i.imgur.com/edCCB8Q.png?v=2",
-"https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2","https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2","https://i.imgur.com/JsJDaix.png?v=2",
-"https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2","https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2","https://i.imgur.com/d8cODxw.png?v=2",
-"https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2","https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2","https://i.imgur.com/lbHy6kp.png?v=2",
-"https://i.imgur.com/tJ9JtNL.png?v=2"
+/* ==========================
+   Full professional script
+   Deck Burst Shuffle (only gold backs animate)
+   then flip to reveal fronts
+   ========================== */
+
+const CARDS = [
+  "https://i.imgur.com/ByGNT8v.png?v=2","https://i.imgur.com/MB5MTZ4.png?v=2","https://i.imgur.com/HsSFp1G.png?v=2","https://i.imgur.com/HMDsIdj.png?v=2","https://i.imgur.com/pu3CPVv.png?v=2",
+  "https://i.imgur.com/pDONoKd.png?v=2","https://i.imgur.com/zgWvZtT.png?v=2","https://i.imgur.com/Ybi9YzL.png?v=2","https://i.imgur.com/SjaDX9E.png?v=2","https://i.imgur.com/oNN1KR0.png?v=2",
+  "https://i.imgur.com/hFDmOf8.png?v=2","https://i.imgur.com/stl9kfH.png?v=2","https://i.imgur.com/IFpGZnY.png?v=2","https://i.imgur.com/83CEyAl.png?v=2","https://i.imgur.com/oCfk4b9.png?v=2",
+  "https://i.imgur.com/ZCB64Hj.png?v=2","https://i.imgur.com/45WAkja.png?v=2","https://i.imgur.com/SPNVO1w.png?v=2","https://i.imgur.com/nGU5uLN.png?v=2","https://i.imgur.com/edCCB8Q.png?v=2",
+  "https://i.imgur.com/nk6TWqa.png?v=2","https://i.imgur.com/QVKWiAE.png?v=2","https://i.imgur.com/FvwfCbB.png?v=2","https://i.imgur.com/JIRKI6G.png?v=2","https://i.imgur.com/A3XEdw5.png?v=2",
+  "https://i.imgur.com/qWRTjhp.png?v=2","https://i.imgur.com/2gYwi28.png?v=2","https://i.imgur.com/O76u6MX.png?v=2","https://i.imgur.com/jJDSLTv.png?v=2","https://i.imgur.com/JsJDaix.png?v=2",
+  "https://i.imgur.com/Nl6azPe.png?v=2","https://i.imgur.com/YdMZF0C.png?v=2","https://i.imgur.com/045ZqjC.png?v=2","https://i.imgur.com/5LM9wuh.png?v=2","https://i.imgur.com/FlHotKa.png?v=2",
+  "https://i.imgur.com/iCe198i.png?v=2","https://i.imgur.com/9kNPa9M.png?v=2","https://i.imgur.com/1YjjwLo.png?v=2","https://i.imgur.com/lni4cEr.png?v=2","https://i.imgur.com/d8cODxw.png?v=2",
+  "https://i.imgur.com/Depabhz.png?v=2","https://i.imgur.com/TYGPk9e.png?v=2","https://i.imgur.com/34LjY4Z.png?v=2","https://i.imgur.com/VXmeO5V.png?v=2","https://i.imgur.com/LHkLQ5O.png?v=2",
+  "https://i.imgur.com/NJjbe5z.png?v=2","https://i.imgur.com/Nmv26ib.png?v=2","https://i.imgur.com/iKj1B4Z.png?v=2","https://i.imgur.com/GHvbLzh.png?v=2","https://i.imgur.com/lbHy6kp.png?v=2",
+  "https://i.imgur.com/tJ9JtNL.png?v=2"
 ];
 
-const goldBack = "https://i.imgur.com/3xOO16W.png?v=2";
+const GOLD = "https://i.imgur.com/3xOO16W.png?v=2";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
-const chime = document.getElementById('chime');
+const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-let selectedSpread = 1;
+const chime = document.getElementById('chime');
 
-// Floating stars
-for(let i=0;i<50;i++){
-  const star=document.createElement('div');
-  star.className='star';
-  star.style.top=Math.random()*100+'%';
-  star.style.left=Math.random()*100+'%';
-  star.style.width=Math.random()*3+1+'px';
-  star.style.height=star.style.width;
-  document.body.appendChild(star);
+let selectedSpread = 1;
+let busy = false;
+
+/* helper: pick N unique random indices from 0..len-1 */
+function pickUniqueIndices(n, len){
+  const arr = Array.from({length:len},(_,i)=>i);
+  for(let i=len-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr.slice(0,n);
 }
 
-// Show gold cards initially
-function showGoldCards(num){
-  cardContainer.innerHTML=''; 
-  for(let i=0;i<num;i++){
-    const card=document.createElement('div');
-    card.className='card';
-    card.style.backgroundImage=`url(${goldBack})`;
-    card.style.transform=`translateY(-500px) rotate(0deg)`;
-    card.dataset.final = deck[Math.floor(Math.random()*deck.length)];
+/* update spread button ARIA pressed */
+function setActiveSpread(n){
+  selectedSpread = n;
+  spreadButtons.forEach(btn=>{
+    const s = Number(btn.dataset.spread);
+    btn.setAttribute('aria-pressed', s===n ? 'true' : 'false');
+  });
+  spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
+                     : n===3 ? "Message from Divine: Past — Present — Future."
+                     : "Deep insight: 5-card guidance spread.";
+}
+
+/* create fanned gold-back cards and assign final front images (random unique) */
+function showGoldCards(n){
+  cardContainer.innerHTML='';
+  const finals = pickUniqueIndices(n, CARDS.length).map(i=>CARDS[i]);
+  for(let i=0;i<n;i++){
+    const card = document.createElement('div');
+    card.className = 'card';
+    // inner flip wrapper
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    const back = document.createElement('div');
+    back.className = 'face back';
+    back.style.backgroundImage = `url(${GOLD})`;
+    const front = document.createElement('div');
+    front.className = 'face front';
+    front.style.backgroundImage = `url(${finals[i]})`;
+    inner.appendChild(back);
+    inner.appendChild(front);
+    card.appendChild(inner);
+
+    // make the front hidden initially by inner transform default (no rotate)
+    // set dataset.final just in case
+    card.dataset.final = finals[i];
+
+    // place and fan
+    card.style.opacity = '0';
     cardContainer.appendChild(card);
+
+    // compute offset and initial transform: fly-in from top, then settle fanned
+    const offset = (i - (n-1)/2);
+    const offsetX = offset * ( (window.innerWidth < 520) ? 70 : 110 );
+    const angle = offset * 6; // gentle fan angle
+    // initial: offscreen up
+    card.style.transform = `translateY(-420px) translateX(${offsetX}px) rotate(${angle}deg)`;
+    // stagger the fly-in
     setTimeout(()=>{
-      card.style.transition='transform 0.8s ease-out, opacity 0.8s ease-out';
-      const offset = (i-(num-1)/2)*50;
-      const angle = (i-(num-1)/2)*5;
-      card.style.transform=`translateY(0px) translateX(${offset}px) rotate(${angle}deg)`;
-      card.style.opacity=1;
-    }, i*150);
+      card.style.transition = 'transform 800ms cubic-bezier(.18,.9,.32,1), opacity 500ms';
+      card.style.transform = `translateY(0px) translateX(${offsetX}px) rotate(${angle}deg)`;
+      card.style.opacity = '1';
+    }, 120 + i*110);
   }
 }
 
-window.addEventListener('load', ()=>{ showGoldCards(selectedSpread); });
+/* Create small pink-gold dust particle attached to an element (card) */
+function emitDust(parent, count=6, palette = ['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+  for(let i=0;i<count;i++){
+    const d = document.createElement('div');
+    d.className = 'dust';
+    const size = 3 + Math.random()*7;
+    d.style.width = d.style.height = `${size}px`;
+    d.style.background = palette[Math.floor(Math.random()*palette.length)];
+    d.style.left = `${10 + Math.random()*(parent.offsetWidth-20)}px`;
+    d.style.top = `${10 + Math.random()*(parent.offsetHeight-20)}px`;
+    d.style.opacity = '1';
+    d.style.transform = 'translateY(0) scale(.6)';
+    d.style.transition = `transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
+    parent.appendChild(d);
+    // animate outward slightly and fade
+    requestAnimationFrame(()=> {
+      d.style.transform = `translateY(${-40 - Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`;
+      d.style.opacity = '0';
+    });
+    setTimeout(()=> d.remove(), 1400 + Math.random()*500);
+  }
+}
 
-document.querySelectorAll('#spreadButtons button').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    selectedSpread=parseInt(btn.dataset.spread);
-    spreadDesc.innerText = selectedSpread===1?"Daily inspiration / journal prompt.":
-                           selectedSpread===3?"Message from Divine: Past – Present – Future.":
-                           "Deep insight: 5-card guidance spread.";
-    showGoldCards(selectedSpread);
+/* sparkles on reveal */
+function revealSparkles(parent, count=12){
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const size = 4 + Math.random()*8;
+    s.style.width = s.style.height = `${size}px`;
+    s.style.left = `${10 + Math.random()*(parent.offsetWidth-20)}px`;
+    s.style.top = `${10 + Math.random()*(parent.offsetHeight-20)}px`;
+    s.style.background = ['#FFD700','#FF69B4','#F6C6FF','#FFF8E8'][Math.floor(Math.random()*4)];
+    s.style.opacity = '1';
+    s.style.transition = `transform ${500+Math.random()*600}ms ease-out, opacity ${500+Math.random()*600}ms`;
+    parent.appendChild(s);
+    requestAnimationFrame(()=> {
+      s.style.transform = `translateY(${ -40 - Math.random()*70 }px) scale(0.2)`;
+      s.style.opacity = '0';
+    });
+    setTimeout(()=> s.remove(), 900 + Math.random()*600);
+  }
+}
+
+/* main shuffle: only gold backs move; after shuffle flip to fronts */
+async function shuffleAndReveal(){
+  if(busy) return;
+  busy = true;
+  revealBtn.disabled = true;
+  // find cards
+  const cards = Array.from(cardContainer.querySelectorAll('.card'));
+  if(cards.length === 0) { busy=false; revealBtn.disabled=false; return; }
+
+  // Pre-assign finals if not already done (should be done in showGoldCards)
+  cards.forEach((c) => {
+    if(!c.dataset.final){
+      const idx = Math.floor(Math.random()*CARDS.length);
+      c.dataset.final = CARDS[idx];
+      const frontFace = c.querySelector('.face.front');
+      if(frontFace) frontFace.style.backgroundImage = `url(${c.dataset.final})`;
+    }
+  });
+
+  // SHUFFLE PHASE: a burst shuffle — cards jitter, lift, overlap briefly, then settle
+  const rounds = 12;
+  const shuffleDelayBase = 40;
+  for(let r=0;r<rounds;r++){
+    cards.forEach((card, i) => {
+      // small random translations & rotations (only gold backs visible)
+      const jitterX = (Math.random()-0.5) * (20 + r*2);
+      const jitterY = -10 - Math.random()*20 - (r%2===0?5:0);
+      const rot = (Math.random()-0.5) * (35);
+      card.style.transition = `transform ${shuffleDelayBase+Math.random()*60}ms ease`;
+      card.style.transform = `translateX(${jitterX + (i - (cards.length-1)/2) * (window.innerWidth<520 ? 60: 90)}px) translateY(${jitterY}px) rotate(${rot}deg)`;
+      // dust
+      if(Math.random() < 0.45) emitDust(card, 2);
+    });
+    // wait small time between rounds (async sleep)
+    await new Promise(r=>setTimeout(r, 80 + Math.random()*40));
+  }
+
+  // settle & fan a little before flip
+  cards.forEach((card, i) => {
+    const offset = (i - (cards.length-1)/2) * (window.innerWidth < 520 ? 72 : 120);
+    const angle = (i - (cards.length-1)/2) * 6;
+    card.style.transition = 'transform 420ms cubic-bezier(.2,.9,.25,1)';
+    card.style.transform = `translateX(${offset}px) translateY(0px) rotate(${angle}deg)`;
+  });
+
+  // short pause for anticipation
+  await new Promise(r=>setTimeout(r, 420));
+
+  // FLIP (reveal) — flip all cards with small stagger, show sparkles
+  cards.forEach((card, i) => {
+    setTimeout(()=>{
+      // mark flipped to rotate inner; .flipped toggles .inner transform
+      card.classList.add('flipped');
+      // glow & sparkles
+      card.style.boxShadow = '0 10px 40px rgba(255,215,0,0.18)';
+      revealSparkles(card, 10);
+      // tiny float after reveal
+      card.style.transition = 'transform 520ms cubic-bezier(.2,.9,.25,1), box-shadow 300ms';
+    }, i * 160);
+  });
+
+  // play chime slightly after most flips began
+  setTimeout(()=> { chime.currentTime = 0; chime.play().catch(()=>{}); }, 180 + cards.length*120);
+
+  // finish after reveal animations
+  await new Promise(r=>setTimeout(r, 180 + cards.length*160 + 600));
+  // relax glow
+  cards.forEach(card => {
+    card.style.boxShadow = '';
+    card.classList.remove('flipped'); // keep front visible visually by forcing inner transform (we'll toggle differently)
+    // IMPORTANT: keep front visible — instead of removing class, set inner transform permanently:
+    const inner = card.querySelector('.inner');
+    // set final transform to keep front up
+    inner.style.transform = 'rotateY(180deg)';
+  });
+
+  // done
+  busy = false;
+  revealBtn.disabled = false;
+}
+
+/* event wiring */
+spreadButtons.forEach(btn => {
+  btn.addEventListener('click', e => {
+    const n = Number(btn.dataset.spread) || 1;
+    setActiveSpread(n);
+    showGoldCards(n);
   });
 });
 
-// Shuffle gold cards and reveal final cards
-function shuffleAndReveal(){
-  const cards = cardContainer.querySelectorAll('.card');
-  cards.forEach((card,i)=>{
-    let count=0;
-    const interval = setInterval(()=>{
-      card.style.backgroundImage=`url(${goldBack})`;
-      card.style.transform=`translateY(${Math.random()*10-5}px) rotate(${Math.random()*20-10}deg)`;
-      createDust(card);
-      count++;
-      if(count>12){
-        clearInterval(interval);
-        card.style.backgroundImage=`url(${card.dataset.final})`;
-        card.style.transform='translateY(0px) rotate(0deg)';
-        card.style.boxShadow='0 0 25px gold';
-        createSparkle(card);
-      }
-    }, 100 + i*50);
-  });
-  setTimeout(()=>{ chime.play(); }, 600);
-}
+revealBtn.addEventListener('click', () => {
+  if(busy) return;
+  shuffleAndReveal();
+});
 
-// Dust particles
-function createDust(card){
-  const dust = document.createElement('div');
-  dust.className='dust';
-  dust.style.width=dust.style.height='6px';
-  dust.style.background='gold';
-  dust.style.left=Math.random()*card.offsetWidth+'px';
-  dust.style.top=Math.random()*card.offsetHeight+'px';
-  dust.style.opacity=1;
-  card.appendChild(dust);
-  setTimeout(()=>{ dust.remove(); }, 800);
-}
+/* initial setup */
+setActiveSpread(1);
+showGoldCards(1);
 
-// Sparkle on reveal
-function createSparkle(card){
-  for(let j=0;j<15;j++){
-    const sparkle = document.createElement('div');
-    sparkle.className='sparkle';
-    sparkle.style.width=sparkle.style.height='6px';
-    sparkle.style.background=['#FFD700','#FF69B4','#D8B0FF','#FFFFFF'][Math.floor(Math.random()*4)];
-    sparkle.style.left=Math.random()*card.offsetWidth+'px';
-    sparkle.style.top=Math.random()*card.offsetHeight+'px';
-    card.appendChild(sparkle);
-    setTimeout(()=>{ sparkle.remove(); }, 1000);
+/* subtle background floating particles */
+(function createBackgroundParticles(){
+  const colors = ['#FFD700', '#FFB6C1', '#D8B0FF', '#FFFFFF'];
+  const total = 28;
+  for(let i=0;i<total;i++){
+    const p = document.createElement('div');
+    p.className = 'bg-particle';
+    const size = 4 + Math.random()*6;
+    p.style.width = p.style.height = `${size}px`;
+    p.style.left = `${Math.random()*100}%`;
+    p.style.top = `${60 + Math.random()*40}%`;
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.opacity = (0.08 + Math.random()*0.18).toString();
+    p.style.animationDuration = `${8 + Math.random()*10}s`;
+    p.style.animationDelay = `${-(Math.random()*10)}s`;
+    document.body.appendChild(p);
   }
-}
-
-revealBtn.addEventListener('click', shuffleAndReveal);
+})();
 </script>
 </body>
 </html>
