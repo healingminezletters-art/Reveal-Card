@@ -61,7 +61,7 @@
   .card{
     width: clamp(160px, 25vw, var(--card-max));
     aspect-ratio: 7/9;
-    position:relative;
+    position:absolute;
     transform-style:preserve-3d;
     -webkit-tap-highlight-color:transparent;
     border-radius:12px;
@@ -70,16 +70,15 @@
     justify-content:center;
     will-change:transform, opacity;
     cursor:pointer;
-    transition:box-shadow 0.3s ease;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
   }
-  .card:hover{ box-shadow:0 12px 28px rgba(255,215,0,0.6); }
 
   .inner {
     position:absolute;
     inset:0;
     border-radius:12px;
     transform-style:preserve-3d;
-    transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+    transition: transform .8s cubic-bezier(.2,.9,.25,1);
     will-change: transform;
   }
 
@@ -90,7 +89,6 @@
     background-size:cover;
     background-position:center;
     backface-visibility:hidden;
-    box-shadow:0 6px 18px rgba(0,0,0,0.12);
   }
   .face.back{ transform: rotateY(0deg); }
   .face.front{ transform: rotateY(180deg); }
@@ -121,34 +119,33 @@
   #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
   #revealBtn:active{ transform:scale(0.97); }
 
-  /* Modal styles */
-  #modal{
-    display:none;
-    position:fixed; inset:0;
-    background:rgba(0,0,0,0.6);
-    z-index:999;
-    align-items:center; justify-content:center;
-  }
-  #modalContent{
-    position:relative;
-    max-width:90%; max-height:90%;
-    border-radius:16px;
-    overflow:hidden;
-    box-shadow:0 12px 36px rgba(0,0,0,0.6);
-    animation:popIn 0.15s ease-out forwards;
-  }
-  #modalContent img{ width:100%; height:100%; object-fit:contain; display:block; border-radius:12px; }
-  #modalClose{
-    position:absolute; top:8px; right:12px;
-    font-size:1.8rem; background:none; border:none;
-    color:#FFD700; cursor:pointer; z-index:10;
-  }
-
-  @keyframes popIn{ 0%{transform:scale(0.8);opacity:0;} 100%{transform:scale(1);opacity:1;} }
-
   @media(max-width:600px){
     #cardContainer{min-height:360px;}
     .card{width: clamp(140px, 30vw, var(--card-max));}
+  }
+
+  /* Modal for card enlargement */
+  #modal{
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.3s ease;
+  }
+  #modal.active{
+    opacity:1; pointer-events:auto;
+  }
+  #modalContent{
+    width:clamp(200px,50vw,500px);
+    aspect-ratio:7/9;
+    background-size:cover;
+    background-position:center;
+    border-radius:14px;
+    box-shadow:0 8px 28px rgba(0,0,0,0.35);
+  }
+  #modalClose{
+    position:absolute; top:20px; right:20px; color:#FFD700; font-size:2rem; cursor:pointer; font-family:sans-serif;
   }
 </style>
 </head>
@@ -157,9 +154,7 @@
 <header>
   <h1 id="message">
     🦋 Pull your card(s), Beautiful Soul 💖<br>
-    Each affirmation in this deck is a whisper from your healed self. This is a safe space.<br>
-    Take a gentle breath, open your heart, and let these messages guide you. 💫<br>
-    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸<br>
+    Each card reveals a magical message meant for you. 🌸<br>
     <span class="signature">With unconditional love, Healing Minez 💖</span>
   </h1>
 </header>
@@ -179,16 +174,14 @@
 
 <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
-<!-- Modal for enlarged card -->
-<div id="modal">
-  <div id="modalContent">
-    <button id="modalClose">✖</button>
-    <img id="modalImg" src="">
-  </div>
-</div>
-
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 <audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+<!-- Modal -->
+<div id="modal">
+  <div id="modalClose">✕</div>
+  <div id="modalContent"></div>
+</div>
 
 <script>
 const CARDS = [
@@ -255,7 +248,6 @@ function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8
   }
 }
 
-// Shuffle/fan-out with subtle float effect
 async function shuffleAndReveal(){
   if(busy) return; busy=true;
   chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
@@ -264,7 +256,12 @@ async function shuffleAndReveal(){
   const finals = pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
 
   finals.forEach((src,i)=>{
-    const card=document.createElement('div'); card.className='card';
+    const card=document.createElement('div'); 
+    card.className='card';
+    card.style.top='50%'; 
+    card.style.left='50%'; 
+    card.style.opacity=0;
+
     const inner=document.createElement('div'); inner.className='inner';
     const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
     const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
@@ -272,43 +269,46 @@ async function shuffleAndReveal(){
     card.appendChild(inner);
     cardContainer.appendChild(card);
 
-    // Fan-out float effect
-    const offset = (i - (finals.length-1)/2) * 60;
-    card.style.position='absolute';
-    card.style.top='50%';
-    card.style.left='50%';
-    card.style.transform = `translate(-50%,-50%) translateX(${offset}px) rotate(${(Math.random()-0.5)*10}deg)`;
-    card.style.opacity=0;
-    setTimeout(()=>{ card.style.transition='all 0.6s ease-out'; card.style.opacity=1; card.style.transform = `translate(-50%,-50%) translateX(${offset}px) rotate(0deg)`; }, 50);
+    setTimeout(()=>{
+      const offsetX = (i - (finals.length-1)/2) * 80 + (Math.random()*20-10);
+      const offsetY = Math.random()*30 - 15;
+      const rotation = Math.random()*12 - 6;
+      card.style.transition = 'all 0.8s ease-out';
+      card.style.opacity = 1;
+      card.style.transform = `translate(-50%, -50%) translateX(${offsetX}px) translateY(${offsetY}px) rotate(${rotation}deg)`;
+    }, i*150);
 
     emitDust(card,6);
+
+    card.addEventListener('click',()=>{ showModal(src); });
   });
+
+  // Flip after fan-out
+  setTimeout(()=>{
+    finals.forEach((src,i)=>{
+      const card = cardContainer.children[i];
+      setTimeout(()=>{ card.classList.add('flipped'); }, i*300);
+    });
+  }, 700 + finals.length*100);
 
   busy=false;
 }
 
-// Spread button events
+// Modal logic
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+function showModal(src){
+  modalContent.style.backgroundImage=`url(${src})`;
+  modal.classList.add('active');
+}
+modalClose.addEventListener('click',()=>{ modal.classList.remove('active'); });
+modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('active'); });
+
 spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
 revealBtn.addEventListener('click',shuffleAndReveal);
 setActiveSpread(1);
 
-// Modal logic for click-to-enlarge
-const modal = document.getElementById('modal');
-const modalImg = document.getElementById('modalImg');
-const modalClose = document.getElementById('modalClose');
-
-cardContainer.addEventListener('click', e => {
-  const card = e.target.closest('.card');
-  if(!card) return;
-  const frontFace = card.querySelector('.face.front');
-  if(frontFace && frontFace.style.backgroundImage){
-    modalImg.src = frontFace.style.backgroundImage.replace(/url\(["']?(.+?)["']?\)/,'$1');
-    modal.style.display = 'flex';
-  }
-});
-
-modalClose.addEventListener('click', () => modal.style.display='none');
-modal.addEventListener('click', e => { if(e.target===modal) modal.style.display='none'; });
 </script>
 </body>
 </html>
