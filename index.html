@@ -29,8 +29,7 @@
 
   header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
   h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:#000; }
-  h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
-  .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
+  h1 span.signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
   .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
@@ -42,8 +41,15 @@
   .controls button:active{ transform:scale(.98); }
   .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
+  #spreadDesc{
+    margin:6px 0 18px;
+    font-size:0.98rem;
+    text-align:center;
+    min-height:22px;
+    color:#fff;
+  }
 
+  /* card area */
   #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
   #cardContainer{
     width:100%;
@@ -58,8 +64,9 @@
     position:relative;
   }
 
+  /* card sizing responsive */
   .card{
-    width: clamp(160px, 25vw, var(--card-max));
+    width: clamp(160px, 22vw, var(--card-max));
     aspect-ratio: 7/9;
     position:relative;
     transform-style:preserve-3d;
@@ -69,14 +76,17 @@
     align-items:center;
     justify-content:center;
     will-change:transform, opacity;
+    cursor:pointer;
+    transition: transform 300ms ease, box-shadow 250ms;
   }
+  .card:hover{ transform: translateY(-6px); box-shadow:0 12px 28px rgba(0,0,0,0.14); }
 
   .inner {
     position:absolute;
     inset:0;
     border-radius:12px;
     transform-style:preserve-3d;
-    transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+    transition: transform .9s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
     will-change: transform;
   }
 
@@ -94,35 +104,98 @@
 
   .flipped .inner{ transform: rotateY(180deg); }
 
-  .dust {
-    position:absolute;
-    border-radius:50%;
-    pointer-events:none;
-    transform-origin:center;
+  /* Overlay / zoom modal */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(6,10,12,0.38);
+    backdrop-filter: blur(6px) saturate(120%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
     opacity:0;
-    will-change: transform, opacity;
+    pointer-events:none;
+    transition:opacity 220ms ease;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+
+  .zoomCardWrap{
+    position:relative;
+    width:min(92vw, 780px);
+    max-height:92vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
   }
 
-  #revealBtn{
-    margin-top:18px;
-    background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1);
-    color:#fff;
-    font-size:1.2rem;
-    font-weight:bold;
-    border-radius:18px;
-    padding:14px 28px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.28);
-    cursor:pointer;
-    transition:transform 0.15s ease, box-shadow 0.3s;
+  .zoomCard{
+    width: clamp(260px, 46vw, 640px);
+    aspect-ratio: 7/9;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    transform-origin:center;
+    background:#fff;
+    position:relative;
   }
-  #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
-  #revealBtn:active{ transform:scale(0.97); }
+
+  .zoomCard .face{
+    position:relative;
+    inset:auto;
+    width:100%;
+    height:100%;
+    border-radius:12px;
+  }
+
+  .zoomControls{
+    position:absolute;
+    right:10px;
+    top:10px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    z-index:10;
+  }
+  .btn{
+    background:rgba(255,255,255,0.96);
+    border-radius:999px;
+    border:none;
+    padding:10px;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+  }
+  .btn:active{ transform:scale(.98); }
+
+  .closeX{
+    position:absolute;
+    left:10px;
+    top:10px;
+    background:transparent;
+    border:none;
+    color:#fff;
+    font-weight:bold;
+    font-size:22px;
+    text-shadow:0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .caption{
+    margin-top:12px;
+    font-size:1rem;
+    text-align:center;
+    color:#fff;
+  }
 
   @media(max-width:600px){
-    #cardContainer{min-height:360px;}
-    .card{width: clamp(140px, 30vw, var(--card-max));}
+    .card{ width: clamp(140px, 32vw, var(--card-max)); }
+    .zoomCard{ width: min(80vw, 460px); }
+    .zoomControls { right:8px; top:8px; }
   }
-
 </style>
 </head>
 <body>
@@ -150,64 +223,122 @@
   <section id="cardContainer" aria-live="polite" aria-label="Card display area"></section>
 </div>
 
-<button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
+<div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:8px;">
+  <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
+</div>
 
+<!-- overlay for zoomed card + controls -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <button class="closeX" id="overlayClose" aria-label="Close">✕</button>
+  <div class="zoomCardWrap" role="dialog" aria-modal="true">
+    <div id="zoomCard" class="zoomCard" role="article" aria-label="Zoomed card">
+      <!-- face background set by JS -->
+    </div>
+    <div class="zoomControls" id="zoomControls" style="display:none">
+      <button id="playBtn" class="btn" title="Play">▶</button>
+      <button id="pauseBtn" class="btn" title="Pause" style="display:none">⏸</button>
+    </div>
+  </div>
+</div>
+
+<footer aria-hidden="true"></footer>
+
+<!-- audio chime -->
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
-<audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
+/* ============================
+  Data: images and text (replace text with your real affirmations)
+  - CARDS: image URLs for each card front
+  - AFFIRMATIONS: the text that TTS will read for each card (must match CARDS order)
+  - COVER: cover image shown initially
+  ============================ */
 const CARDS = [
   "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
   "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png",
   "https://i.imgur.com/oNN1KR0.png"
 ];
+
+// IMPORTANT: replace these placeholder strings with your actual affirmation text for each card
+const AFFIRMATIONS = [
+  "I release the past and embrace peace.",
+  "My healed self guides me with gentleness and love.",
+  "Every breath grounds me and opens my heart.",
+  "I am worthy of rest and radiant joy.",
+  "I trust my path and the wisdom I hold.",
+  "I give myself permission to heal fully and freely.",
+  "I celebrate each small step toward wholeness."
+];
+
 const COVER = "https://i.imgur.com/3xOO16W.png";
+
+/* ============================
+   DOM refs
+   ============================ */
 const cardContainer = document.getElementById('cardContainer');
-const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
+const revealBtn = document.getElementById('revealBtn');
+const overlay = document.getElementById('overlay');
+const zoomCard = document.getElementById('zoomCard');
+const overlayClose = document.getElementById('overlayClose');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const zoomControls = document.getElementById('zoomControls');
 const chime = document.getElementById('chime');
-const swoosh = document.getElementById('swoosh');
 
 let selectedSpread = 1;
-let busy=false;
+let busy = false;
+let currentZoomIndex = null;
+let ttsQueue = []; // array of utterances (we'll manage queue to allow pause/resume)
+let ttsIndex = 0;
+let isPlaying = false;
 
-function pickUniqueIndices(n,len){
-  const arr=Array.from({length:len},(_,i)=>i);
+/* helper: pick n unique random indices */
+function pickUniqueIndices(n, len){
+  const arr = Array.from({length:len},(_,i)=>i);
   for(let i=len-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
   }
   return arr.slice(0,n);
 }
 
+/* set active spread and show cover card(s) */
 function setActiveSpread(n){
-  selectedSpread=n;
+  selectedSpread = n;
   spreadButtons.forEach(btn=>{
-    btn.setAttribute('aria-pressed', Number(btn.dataset.spread)===n?'true':'false');
+    const s = Number(btn.dataset.spread);
+    btn.setAttribute('aria-pressed', s===n ? 'true' : 'false');
   });
   spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
-                       : n===3 ? "Message from Divine: Past — Present — Future."
-                       : "Deep insight: 4-card guidance spread.";
-  showCoverCard();
+                     : n===3 ? "Message from Divine: Past — Present — Future."
+                     : "Deep insight: 4-card guidance spread.";
+  showCoverCards(n);
 }
 
-function showCoverCard(){
-  cardContainer.innerHTML='';
-  const card=document.createElement('div');
-  card.className='card';
-  const inner=document.createElement('div'); inner.className='inner';
-  const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-  const front=document.createElement('div'); front.className='face front';
+/* display cover card(s) only (single visible cover card as requested) */
+function showCoverCards(n){
+  cardContainer.innerHTML = '';
+  // the user wanted one display card initially — we will show ONE cover card centered
+  // but store the selectedSpread so reveal will produce n cards
+  const cover = document.createElement('div');
+  cover.className = 'card';
+  const inner = document.createElement('div'); inner.className='inner';
+  const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage = `url(${COVER})`;
+  const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage = `url(${COVER})`;
   inner.appendChild(back); inner.appendChild(front);
-  card.appendChild(inner);
-  cardContainer.appendChild(card);
+  cover.appendChild(inner);
+  cover.style.cursor = 'default';
+  cardContainer.appendChild(cover);
 }
 
-function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+/* emit dust (same as previous) */
+function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
   for(let i=0;i<count;i++){
     const d=document.createElement('div'); d.className='dust';
-    const size=3+Math.random()*7; d.style.width=d.style.height=`${size}px`;
+    const size = 3+Math.random()*7;
+    d.style.width=d.style.height=`${size}px`;
     d.style.background = palette[Math.floor(Math.random()*palette.length)];
     d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
     d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
@@ -215,51 +346,264 @@ function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8
     d.style.transform='translateY(0) scale(.6)';
     d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
     parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    requestAnimationFrame(()=> { d.style.transform = `translateY(${-40 - Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
     setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
 }
 
+/* shuffle and reveal: creates selectedSpread cards, animates them and enables click-to-zoom */
 async function shuffleAndReveal(){
-  if(busy) return; busy=true;
-  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
+  if(busy) return;
+  busy = true;
+  chime.currentTime = 0;
+  chime.play().catch(()=>{});
+  // clear existing
+  cardContainer.innerHTML = '';
 
-  cardContainer.innerHTML='';
-  const finals = pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
+  // pick unique finals
+  const finalsIndices = pickUniqueIndices(selectedSpread, CARDS.length);
+  const finals = finalsIndices.map(i => CARDS[i]);
+  const finalsText = finalsIndices.map(i => AFFIRMATIONS[i] || "Affirmation.");
 
-  finals.forEach((src,i)=>{
-    const card=document.createElement('div'); card.className='card';
-    const inner=document.createElement('div'); inner.className='inner';
-    const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
+  // create cards
+  for(let i=0;i<selectedSpread;i++){
+    const card = document.createElement('div'); card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage = `url(${COVER})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage = `url(${finals[i]})`;
     inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
+
+    // store affirmation text on dataset for TTS
+    card.dataset.affirmation = finalsText[i];
+
+    // when revealed, clicking the card zooms
+    card.addEventListener('click', (e) => {
+      // ignore clicks while busy
+      openZoom(card.dataset.affirmation, finals[i], i);
+    });
+
     cardContainer.appendChild(card);
-    card.classList.add('flipped');
 
-    // Responsive layout
-    card.style.position='absolute';
-    if(selectedSpread===3){
-      if(i===0){ card.style.top='5%'; card.style.left='50%'; card.style.transform='translateX(-50%)'; }
-      else if(i===1){ card.style.bottom='5%'; card.style.left='30%'; card.style.transform='translateX(-50%)'; }
-      else { card.style.bottom='5%'; card.style.left='70%'; card.style.transform='translateX(-50%)'; }
-    } else if(selectedSpread===4){
-      if(i===0){ card.style.top='5%'; card.style.left='30%'; card.style.transform='translateX(-50%)'; }
-      else if(i===1){ card.style.top='5%'; card.style.left='70%'; card.style.transform='translateX(-50%)'; }
-      else if(i===2){ card.style.bottom='5%'; card.style.left='30%'; card.style.transform='translateX(-50%)'; }
-      else { card.style.bottom='5%'; card.style.left='70%'; card.style.transform='translateX(-50%)'; }
-    }
+    // slight stagger for layout animation
+    card.style.opacity='0';
+    setTimeout(()=> {
+      card.style.transition = 'transform 420ms cubic-bezier(.2,.9,.25,1), opacity 400ms';
+      card.style.opacity='1';
+      // mild fanning on desktop only
+      const offset = (i - (selectedSpread-1)/2);
+      const offsetX = offset * ((window.innerWidth < 520) ? 46 : 110);
+      const angle = offset * ((window.innerWidth < 520) ? 2.5 : 6);
+      card.style.transform = `translateX(${offsetX}px) rotate(${angle}deg)`;
+    }, i*110 + 60);
 
-    emitDust(card,6);
-  });
+    // flip after a little delay (staggered)
+    setTimeout(() => {
+      card.classList.add('flipped');
+      emitDust(card, 5);
+    }, 360 + i * 140);
+  }
 
-  busy=false;
+  busy = false;
 }
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
-revealBtn.addEventListener('click',shuffleAndReveal);
+/* --- Zoom / overlay / TTS logic --- */
+
+/* open overlay and show zoomed card */
+function openZoom(text, imageUrl, idx){
+  // stop any ongoing speech
+  stopTTS();
+
+  // set zoom card background
+  zoomCard.innerHTML = '';
+  zoomCard.style.backgroundImage = `url(${imageUrl})`;
+  zoomCard.style.backgroundSize = 'cover';
+  zoomCard.style.backgroundPosition = 'center center';
+
+  // prepare controls
+  zoomControls.style.display = 'flex';
+  playBtn.style.display = 'inline-flex';
+  pauseBtn.style.display = 'none';
+
+  // keep track of current index of displayed card (for resume)
+  currentZoomIndex = idx;
+
+  // show overlay
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+
+  // prepare TTS queue (split text into small parts so we can simulate fade-in)
+  prepareTTSQueue(text);
+
+  // do not auto-play; wait for user to press Play (as you requested play/pause control)
+}
+
+/* close overlay and stop any speech */
+function closeZoom(){
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  stopTTS();
+  currentZoomIndex = null;
+}
+
+/* build TTS queue to simulate gentle fade-in:
+   split text into sentences (or smaller chunks) and create utterances with increasing volume
+   this allows a simulated fade-in by queuing utterances with slight volume ramp.
+*/
+function prepareTTSQueue(text){
+  stopTTS(); // ensure cleared
+  ttsQueue = [];
+  ttsIndex = 0;
+
+  // naive sentence split (keeps it short)
+  const chunks = text.split(/([.!?])\s+/).reduce((acc, part, i, arr) => {
+    // recombine splits that left punctuation separate
+    if (part === '.' || part === '!' || part === '?') {
+      acc[acc.length-1] = (acc[acc.length-1] || '') + part;
+    } else {
+      acc.push(part);
+    }
+    return acc;
+  }, []).filter(Boolean);
+
+  // if splitting produced many tiny parts, group into at most 4 parts for fade
+  let parts = chunks;
+  if (parts.length > 4) {
+    // combine into 4 approximately equal chunks
+    const group = Math.ceil(parts.length / 4);
+    const grouped = [];
+    for (let i=0;i<parts.length;i+=group){
+      grouped.push(parts.slice(i,i+group).join(' '));
+    }
+    parts = grouped;
+  }
+
+  // create utterances with increasing volume for fade-in effect
+  for(let i=0;i<parts.length;i++){
+    const u = new SpeechSynthesisUtterance(parts[i]);
+    // voice selection later at play time
+    // set progressive starting volume (very low -> normal)
+    const vol = Math.min(1, 0.12 + (i * (0.88 / Math.max(1, parts.length-1))));
+    u.volume = vol; // 0..1 (some browsers ignore, but most honor)
+    u.rate = 0.98; // slightly slower
+    u.pitch = 1.02; // warm pitch
+    u.lang = 'en-US';
+    ttsQueue.push(u);
+  }
+}
+
+/* start playing the queued utterances */
+function startTTS(){
+  if(!ttsQueue || ttsQueue.length === 0) return;
+  if(isPlaying) return;
+  isPlaying = true;
+  // choose a gentle feminine voice if available
+  const voices = speechSynthesis.getVoices();
+  // prefer voices with 'female' like names or 'Samantha','Victoria','Alloy','Google UK English Female' etc.
+  const preferred = voices.find(v=>/female|FEMALE|Samantha|Victoria|Alloy|Google UK|Google US|Karen|Anna|Amelia|Olivia/i.test(v.name)) || voices.find(v=>v.lang && v.lang.startsWith('en')) || voices[0];
+  ttsQueue.forEach(u=>{
+    if(preferred) u.voice = preferred;
+  });
+
+  // play sequentially respecting ttsIndex for resume
+  function playNext(){
+    if(!isPlaying) return;
+    if(ttsIndex >= ttsQueue.length){
+      // finished
+      isPlaying = false;
+      playBtn.style.display = 'inline-flex';
+      pauseBtn.style.display = 'none';
+      return;
+    }
+    const utter = ttsQueue[ttsIndex];
+    utter.onend = () => {
+      ttsIndex++;
+      playNext();
+    };
+    utter.onerror = () => {
+      // skip to next on error
+      ttsIndex++;
+      playNext();
+    };
+    // speak
+    speechSynthesis.speak(utter);
+  }
+
+  playNext();
+  playBtn.style.display = 'none';
+  pauseBtn.style.display = 'inline-flex';
+}
+
+/* pause / stop TTS */
+function pauseTTS(){
+  isPlaying = false;
+  speechSynthesis.cancel();
+  // keep ttsIndex as-is so resume starts at the current chunk
+  playBtn.style.display = 'inline-flex';
+  pauseBtn.style.display = 'none';
+}
+
+/* fully stop and clear queue */
+function stopTTS(){
+  isPlaying = false;
+  speechSynthesis.cancel();
+  ttsQueue = [];
+  ttsIndex = 0;
+  playBtn.style.display = 'inline-flex';
+  pauseBtn.style.display = 'none';
+}
+
+/* overlay click handling */
+overlayClose.addEventListener('click', (e)=>{ e.stopPropagation(); closeZoom(); });
+overlay.addEventListener('click', (e)=> {
+  // clicking outside zoom area closes
+  if(e.target === overlay) closeZoom();
+});
+
+/* play / pause button hooks */
+playBtn.addEventListener('click', ()=>{
+  startTTS();
+});
+pauseBtn.addEventListener('click', ()=>{
+  pauseTTS();
+});
+
+/* spread buttons behavior: selecting a spread sets selectedSpread and only shows cover card
+   (user asked: single display card shown initially; actual N cards appear after Reveal)
+*/
+spreadButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const n = Number(btn.dataset.spread);
+    setActiveSpread(n);
+  });
+});
+
+/* reveal button: show the actual cards and enable clicking them to zoom & TTS */
+revealBtn.addEventListener('click', ()=>{
+  shuffleAndReveal();
+});
+
+/* initialize */
 setActiveSpread(1);
 
+/* ensure voices are loaded (some browsers load asynchronously) */
+if (typeof speechSynthesis !== 'undefined') {
+  speechSynthesis.onvoiceschanged = ()=>{/* no-op; will pick voice when playing */};
+}
+
+/* background particles (soft) */
+(function createBackgroundParticles(){
+  const colors=['#FFD700','#FFB6C1','#D8B0FF','#FFFFFF']; const total=22;
+  for(let i=0;i<total;i++){
+    const p=document.createElement('div'); p.className='bg-particle';
+    const size=4+Math.random()*6; p.style.width=p.style.height=`${size}px`;
+    p.style.left=`${Math.random()*100}%`; p.style.top=`${60+Math.random()*40}%`;
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.opacity=(0.06+Math.random()*0.16).toString();
+    p.style.animationDuration=`${8+Math.random()*12}s`; p.style.animationDelay=`-${Math.random()*10}s`;
+    document.body.appendChild(p);
+  }
+})();
 </script>
 </body>
 </html>
