@@ -26,9 +26,8 @@ body{
   overflow-x:hidden;
   padding:18px;
 }
-
 header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
-h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:black; }
+h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:black;}
 h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
@@ -42,14 +41,13 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 .controls button:active{ transform:scale(.98); }
 .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-#spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
+#spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; min-height:22px; color:white; }
 
 #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
 #cardContainer{
   width:100%;
   min-height:380px;
   display:flex;
-  flex-wrap:wrap;
   justify-content:center;
   align-items:flex-start;
   position:relative;
@@ -66,16 +64,14 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   transform-style:preserve-3d;
   -webkit-tap-highlight-color:transparent;
   border-radius:12px;
-  opacity:0;
+  opacity:1;
   display:flex;
   align-items:center;
   justify-content:center;
   will-change:transform, opacity;
   cursor:pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
-.card.expanded{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(1.8); z-index:999; box-shadow:0 12px 40px rgba(0,0,0,0.28); }
-
 .inner {
   position:absolute;
   inset:0;
@@ -84,7 +80,6 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
   will-change: transform;
 }
-
 .face{
   position:absolute;
   inset:0;
@@ -95,8 +90,7 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   box-shadow:0 6px 18px rgba(0,0,0,0.12);
 }
 .face.back{ transform: rotateY(0deg); }
-.face.front{ transform: rotateY(180deg); }
-
+.face.front{ transform: rotateY(180deg); background:#fff; display:flex; align-items:center; justify-content:center; text-align:center; padding:12px; font-size:0.95rem; line-height:1.3;}
 .flipped .inner{ transform: rotateY(180deg); }
 
 #revealBtn{
@@ -115,8 +109,24 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 #revealBtn:active{ transform:scale(0.97); }
 
 footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
-.hidden{ display:none!important; }
 
+.audio-controls{
+  margin-top:8px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  align-items:center;
+}
+.audio-controls button{
+  padding:6px 12px;
+  border:none;
+  border-radius:8px;
+  background:#FFD700;
+  color:#000;
+  cursor:pointer;
+}
+
+.hidden{ display:none!important; }
 </style>
 </head>
 <body>
@@ -126,7 +136,7 @@ footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
     🦋 Pull your card(s), Beautiful Soul 💖<br>
     Each affirmation in this deck is a whisper from your healed self. This is a safe space.<br>
     Take a gentle breath, open your heart, and let these messages guide you. 💫<br>
-    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸<br>
+    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸
     <span class="signature">With unconditional love, Healing Minez 💖</span>
   </h1>
 </header>
@@ -146,32 +156,83 @@ footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
 
 <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
+<div class="audio-controls hidden" id="audioControls">
+  <button id="playAudio">▶ Play</button>
+  <button id="pauseAudio">⏸ Pause</button>
+</div>
+
 <footer aria-hidden="true"></footer>
 
-<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
-<audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
-
 <script>
-const CARDS = [
-  "https://i.imgur.com/HsSFp1G.png","https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png",
-  "https://i.imgur.com/pDONoKd.png","https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png",
-  "https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
-];
 const COVER = "https://i.imgur.com/ByGNT8v.png"; // Cover card
-const GOLD = "https://i.imgur.com/3xOO16W.png";
+const CARDS = [
+  "The version of me that once settled doesn't live here anymore.",
+  "I’m no longer fighting to exist—I’m learning to live in my peace.",
+  "I forgive myself for what I accepted when I didn’t know my worth",
+  "My story is not a wound — it’s a womb, birthing my new beginning.",
+  "Every lesson I’ve lived is a key unlocking the woman I was born to be.",
+  "I am done shrinking so others can feel comfortable in my light.",
+  "Healing doesn’t mean I forget — it means I choose me, finally.",
+  "I am safe to be soft. I am safe to rest. I am safe to receive.",
+  "I don’t chase — I attract. I receive all I ask.",
+  "My strength is not in how much I endure, but in how much I evolve.",
+  "I give myself permission to rest without guilt.",
+  "My softness is my power, not my weakness.",
+  "I am learning to love the parts of me I once abandoned.",
+  "Healing doesn’t erase my story — it reclaims it.",
+  "My emotions are sacred messengers not enemies.",
+  "I am allowed to start over as many times as I need.",
+  "I no longer confuse chaos with love.",
+  "I honor the woman I was for surviving.",
+  "I release the need to prove my worth.",
+  "I am safe to let go of what no longer serves me.",
+  "I no longer shrink to make others comfortable.",
+  "I release the idea that I must be strong all the time.",
+  "The weight I carry is not mine to hold anymore.",
+  "I trust the divine timing of my healing.",
+  "I am free from the energy of people who drained my light.",
+  "I no longer fight to exist — I choose to live in peace.",
+  "I release comparison; my path is mine alone.",
+  "I no longer chase what’s meant to flow to me",
+  "I am becoming the woman I once prayed to be",
+  "I am the calm I used to search for in others.",
+  "I honor my boundaries as sacred acts of self love.",
+  "I choose peace over proving.",
+  "I am the author of my next chapter.",
+  "I don’t beg for love — I embody it.",
+  "I am aligned with ease and abundance.",
+  "My self-worth is not negotiable.",
+  "My light no longer dims for anyone.",
+  "I am the evidence that healing is real",
+  "I rise above fear with grace and wisdom",
+  "I am safe to be seen, heard, and loved.",
+  "Every lesson I’ve lived is a key unlocking my freedom.",
+  "I celebrate my progress, not just my perfection.",
+  "I attract people who honor my healing",
+  "I am not afraid of who I’m becoming.",
+  "I stand rooted in purpose, wrapped in peace.",
+  "I am magnetic when I move in alignment.",
+  "My light no longer dims for anyone.",
+  "My voice is power — my truth is freedom.",
+  "I no longer fear my power — I remember it. (Master Card: Power)",
+  "I am the prayer, the promise, and the proof that healing transforms. (Master Card: Crown)"
+];
 
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-const chime = document.getElementById('chime');
-const swoosh = document.getElementById('swoosh');
+const audioControls = document.getElementById('audioControls');
+const playBtn = document.getElementById('playAudio');
+const pauseBtn = document.getElementById('pauseAudio');
 
 let selectedSpread = 1;
+let synth = window.speechSynthesis;
+let currentUtterance = null;
+let currentIndex = 0;
 let busy = false;
-let revealed = false;
 
-function pickUniqueIndices(n, len){
+function pickUniqueIndices(n,len){
   const arr = Array.from({length:len},(_,i)=>i);
   for(let i=len-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
@@ -189,72 +250,54 @@ function setActiveSpread(n){
   spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
                      : n===3 ? "Deep insight: 3-card guidance spread."
                      : "Deep insight: 4-card guidance spread.";
-  showCoverCards();
 }
 
-function showCoverCards(){
+function showCoverCards(n){
   cardContainer.innerHTML='';
-  for(let i=0;i<selectedSpread;i++){
+  for(let i=0;i<n;i++){
     const card = document.createElement('div');
     card.className='card';
     const inner = document.createElement('div'); inner.className='inner';
     const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${COVER})`;
+    const front = document.createElement('div'); front.className='face front';
     inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
-    card.style.opacity='1';
     cardContainer.appendChild(card);
-  }
-  revealed = false;
-}
-
-function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
-  for(let i=0;i<count;i++){
-    const d=document.createElement('div'); d.className='dust';
-    const size = 3 + Math.random()*7;
-    d.style.width=d.style.height=`${size}px`;
-    d.style.background=palette[Math.floor(Math.random()*palette.length)];
-    d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
-    d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
-    d.style.opacity='1';
-    parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
-    setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
 }
 
 function shuffleAndReveal(){
   if(busy) return; busy=true;
-  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
-
-  const cards = cardContainer.querySelectorAll('.card');
   const indices = pickUniqueIndices(selectedSpread, CARDS.length);
+  const cards = Array.from(cardContainer.children);
+
   cards.forEach((c,i)=>{
     const inner = c.querySelector('.inner');
-    inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
-    c.classList.add('flipped');
-    emitDust(c,6);
-    // click to expand & TTS
-    c.onclick = () => {
-      c.classList.toggle('expanded');
-      const utter = new SpeechSynthesisUtterance(`Affirmation ${indices[i]+1}`);
-      utter.lang='en-US';
-      utter.rate=0.85;
-      if(c.classList.contains('expanded')){
-        speechSynthesis.speak(utter);
-      } else {
-        speechSynthesis.cancel();
-      }
-    };
+    const front = inner.querySelector('.front');
+    front.textContent = CARDS[indices[i]];
+    inner.classList.remove('flipped');
+    c.onclick = ()=>playCardAudio(CARDS[indices[i]]);
   });
-  revealed=true;
-  busy=false;
+
+  setTimeout(()=>{ cards.forEach(c=>c.querySelector('.inner').classList.add('flipped')); busy=false; }, 400);
 }
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
-revealBtn.addEventListener('click',()=>{ if(!revealed) shuffleAndReveal(); else showCoverCards(); });
+function playCardAudio(text){
+  if(synth.speaking){ synth.cancel(); }
+  const utterThis = new SpeechSynthesisUtterance(text);
+  utterThis.rate=0.95;
+  utterThis.pitch=1.05;
+  currentUtterance = utterThis;
+  synth.speak(utterThis);
+  audioControls.classList.remove('hidden');
+}
 
-setActiveSpread(1);
+playBtn.onclick=()=>{ if(currentUtterance && !synth.speaking){ synth.speak(currentUtterance); } };
+pauseBtn.onclick=()=>{ if(synth.speaking){ synth.cancel(); } };
+
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); showCoverCards(Number(btn.dataset.spread)); }));
+revealBtn.addEventListener('click',shuffleAndReveal);
+setActiveSpread(1); showCoverCards(1);
 </script>
 </body>
 </html>
