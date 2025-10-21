@@ -35,7 +35,8 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
 #revealBtn{margin-top:18px;background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1); color:#fff; font-size:1.2rem; font-weight:bold; border-radius:18px; padding:14px 28px; box-shadow:0 6px 20px rgba(0,0,0,0.28); cursor:pointer; transition:transform 0.15s ease, box-shadow 0.3s;}
 #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32);}
 #revealBtn:active{ transform:scale(0.97);}
-.card-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,0.36);padding:24px;max-width:90%;max-height:80%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;}
+.card-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,0.36);padding:24px;max-width:90%;max-height:80%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;opacity:0;transition:opacity 0.4s ease-in-out;}
+.card-modal.show{display:flex;opacity:1;}
 .card-modal img{max-width:100%;max-height:60vh;border-radius:12px;}
 .card-modal p{margin-top:12px;font-size:1.1rem;text-align:center;color:#000;}
 .card-modal button{margin-top:18px;padding:8px 16px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1rem;cursor:pointer;}
@@ -81,16 +82,16 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
 <audio id="speakAudio"></audio>
 
 <script>
-const COVER = "https://i.imgur.com/3xOO16W.png"; // correct cover card
+const COVER = "https://i.imgur.com/3xOO16W.png"; // updated cover card
 const CARDS = [
   "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
   "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
 ];
 const AFFIRMATIONS = [
-  "The version of me that once settled doesn't live here anymore.",
+  "The version of me that once settled doesn't live here anymore,",
   "I’m no longer fighting to exist-I’m learning to live in my peace.",
   "I forgive myself for what I accepted when I didn’t know my worth",
-  "My story is not a wound — it’s a womb, birthing  my new beginning.",
+  "My story is not a wound — it’s a womb, birthing my new beginning.",
   "Every lesson I’ve lived is a key unlocking the woman I was born to be.",
   "I am done shrinking so others can feel comfortable in my light.",
   "Healing doesn’t mean I forget — it means I choose me, finally.",
@@ -114,8 +115,8 @@ const AFFIRMATIONS = [
   "I am free from the energy of people who drained my light.",
   "I no longer fight to exist — I choose to live in peace.",
   "I release comparison; my path is mine alone.",
-  "I no longer chase what’s meant to flow to me",
-  "I am becoming the woman I once prayed to be",
+  "I no longer chase what’s meant to flow to me.",
+  "I am becoming the woman I once prayed to be.",
   "I am the calm I used to search for in others.",
   "I honor my boundaries as sacred acts of self love.",
   "I choose peace over proving.",
@@ -124,19 +125,19 @@ const AFFIRMATIONS = [
   "I am aligned with ease and abundance.",
   "My self-worth is not negotiable.",
   "My light no longer dims for anyone.",
-  "I am the evidence that healing is real",
-  "I rise above fear with grace and wisdom",
+  "I am the evidence that healing is real.",
+  "I rise above fear with grace and wisdom.",
   "I am safe to be seen, heard, and loved.",
   "Every lesson I’ve lived is a key unlocking my freedom.",
   "I celebrate my progress, not just my perfection.",
-  "I attract people who honor my healing",
+  "I attract people who honor my healing.",
   "I am not afraid of who I’m becoming.",
   "I stand rooted in purpose, wrapped in peace.",
-  "I am magnetic when I move in alignment.", 
-  "My light no longer dims for anyone.", 
+  "I am magnetic when I move in alignment.",
+  "My light no longer dims for anyone.",
   "My voice is power — my truth is freedom.",
-  "I no longer fear my power — I remember it. This is your awakening moment...",
-  "I am the prayer, the promise, and the proof that healing transforms. This is your divine confirmation..."
+  "I no longer fear my power — I remember it. (Master card)",
+  "I am the prayer, the promise, and the proof that healing transforms. (Master card)"
 ];
 
 const cardContainer = document.getElementById('cardContainer');
@@ -151,7 +152,6 @@ function setActiveSpread(n){
   selectedSpread = n;
   spreadButtons.forEach(btn=>btn.setAttribute('aria-pressed', btn.dataset.spread==n?'true':'false'));
   spreadDesc.textContent = n===1?"Daily inspiration / journal prompt.":n===3?"Deep insight: 3-card guidance spread.":"Deep insight: 4-card guidance spread.";
-  showCover();
 }
 
 function showCover(){
@@ -177,12 +177,9 @@ function shuffleReveal(){
   const cards=Array.from(cardContainer.children);
   cards.forEach((card,i)=>{
     const inner=card.querySelector('.inner');
-    card.classList.remove('flipped');
-    setTimeout(()=>{
-      inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
-      card.dataset.affirmation=AFFIRMATIONS[indices[i]]||"Your heart knows the answer.";
-      card.classList.add('flipped');
-    },100);
+    inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
+    card.dataset.affirmation=AFFIRMATIONS[indices[i]]||"Your heart knows the answer.";
+    card.classList.add('flipped');
   });
   busy=false;
 }
@@ -197,21 +194,26 @@ let playing=false;
 cardContainer.addEventListener('click', e=>{
   const card = e.target.closest('.card');
   if(card && card.classList.contains('flipped')){
-    modal.style.display='flex';
     modalImg.src = card.querySelector('.front').style.backgroundImage.slice(5,-2);
     modalText.textContent = card.dataset.affirmation;
-    // VoiceRSS key must be replaced
-    speakAudio.src = `https://api.voicerss.org/?key=YOUR_API_KEY&hl=en-us&c=MP3&f=44khz_16bit_stereo&src=${encodeURIComponent(card.dataset.affirmation)}`;
+    modal.classList.add('show');
+    speakAudio.src = `https://api.voicerss.org/?key=1e5f9f80030e4f1e9e49387f36f0c969&hl=en-us-female&c=MP3&f=44khz_16bit_stereo&src=${encodeURIComponent(card.dataset.affirmation)}`;
     playing=false;
   }
 });
-document.getElementById('closeModal').addEventListener('click',()=>{ modal.style.display='none'; speakAudio.pause(); });
+document.getElementById('closeModal').addEventListener('click',()=>{
+  modal.classList.remove('show');
+  speakAudio.pause();
+});
 document.getElementById('playPause').addEventListener('click',()=>{
-  if(playing){ speakAudio.pause(); playing=false; }
-  else{ speakAudio.play(); playing=true; }
+  if(playing){speakAudio.pause(); playing=false;}
+  else{ speakAudio.play(); playing=true;}
 });
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  setActiveSpread(Number(btn.dataset.spread));
+  showCover();
+}));
 
 revealBtn.addEventListener('click',shuffleReveal);
 
