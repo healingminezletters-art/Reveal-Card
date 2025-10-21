@@ -69,6 +69,7 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
 
 <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
+<!-- modal for enlarged card -->
 <div class="card-modal" id="cardModal">
   <img id="modalImg" src="">
   <p id="modalText"></p>
@@ -76,35 +77,76 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
   <button id="playPause">Play</button>
 </div>
 
+<!-- audio -->
 <audio id="speakAudio"></audio>
 
 <script>
-const COVER = "https://i.imgur.com/3xOO16W.png";
+const COVER = "https://i.imgur.com/3xOO16W.png"; // correct cover card
+const CARDS = [
+  "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
+  "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
+];
 
-const DECK = [
-  {img:"https://i.imgur.com/HMDsIdj.png", text:"The version of me that once settled doesn't live here anymore,"},
-  {img:"https://i.imgur.com/pu3CPVv.png", text:"I’m no longer fighting to exist-I’m learning to live in my peace."},
-  {img:"https://i.imgur.com/pDONoKd.png", text:"I forgive myself for what I accepted when I didn’t know my worth"},
-  {img:"https://i.imgur.com/zgWvZtT.png", text:"My story is not a wound — it’s a womb, birthing my new beginning."},
-  {img:"https://i.imgur.com/Ybi9YzL.png", text:"Every lesson I’ve lived is a key unlocking the woman I was born to be."},
-  {img:"https://i.imgur.com/SjaDX9E.png", text:"I am done shrinking so others can feel comfortable in my light.."},
-  {img:"https://i.imgur.com/oNN1KR0.png", text:"Healing doesn’t mean I forget — it means I choose me, finally."}
+const AFFIRMATIONS = [
+  "The version of me that once settled doesn't live here anymore.",
+  "I’m no longer fighting to exist-I’m learning to live in my peace.",
+  "I forgive myself for what I accepted when I didn’t know my worth.",
+  "My story is not a wound — it’s a womb, birthing my new beginning.",
+  "Every lesson I’ve lived is a key unlocking the woman I was born to be.",
+  "I am done shrinking so others can feel comfortable in my light.",
+  "Healing doesn’t mean I forget — it means I choose me, finally.",
+  "I am safe to be soft. I am safe to rest. I am safe to receive.",
+  "I don’t chase — I attract. I receive all I ask.",
+  "My strength is not in how much I endure, but in how much I evolve.",
+  "I give myself permission to rest without guilt.",
+  "My softness is my power, not my weakness.",
+  "I am learning to love the parts of me I once abandoned.",
+  "Healing doesn’t erase my story — it reclaims it.",
+  "My emotions are sacred messengers, not enemies.",
+  "I am allowed to start over as many times as I need.",
+  "I no longer confuse chaos with love.",
+  "I honor the woman I was for surviving.",
+  "I release the need to prove my worth.",
+  "I am safe to let go of what no longer serves me.",
+  "I no longer shrink to make others comfortable.",
+  "I release the idea that I must be strong all the time.",
+  "The weight I carry is not mine to hold anymore.",
+  "I trust the divine timing of my healing.",
+  "I am free from the energy of people who drained my light.",
+  "I no longer fight to exist — I choose to live in peace.",
+  "I release comparison; my path is mine alone.",
+  "I no longer chase what’s meant to flow to me.",
+  "I am becoming the woman I once prayed to be.",
+  "I am the calm I used to search for in others.",
+  "I honor my boundaries as sacred acts of self love.",
+  "I choose peace over proving.",
+  "I am the author of my next chapter.",
+  "I don’t beg for love — I embody it.",
+  "I am aligned with ease and abundance.",
+  "My self-worth is not negotiable.",
+  "My light no longer dims for anyone.",
+  "I am the evidence that healing is real.",
+  "I rise above fear with grace and wisdom.",
+  "I am safe to be seen, heard, and loved.",
+  "Every lesson I’ve lived is a key unlocking my freedom.",
+  "I celebrate my progress, not just my perfection.",
+  "I attract people who honor my healing.",
+  "I am not afraid of who I’m becoming.",
+  "I stand rooted in purpose, wrapped in peace.",
+  "I am magnetic when I move in alignment.",
+  "My light no longer dims for anyone.",
+  "My voice is power — my truth is freedom.",
+  "I no longer fear my power — I remember it. (Master Card)",
+  "I am the prayer, the promise, and the proof that healing transforms. (Master Card)"
 ];
 
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
-const modal = document.getElementById('cardModal');
-const modalImg = document.getElementById('modalImg');
-const modalText = document.getElementById('modalText');
-const speakAudio = document.getElementById('speakAudio');
-const closeModal = document.getElementById('closeModal');
-const playPause = document.getElementById('playPause');
 
 let selectedSpread = 1;
 let busy=false;
-let playing=false;
 
 function setActiveSpread(n){
   selectedSpread = n;
@@ -114,7 +156,8 @@ function setActiveSpread(n){
 
 function showCover(){
   cardContainer.innerHTML="";
-  for(let i=0;i<selectedSpread;i++){
+  const count = selectedSpread;
+  for(let i=0;i<count;i++){
     const card=document.createElement('div'); card.className='card';
     const inner=document.createElement('div'); inner.className='inner';
     const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
@@ -126,16 +169,27 @@ function showCover(){
 
 function shuffleReveal(){
   if(busy) return; busy=true;
-  const shuffled = DECK.sort(()=>0.5-Math.random()).slice(0, selectedSpread);
-  const cards = Array.from(cardContainer.children);
+  const indices = [];
+  while(indices.length<selectedSpread){
+    const idx=Math.floor(Math.random()*CARDS.length);
+    if(!indices.includes(idx)) indices.push(idx);
+  }
+  const cards=Array.from(cardContainer.children);
   cards.forEach((card,i)=>{
     const inner=card.querySelector('.inner');
-    inner.querySelector('.front').style.backgroundImage=`url(${shuffled[i].img})`;
-    card.dataset.affirmation=shuffled[i].text;
+    inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
+    card.dataset.affirmation=AFFIRMATIONS[indices[i]]||"Your heart knows the answer.";
     card.classList.add('flipped');
   });
   busy=false;
 }
+
+// modal functionality
+const modal = document.getElementById('cardModal');
+const modalImg = document.getElementById('modalImg');
+const modalText = document.getElementById('modalText');
+const speakAudio = document.getElementById('speakAudio');
+let playing=false;
 
 cardContainer.addEventListener('click', e=>{
   const card = e.target.closest('.card');
@@ -147,24 +201,22 @@ cardContainer.addEventListener('click', e=>{
     playing=false;
   }
 });
-
-closeModal.addEventListener('click', ()=>{ modal.style.display='none'; speakAudio.pause(); });
-playPause.addEventListener('click', ()=>{
-  if(playing){ speakAudio.pause(); playing=false;}
+document.getElementById('closeModal').addEventListener('click',()=>{ modal.style.display='none'; speakAudio.pause(); });
+document.getElementById('playPause').addEventListener('click',()=>{
+  if(playing){speakAudio.pause(); playing=false;}
   else{ speakAudio.play(); playing=true;}
 });
 
-spreadButtons.forEach(btn=>btn.addEventListener('click', ()=>{
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{
   setActiveSpread(Number(btn.dataset.spread));
   showCover();
 }));
 
-revealBtn.addEventListener('click', shuffleReveal);
+revealBtn.addEventListener('click',shuffleReveal);
 
 // init
 setActiveSpread(1);
 showCover();
 </script>
-
 </body>
 </html>
