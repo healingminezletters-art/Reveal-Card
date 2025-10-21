@@ -12,34 +12,111 @@
   --gold:#FFD700;
   --card-max:320px;
 }
-html,body{height:100%;margin:0;font-family:'Playfair Display',serif;background:var(--bg);display:flex;flex-direction:column;align-items:center;color:#000;overflow-x:hidden;padding:18px;}
-header{text-align:center;margin-top:6px;max-width:1100px;width:100%;}
-h1{margin:8px 0 6px;font-size:1.6rem;line-height:1.15;}
-h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
-.signature{font-family:'Great Vibes',cursive;font-size:1.6rem;display:block;margin-top:8px;color:#FFD700;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-.controls{margin:14px 0 6px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
-.controls button{background:var(--accent);color:white;border:none;padding:10px 18px;font-size:1rem;border-radius:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.12);transition:transform .14s ease, background 0.3s;}
-.controls button:hover{background:#FF85C1;}
-.controls button:active{transform:scale(.98);}
-.controls button[aria-pressed="true"]{box-shadow:0 6px 16px rgba(0,0,0,0.18);outline:3px solid rgba(255,105,180,0.12);}
-#spreadDesc{margin:8px 0 18px;font-size:0.98rem;text-align:center;color:#fff;min-height:22px;}
-#cardWrap{width:100%;max-width:1200px;position:relative;display:flex;justify-content:center;align-items:flex-start;padding:10px 6px;}
-#cardContainer{width:100%;min-height:380px;display:flex;justify-content:center;align-items:flex-start;position:relative;perspective:1600px;gap: 18px;padding:20px 10px;box-sizing:border-box;}
-.card{width: clamp(160px, 20vw, var(--card-max)); aspect-ratio: 7/9; position:relative; transform-style:preserve-3d; -webkit-tap-highlight-color:transparent; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
-.inner{position:absolute;inset:0;border-radius:12px;transform-style:preserve-3d;transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;}
-.face{position:absolute;inset:0;border-radius:12px;background-size:cover;background-position:center;backface-visibility:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);}
-.face.back{transform: rotateY(0deg);}
-.face.front{transform: rotateY(180deg);}
-.flipped .inner{transform: rotateY(180deg);}
-#revealBtn{margin-top:18px;background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1); color:#fff; font-size:1.2rem; font-weight:bold; border-radius:18px; padding:14px 28px; box-shadow:0 6px 20px rgba(0,0,0,0.28); cursor:pointer; transition:transform 0.15s ease, box-shadow 0.3s;}
-#revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32);}
-#revealBtn:active{ transform:scale(0.97);}
-.card-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,0.36);padding:24px;max-width:90%;max-height:80%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99;}
-.card-modal img{max-width:100%;max-height:60vh;border-radius:12px;}
-.card-modal p{margin-top:12px;font-size:1.1rem;text-align:center;color:#000;}
-.card-modal button{margin-top:18px;padding:8px 16px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1rem;cursor:pointer;}
-footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
+html,body{height:100%;}
+body{
+  margin:0;
+  min-height:100%;
+  font-family:'Playfair Display',serif;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:#000;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  padding:18px;
+}
+
+header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
+h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:black; }
+h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
+.signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+
+.controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
+.controls button{
+  background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
+}
+.controls button:hover{ background:#FF85C1; }
+.controls button:active{ transform:scale(.98); }
+.controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+
+#spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
+
+#cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
+#cardContainer{
+  width:100%;
+  min-height:380px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:flex-start;
+  position:relative;
+  perspective:1600px;
+  gap: 18px;
+  padding:20px 10px;
+  box-sizing:border-box;
+}
+
+.card{
+  width: clamp(160px, 20vw, var(--card-max));
+  aspect-ratio: 7/9;
+  position:relative;
+  transform-style:preserve-3d;
+  -webkit-tap-highlight-color:transparent;
+  border-radius:12px;
+  opacity:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  will-change:transform, opacity;
+  cursor:pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card.expanded{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(1.8); z-index:999; box-shadow:0 12px 40px rgba(0,0,0,0.28); }
+
+.inner {
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  transform-style:preserve-3d;
+  transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
+  will-change: transform;
+}
+
+.face{
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  background-size:cover;
+  background-position:center;
+  backface-visibility:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+}
+.face.back{ transform: rotateY(0deg); }
+.face.front{ transform: rotateY(180deg); }
+
+.flipped .inner{ transform: rotateY(180deg); }
+
+#revealBtn{
+  margin-top:18px;
+  background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1);
+  color:#fff;
+  font-size:1.2rem;
+  font-weight:bold;
+  border-radius:18px;
+  padding:14px 28px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.28);
+  cursor:pointer;
+  transition:transform 0.15s ease, box-shadow 0.3s;
+}
+#revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
+#revealBtn:active{ transform:scale(0.97); }
+
+footer{ margin-top:12px; font-size:0.9rem; color:rgba(0,0,0,0.6); }
+.hidden{ display:none!important; }
+
 </style>
 </head>
 <body>
@@ -49,7 +126,7 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
     🦋 Pull your card(s), Beautiful Soul 💖<br>
     Each affirmation in this deck is a whisper from your healed self. This is a safe space.<br>
     Take a gentle breath, open your heart, and let these messages guide you. 💫<br>
-    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸
+    Trust the timing, trust yourself, and receive the insight meant just for you today. 🌸<br>
     <span class="signature">With unconditional love, Healing Minez 💖</span>
   </h1>
 </header>
@@ -69,110 +146,115 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
 
 <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
-<!-- modal for enlarged card -->
-<div class="card-modal" id="cardModal">
-  <img id="modalImg" src="">
-  <p id="modalText"></p>
-  <button id="closeModal">Close</button>
-  <button id="playPause">Play</button>
-</div>
+<footer aria-hidden="true"></footer>
 
-<!-- audio -->
-<audio id="speakAudio"></audio>
+<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
+<audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
-const COVER = "https://i.imgur.com/ByGNT8v.png"; // placeholder cover card
 const CARDS = [
-  "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
-  "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
+  "https://i.imgur.com/HsSFp1G.png","https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png",
+  "https://i.imgur.com/pDONoKd.png","https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png",
+  "https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
 ];
-const AFFIRMATIONS = [
-  "You are worthy of love and joy.",
-  "Trust in your inner wisdom.",
-  "Today is a fresh start.",
-  "You are a powerful creator.",
-  "Embrace your unique journey.",
-  "Healing flows through you.",
-  "Your soul is radiant."
-];
+const COVER = "https://i.imgur.com/ByGNT8v.png"; // Cover card
+const GOLD = "https://i.imgur.com/3xOO16W.png";
 
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
+const chime = document.getElementById('chime');
+const swoosh = document.getElementById('swoosh');
 
 let selectedSpread = 1;
-let busy=false;
+let busy = false;
+let revealed = false;
+
+function pickUniqueIndices(n, len){
+  const arr = Array.from({length:len},(_,i)=>i);
+  for(let i=len-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr.slice(0,n);
+}
 
 function setActiveSpread(n){
   selectedSpread = n;
-  spreadButtons.forEach(btn=>btn.setAttribute('aria-pressed', btn.dataset.spread==n?'true':'false'));
-  spreadDesc.textContent = n===1?"Daily inspiration / journal prompt.":n===3?"Message from Divine: Past — Present — Future.":"Deep insight: 4-card guidance spread.";
+  spreadButtons.forEach(btn=>{
+    const s = Number(btn.dataset.spread);
+    btn.setAttribute('aria-pressed', s===n ? 'true' : 'false');
+  });
+  spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
+                     : n===3 ? "Deep insight: 3-card guidance spread."
+                     : "Deep insight: 4-card guidance spread.";
+  showCoverCards();
 }
 
-function showCover(){
-  cardContainer.innerHTML="";
-  const count = selectedSpread;
-  for(let i=0;i<count;i++){
-    const card=document.createElement('div'); card.className='card';
-    const inner=document.createElement('div'); inner.className='inner';
-    const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${COVER})`;
-    inner.appendChild(back); inner.appendChild(front); card.appendChild(inner);
+function showCoverCards(){
+  cardContainer.innerHTML='';
+  for(let i=0;i<selectedSpread;i++){
+    const card = document.createElement('div');
+    card.className='card';
+    const inner = document.createElement('div'); inner.className='inner';
+    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
+    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${COVER})`;
+    inner.appendChild(back); inner.appendChild(front);
+    card.appendChild(inner);
+    card.style.opacity='1';
     cardContainer.appendChild(card);
   }
+  revealed = false;
 }
 
-function shuffleReveal(){
-  if(busy) return; busy=true;
-  const indices = [];
-  while(indices.length<selectedSpread){
-    const idx=Math.floor(Math.random()*CARDS.length);
-    if(!indices.includes(idx)) indices.push(idx);
+function emitDust(parent, count=6, palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div'); d.className='dust';
+    const size = 3 + Math.random()*7;
+    d.style.width=d.style.height=`${size}px`;
+    d.style.background=palette[Math.floor(Math.random()*palette.length)];
+    d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
+    d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
+    d.style.opacity='1';
+    parent.appendChild(d);
+    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
-  const cards=Array.from(cardContainer.children);
-  cards.forEach((card,i)=>{
-    const inner=card.querySelector('.inner');
+}
+
+function shuffleAndReveal(){
+  if(busy) return; busy=true;
+  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
+
+  const cards = cardContainer.querySelectorAll('.card');
+  const indices = pickUniqueIndices(selectedSpread, CARDS.length);
+  cards.forEach((c,i)=>{
+    const inner = c.querySelector('.inner');
     inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
-    card.dataset.affirmation=AFFIRMATIONS[indices[i]]||"Your heart knows the answer.";
-    card.classList.add('flipped');
+    c.classList.add('flipped');
+    emitDust(c,6);
+    // click to expand & TTS
+    c.onclick = () => {
+      c.classList.toggle('expanded');
+      const utter = new SpeechSynthesisUtterance(`Affirmation ${indices[i]+1}`);
+      utter.lang='en-US';
+      utter.rate=0.85;
+      if(c.classList.contains('expanded')){
+        speechSynthesis.speak(utter);
+      } else {
+        speechSynthesis.cancel();
+      }
+    };
   });
+  revealed=true;
   busy=false;
 }
 
-// modal functionality
-const modal = document.getElementById('cardModal');
-const modalImg = document.getElementById('modalImg');
-const modalText = document.getElementById('modalText');
-const speakAudio = document.getElementById('speakAudio');
-let playing=false;
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
+revealBtn.addEventListener('click',()=>{ if(!revealed) shuffleAndReveal(); else showCoverCards(); });
 
-cardContainer.addEventListener('click', e=>{
-  const card = e.target.closest('.card');
-  if(card && card.classList.contains('flipped')){
-    modal.style.display='flex';
-    modalImg.src=card.querySelector('.front').style.backgroundImage.slice(5,-2);
-    modalText.textContent=card.dataset.affirmation;
-    speakAudio.src = `https://api.voicerss.org/?key=YOUR_API_KEY&hl=en-us&c=MP3&f=44khz_16bit_stereo&src=${encodeURIComponent(card.dataset.affirmation)}`;
-    playing=false;
-  }
-});
-document.getElementById('closeModal').addEventListener('click',()=>{ modal.style.display='none'; speakAudio.pause(); });
-document.getElementById('playPause').addEventListener('click',()=>{
-  if(playing){speakAudio.pause(); playing=false;}
-  else{ speakAudio.play(); playing=true;}
-});
-
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{
-  setActiveSpread(Number(btn.dataset.spread));
-  showCover();
-}));
-
-revealBtn.addEventListener('click',shuffleReveal);
-
-// init
 setActiveSpread(1);
-showCover();
 </script>
 </body>
 </html>
