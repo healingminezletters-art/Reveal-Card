@@ -16,7 +16,7 @@ html,body{height:100%;margin:0;font-family:'Playfair Display',serif;background:v
 header{text-align:center;margin-top:6px;max-width:1100px;width:100%;}
 h1{margin:8px 0 6px;font-size:1.6rem;line-height:1.15;}
 h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
-.signature{font-family:'Great Vibes',cursive;font-size:1.6rem;display:block;margin-top:8px;color:#FFD700;animation:pulse 2s infinite;}
+.signature{font-family:'Great Vibes',cursive;font-size:1.6rem;display:block;margin-top:8px;color:var(--gold);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
 .controls{margin:14px 0 6px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
 .controls button{background:var(--accent);color:white;border:none;padding:10px 18px;font-size:1rem;border-radius:14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.12);transition:transform .14s ease, background 0.3s;}
@@ -25,8 +25,8 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
 .controls button[aria-pressed="true"]{box-shadow:0 6px 16px rgba(0,0,0,0.18);outline:3px solid rgba(255,105,180,0.12);}
 #spreadDesc{margin:8px 0 18px;font-size:0.98rem;text-align:center;color:#fff;min-height:22px;}
 #cardWrap{width:100%;max-width:1200px;position:relative;display:flex;justify-content:center;align-items:flex-start;padding:10px 6px;}
-#cardContainer{width:100%;min-height:380px;display:flex;justify-content:center;align-items:flex-start;position:relative;perspective:1600px;gap: 18px;padding:20px 10px;box-sizing:border-box;}
-.card{width: clamp(160px, 20vw, var(--card-max)); aspect-ratio: 7/9; position:relative; transform-style:preserve-3d; -webkit-tap-highlight-color:transparent; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+#cardContainer{width:100%;min-height:380px;display:flex;justify-content:center;align-items:flex-start;position:relative;perspective:1600px;gap: 18px;padding:20px 10px;box-sizing:border-box;flex-wrap:wrap;}
+.card{width: clamp(160px, 20vw, var(--card-max)); aspect-ratio: 7/9; position:relative; transform-style:preserve-3d; -webkit-tap-highlight-color:transparent; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.3s ease;}
 .inner{position:absolute;inset:0;border-radius:12px;transform-style:preserve-3d;transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;}
 .face{position:absolute;inset:0;border-radius:12px;background-size:cover;background-position:center;backface-visibility:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12);}
 .face.back{transform: rotateY(0deg);}
@@ -81,63 +81,19 @@ footer{margin-top:12px;font-size:0.9rem;color:rgba(0,0,0,0.6);}
 <audio id="speakAudio"></audio>
 
 <script>
-const COVER = "https://i.imgur.com/ByGNT8v.png"; 
+const COVER = "https://i.imgur.com/3xOO16W.png"; // correct cover card
 const CARDS = [
   "https://i.imgur.com/HMDsIdj.png","https://i.imgur.com/pu3CPVv.png","https://i.imgur.com/pDONoKd.png",
-  "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png",
-  "POWER_CARD_IMAGE_URL","CROWN_CARD_IMAGE_URL"
+  "https://i.imgur.com/zgWvZtT.png","https://i.imgur.com/Ybi9YzL.png","https://i.imgur.com/SjaDX9E.png","https://i.imgur.com/oNN1KR0.png"
 ];
 const AFFIRMATIONS = [
   "The version of me that once settled doesn't live here anymore.",
-  "I’m no longer fighting to exist-I’m learning to live in my peace.",
-  "I forgive myself for what I accepted when I didn’t know my worth",
+  "I’m no longer fighting to exist—I’m learning to live in my peace.",
+  "I forgive myself for what I accepted when I didn’t know my worth.",
   "My story is not a wound — it’s a womb, birthing my new beginning.",
   "Every lesson I’ve lived is a key unlocking the woman I was born to be.",
   "I am done shrinking so others can feel comfortable in my light.",
-  "Healing doesn’t mean I forget — it means I choose me, finally.",
-  "I am safe to be soft. I am safe to rest. I am safe to receive.",
-  "I don’t chase — I attract. I receive all I ask.",
-  "My strength is not in how much I endure, but in how much I evolve.",
-  "I give myself permission to rest without guilt.",
-  "My softness is my power, not my weakness.",
-  "I am learning to love the parts of me I once abandoned.",
-  "Healing doesn’t erase my story — it reclaims it.",
-  "My emotions are sacred messengers not enemies.",
-  "I am allowed to start over as many times as I need.",
-  "I no longer confuse chaos with love.",
-  "I honor the woman I was for surviving.",
-  "I release the need to prove my worth.",
-  "I am safe to let go of what no longer serves me.",
-  "I no longer shrink to make others comfortable.",
-  "I release the idea that I must be strong all the time.",
-  "The weight I carry is not mine to hold anymore.",
-  "I trust the divine timing of my healing.",
-  "I am free from the energy of people who drained my light.",
-  "I no longer fight to exist — I choose to live in peace.",
-  "I release comparison; my path is mine alone.",
-  "I no longer chase what’s meant to flow to me.",
-  "I am becoming the woman I once prayed to be.",
-  "I am the calm I used to search for in others.",
-  "I honor my boundaries as sacred acts of self love.",
-  "I choose peace over proving.",
-  "I am the author of my next chapter.",
-  "I don’t beg for love — I embody it.",
-  "I am aligned with ease and abundance.",
-  "My self-worth is not negotiable.",
-  "My light no longer dims for anyone.",
-  "I am the evidence that healing is real.",
-  "I rise above fear with grace and wisdom.",
-  "I am safe to be seen, heard, and loved.",
-  "Every lesson I’ve lived is a key unlocking my freedom.",
-  "I celebrate my progress, not just my perfection.",
-  "I attract people who honor my healing.",
-  "I am not afraid of who I’m becoming.",
-  "I stand rooted in purpose, wrapped in peace.",
-  "I am magnetic when I move in alignment.",
-  "My light no longer dims for anyone.",
-  "My voice is power — my truth is freedom.",
-  "I no longer fear my power — I remember it. This is your awakening moment...",
-  "I am the prayer, the promise, and the proof that healing transforms. This is your divine confirmation..."
+  "Healing doesn’t mean I forget — it means I choose me, finally."
 ];
 
 const cardContainer = document.getElementById('cardContainer');
@@ -152,6 +108,7 @@ function setActiveSpread(n){
   selectedSpread = n;
   spreadButtons.forEach(btn=>btn.setAttribute('aria-pressed', btn.dataset.spread==n?'true':'false'));
   spreadDesc.textContent = n===1?"Daily inspiration / journal prompt.":n===3?"Deep insight: 3-card guidance spread.":"Deep insight: 4-card guidance spread.";
+  showCover();
 }
 
 function showCover(){
@@ -171,14 +128,14 @@ function shuffleReveal(){
   if(busy) return; busy=true;
   const indices = [];
   while(indices.length<selectedSpread){
-    const idx=Math.floor(Math.random()*AFFIRMATIONS.length);
+    const idx=Math.floor(Math.random()*CARDS.length);
     if(!indices.includes(idx)) indices.push(idx);
   }
   const cards=Array.from(cardContainer.children);
   cards.forEach((card,i)=>{
     const inner=card.querySelector('.inner');
-    inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]||COVER})`;
-    card.dataset.affirmation=AFFIRMATIONS[indices[i]];
+    inner.querySelector('.front').style.backgroundImage=`url(${CARDS[indices[i]]})`;
+    card.dataset.affirmation=AFFIRMATIONS[indices[i]]||"Your heart knows the answer.";
     card.classList.add('flipped');
   });
   busy=false;
@@ -201,23 +158,18 @@ cardContainer.addEventListener('click', e=>{
     playing=false;
   }
 });
-
 document.getElementById('closeModal').addEventListener('click',()=>{ modal.style.display='none'; speakAudio.pause(); });
 document.getElementById('playPause').addEventListener('click',()=>{
   if(playing){speakAudio.pause(); playing=false;}
   else{ speakAudio.play(); playing=true;}
 });
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{
-  setActiveSpread(Number(btn.dataset.spread));
-  showCover();
-}));
+spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
 
 revealBtn.addEventListener('click',shuffleReveal);
 
 // init
 setActiveSpread(1);
-showCover();
 </script>
 </body>
 </html>
