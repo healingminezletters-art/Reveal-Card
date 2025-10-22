@@ -33,16 +33,17 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-.controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
-.controls button{
+.controls{ margin:14px 0 0; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.spread-buttons{ display:flex; gap:10px; justify-content:center; width:100%; flex-wrap:wrap; }
+.spread-buttons button{
   background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
   box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
 }
-.controls button:hover{ background:#FF85C1; }
-.controls button:active{ transform:scale(.98); }
-.controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+.spread-buttons button:hover{ background:#FF85C1; }
+.spread-buttons button:active{ transform:scale(.98); }
+.spread-buttons button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-#spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
+#spreadDesc{ margin:6px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
 
 #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
 #cardContainer{
@@ -52,7 +53,7 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   justify-content:center;
   align-items:center;
   flex-wrap:wrap;
-  gap: 18px;
+  gap: 0px;
   padding:20px 10px;
   box-sizing:border-box;
   position:relative;
@@ -61,7 +62,7 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 .card{
   width: clamp(160px, 25vw, var(--card-max));
   aspect-ratio: 7/9;
-  position:relative;
+  position:absolute;
   transform-style:preserve-3d;
   -webkit-tap-highlight-color:transparent;
   border-radius:12px;
@@ -71,6 +72,7 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   will-change:transform, opacity;
   cursor:pointer;
   transition: box-shadow 0.3s ease;
+  z-index:2;
 }
 .card:hover{ box-shadow: 0 0 12px 3px gold; }
 
@@ -117,13 +119,22 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   box-shadow:0 6px 20px rgba(0,0,0,0.28);
   cursor:pointer;
   transition:transform 0.15s ease, box-shadow 0.3s;
+  z-index:1;
 }
 #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
 #revealBtn:active{ transform:scale(0.97); }
 
-@media(max-width:600px){
+@media(max-width:900px){
   #cardContainer{min-height:360px;}
-  .card{width: clamp(140px, 30vw, var(--card-max));}
+  .card{width: clamp(140px, 35vw, var(--card-max));}
+}
+@media(max-width:600px){
+  #cardContainer{min-height:320px;}
+  .card{width: clamp(120px, 45vw, var(--card-max));}
+}
+@media(max-width:400px){
+  #cardContainer{min-height:280px;}
+  .card{width: clamp(100px, 70vw, var(--card-max));}
 }
 
 /* Modal Styles */
@@ -168,7 +179,7 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 </header>
 
 <div class="controls" role="toolbar" aria-label="Spread controls">
-  <div id="spreadButtons" role="group" aria-label="Choose card spread">
+  <div class="spread-buttons" role="group" aria-label="Choose card spread">
     <button data-spread="1" aria-pressed="true">1 Card</button>
     <button data-spread="3" aria-pressed="false">3 Cards</button>
     <button data-spread="4" aria-pressed="false">4 Cards</button>
@@ -205,7 +216,7 @@ const COVER = "https://i.imgur.com/3xOO16W.png";
 
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
-const spreadButtons = document.querySelectorAll('#spreadButtons button');
+const spreadButtons = document.querySelectorAll('.spread-buttons button');
 const spreadDesc = document.getElementById('spreadDesc');
 const chime = document.getElementById('chime');
 const swoosh = document.getElementById('swoosh');
@@ -253,10 +264,10 @@ function showCoverCard(){
   card.appendChild(inner);
   cardContainer.appendChild(card);
 
-  card.style.position='absolute';
   card.style.top='15%';
   card.style.left='50%';
   card.style.transform='translateX(-50%)';
+  card.style.zIndex='2';
 }
 
 function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
@@ -306,11 +317,12 @@ async function shuffleAndReveal(){
     card.appendChild(inner);
     cardContainer.appendChild(card);
 
-    card.style.position='absolute';
     const offset = i - (selectedSpread-1)/2;
+    const spacing = Math.min(120, window.innerWidth/selectedSpread);
     card.style.top='15%';
-    card.style.left=`calc(50% + ${offset*120}px)`;
+    card.style.left=`calc(50% + ${offset*spacing}px)`;
     card.style.transform='translateX(-50%)';
+    card.style.zIndex='2';
 
     setTimeout(()=> card.classList.add('flipped'), 300 + i*150);
 
@@ -328,9 +340,7 @@ async function shuffleAndReveal(){
 modalClose.addEventListener('click',()=> modal.style.display='none');
 modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
 
-spreadButtons.forEach(btn=>{
-  btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); });
-});
+spreadButtons.forEach(btn=>{ btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }); });
 revealBtn.addEventListener('click',shuffleAndReveal);
 setActiveSpread(1);
 </script>
