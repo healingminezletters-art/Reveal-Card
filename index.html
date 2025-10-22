@@ -230,9 +230,15 @@ function setActiveSpread(n){
   spreadButtons.forEach(btn=>{
     btn.setAttribute('aria-pressed', Number(btn.dataset.spread)===n?'true':'false');
   });
-  spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
-                       : n===3 ? "Message from Divine: Past — Present — Future."
-                       : "Deep insight: 4-card guidance spread.";
+
+  if(n===1){
+    spreadDesc.textContent = "Daily inspiration / journal prompt.";
+  } else if(n===3){
+    spreadDesc.textContent = "Message from Divine: Past — Present — Future.";
+  } else if(n===4){
+    spreadDesc.textContent = "Deep insight: 4-card guidance spread.";
+  }
+
   showCoverCard();
 }
 
@@ -247,9 +253,8 @@ function showCoverCard(){
   card.appendChild(inner);
   cardContainer.appendChild(card);
 
-  // Center cover
   card.style.position='absolute';
-  card.style.top='25%';
+  card.style.top='15%';
   card.style.left='50%';
   card.style.transform='translateX(-50%)';
 }
@@ -279,7 +284,6 @@ async function shuffleAndReveal(){
   chime.currentTime=0; chime.play().catch(()=>{}); 
   swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-  // Fly away old cards
   Array.from(cardContainer.children).forEach(card=>{
     card.style.transition='transform 0.8s ease, opacity 0.8s ease';
     card.style.transform=`translate(${(Math.random()-0.5)*600}px, -800px) rotate(${(Math.random()-0.5)*720}deg)`;
@@ -303,28 +307,13 @@ async function shuffleAndReveal(){
     cardContainer.appendChild(card);
 
     card.style.position='absolute';
-
-    // Correct positions after reveal
-    if(selectedSpread===1){
-        card.style.top='25%';
-        card.style.left='50%';
-        card.style.transform='translateX(-50%)';
-    } else if(selectedSpread===3){
-        const offsets = ['25%', '50%', '75%'];
-        card.style.top='30%';
-        card.style.left = offsets[i];
-        card.style.transform='translateX(-50%)';
-    } else if(selectedSpread===4){
-        const tops = ['25%', '25%', '55%', '55%'];
-        const lefts = ['25%', '75%', '25%', '75%'];
-        card.style.top = tops[i];
-        card.style.left = lefts[i];
-        card.style.transform='translateX(-50%)';
-    }
+    const offset = i - (selectedSpread-1)/2;
+    card.style.top='15%';
+    card.style.left=`calc(50% + ${offset*120}px)`;
+    card.style.transform='translateX(-50%)';
 
     setTimeout(()=> card.classList.add('flipped'), 300 + i*150);
 
-    // Click to enlarge
     card.addEventListener('click',()=>{ 
       modalImg.src = src;
       modal.style.display='flex';
@@ -336,7 +325,6 @@ async function shuffleAndReveal(){
   busy=false;
 }
 
-// Close modal
 modalClose.addEventListener('click',()=> modal.style.display='none');
 modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
 
