@@ -69,8 +69,10 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   align-items:center;
   justify-content:center;
   will-change:transform, opacity;
-  transition: transform 0.6s ease, top 0.6s ease, left 0.6s ease;
+  cursor:pointer;
+  transition: box-shadow 0.3s ease;
 }
+.card:hover{ box-shadow: 0 0 12px 3px gold; }
 
 .inner {
   position:absolute;
@@ -95,6 +97,15 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 
 .flipped .inner{ transform: rotateY(180deg); }
 
+.dust {
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  transform-origin:center;
+  opacity:0;
+  will-change: transform, opacity;
+}
+
 #revealBtn{
   margin-top:18px;
   background: linear-gradient(135deg, #FFD700, #FF69B4, #FFB6C1);
@@ -113,6 +124,34 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 @media(max-width:600px){
   #cardContainer{min-height:360px;}
   .card{width: clamp(140px, 30vw, var(--card-max));}
+}
+
+/* Modal Styles */
+#modal{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.65);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+#modal img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  transition: transform 0.2s ease;
+}
+#modal .close{
+  position:absolute;
+  top:24px;
+  right:30px;
+  font-size:2rem;
+  color:#FFD700;
+  cursor:pointer;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -143,6 +182,12 @@ h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
 
 <button id="revealBtn" aria-label="Reveal the selected card(s)">✨ Reveal Card(s) ✨</button>
 
+<!-- Modal -->
+<div id="modal">
+  <span class="close">&times;</span>
+  <img src="" alt="Enlarged card">
+</div>
+
 <audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
 <audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
@@ -157,12 +202,16 @@ const CARDS = [
   "https://i.imgur.com/oNN1KR0.png"
 ];
 const COVER = "https://i.imgur.com/3xOO16W.png";
+
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
 const chime = document.getElementById('chime');
 const swoosh = document.getElementById('swoosh');
+const modal = document.getElementById('modal');
+const modalImg = modal.querySelector('img');
+const modalClose = modal.querySelector('.close');
 
 let selectedSpread = 1;
 let busy = false;
@@ -197,11 +246,17 @@ function showCoverCard(){
   inner.appendChild(back); inner.appendChild(front);
   card.appendChild(inner);
   cardContainer.appendChild(card);
+
+  // Center cover
+  card.style.position='absolute';
+  card.style.top='25%';
+  card.style.left='50%';
+  card.style.transform='translateX(-50%)';
 }
 
 function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
   for(let i=0;i<count;i++){
-    const d=document.createElement('div'); d.className='dust';
+    const d = document.createElement('div'); d.className='dust';
     const size=3+Math.random()*7; d.style.width=d.style.height=`${size}px`;
     d.style.background = palette[Math.floor(Math.random()*palette.length)];
     d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
@@ -210,47 +265,70 @@ function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8
     d.style.transform='translateY(0) scale(.6)';
     d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
     parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
+    requestAnimationFrame(()=>{ 
+      d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; 
+      d.style.opacity='0'; 
+    });
     setTimeout(()=>d.remove(),1400+Math.random()*500);
   }
 }
 
 async function shuffleAndReveal(){
-  if(busy) return; busy=true;
-  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
+  if(busy) return; 
+  busy=true;
+  chime.currentTime=0; chime.play().catch(()=>{}); 
+  swoosh.currentTime=0; swoosh.play().catch(()=>{});
 
-  // Remove old cards
+  // Fly away old cards
+  Array.from(cardContainer.children).forEach(card=>{
+    card.style.transition='transform 0.8s ease, opacity 0.8s ease';
+    card.style.transform=`translate(${(Math.random()-0.5)*600}px, -800px) rotate(${(Math.random()-0.5)*720}deg)`;
+    card.style.opacity='0';
+    setTimeout(()=>card.remove(),800);
+  });
+
+  await new Promise(r=>setTimeout(r,850));
+
   cardContainer.innerHTML='';
-
   const finals = pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
 
   finals.forEach((src,i)=>{
-    const card = document.createElement('div'); card.className='card';
-    const inner = document.createElement('div'); inner.className='inner';
-    const back = document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-    const front = document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
+    const card=document.createElement('div'); 
+    card.className='card';
+    const inner=document.createElement('div'); inner.className='inner';
+    const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
+    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
     inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
     cardContainer.appendChild(card);
-    card.classList.add('flipped');
 
-    // Positioning for 1,3,4
+    card.style.position='absolute';
+
+    // Correct positions after reveal
     if(selectedSpread===1){
-      card.style.position='absolute'; card.style.top='5%'; card.style.left='50%'; card.style.transform='translateX(-50%)';
+        card.style.top='25%';
+        card.style.left='50%';
+        card.style.transform='translateX(-50%)';
     } else if(selectedSpread===3){
-      card.style.position='absolute';
-      if(i===0){ card.style.top='5%'; card.style.left='25%'; }
-      else if(i===1){ card.style.top='5%'; card.style.left='50%'; }
-      else { card.style.top='5%'; card.style.left='75%'; }
-      card.style.transform='translateX(-50%)';
+        const offsets = ['25%', '50%', '75%'];
+        card.style.top='30%';
+        card.style.left = offsets[i];
+        card.style.transform='translateX(-50%)';
     } else if(selectedSpread===4){
-      card.style.position='absolute';
-      if(i===0){ card.style.top='5%'; card.style.left='25%'; }
-      else if(i===1){ card.style.top='5%'; card.style.left='75%'; }
-      else if(i===2){ card.style.top='50%'; card.style.left='25%'; }
-      else{ card.style.top='50%'; card.style.left='75%'; }
-      card.style.transform='translateX(-50%)';
+        const tops = ['25%', '25%', '55%', '55%'];
+        const lefts = ['25%', '75%', '25%', '75%'];
+        card.style.top = tops[i];
+        card.style.left = lefts[i];
+        card.style.transform='translateX(-50%)';
     }
+
+    setTimeout(()=> card.classList.add('flipped'), 300 + i*150);
+
+    // Click to enlarge
+    card.addEventListener('click',()=>{ 
+      modalImg.src = src;
+      modal.style.display='flex';
+    });
 
     emitDust(card,6);
   });
@@ -258,7 +336,13 @@ async function shuffleAndReveal(){
   busy=false;
 }
 
-spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
+// Close modal
+modalClose.addEventListener('click',()=> modal.style.display='none');
+modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
+
+spreadButtons.forEach(btn=>{
+  btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); });
+});
 revealBtn.addEventListener('click',shuffleAndReveal);
 setActiveSpread(1);
 </script>
