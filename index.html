@@ -42,8 +42,14 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
 .controls button:active{transform:scale(.98);}
 .controls button[aria-pressed="true"]{box-shadow:0 6px 16px rgba(0,0,0,0.18);outline:3px solid rgba(255,105,180,0.12);}
 
+#clickNote{
+  text-align:center;
+  color:#000;
+  font-size:0.95rem;
+  margin-top:6px;
+}
+
 #spreadDesc{margin-top:8px;font-size:1rem;text-align:center;color:#fff;min-height:24px;}
-#clickNote{ text-align:center; color:#000; font-size:0.95rem; margin-top:6px; }
 
 #cardWrap{width:100%;max-width:1200px;position:relative;display:flex;justify-content:center;align-items:flex-start;padding:10px 6px;}
 #cardContainer{
@@ -120,7 +126,6 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
 @media(max-width:600px){
   #cardContainer{min-height:360px;}
   .card{width:clamp(140px,30vw,var(--card-max));}
-  #revealBtn{margin-top:8px;} /* gently move button closer on mobile */
 }
 
 #modal{
@@ -288,24 +293,22 @@ async function shuffleAndReveal(){
     cardContainer.appendChild(card);
 
     const cardWidth=card.offsetWidth;
-    let offsetX=0, offsetY=0;
+    let offsetX=0;
+    let offsetY=0;
 
-    if(selectedSpread===1){
-      offsetX=0;
-      offsetY=0;
-    } else if(selectedSpread===3){
-      // 3-card: 1 top, 2 bottom slightly fanned
-      offsetX=(i===0)?0:(i===1?-cardWidth*0.6:cardWidth*0.6);
-      offsetY=(i===0)?-30:30;
-    } else if(selectedSpread===4){
-      // 4-card: 2 top, 2 bottom slightly fanned
-      offsetX=(i%2===0)?-cardWidth*0.35:cardWidth*0.35;
-      offsetY=(i<2)?-30:30;
+    if(selectedSpread===1){offsetX=0;}
+    else if(selectedSpread===3){
+      offsetX=(i-1)*cardWidth*0.9; // slight fanning
+      offsetY = (i===0)? -20 : 20; // 1 on top, 2 on bottom
+    }
+    else if(selectedSpread===4){
+      offsetX = (i%2===0?-0.5:0.5)*cardWidth*1.05; // slight fanning
+      offsetY = (i<2)? -20 : 20; // 2 on top, 2 on bottom
     }
 
-    card.style.top=`calc(50% + ${offsetY}px)`;
+    card.style.top=`calc(5% + ${offsetY}px)`;
     card.style.left=`calc(50% + ${offsetX}px)`;
-    card.style.transform='translate(-50%, -50%)';
+    card.style.transform='translateX(-50%)';
     card.style.zIndex='2';
 
     setTimeout(()=>card.classList.add('flipped'),300+i*150);
