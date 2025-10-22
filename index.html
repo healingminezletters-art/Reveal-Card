@@ -12,65 +12,40 @@
     --gold:#FFD700;
     --card-max:320px;
   }
-  html,body{height:100%;}
-  body{
-    margin:0;
-    min-height:100%;
-    font-family:'Playfair Display',serif;
-    background:var(--bg);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    color:#000;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-    padding:18px;
-  }
-
+  html,body{height:100%; margin:0; font-family:'Playfair Display',serif; background:var(--bg); display:flex; flex-direction:column; align-items:center; color:#000; -webkit-font-smoothing:antialiased; padding:18px;}
+  
   header{ text-align:center; margin-top:6px; max-width:1100px; width:100%; }
   h1{ margin:8px 0 6px; font-size:1.6rem; line-height:1.15; color:#000; }
   h1 span{ display:block; font-size:0.98rem; opacity:0.95; margin-top:6px; }
   .signature{ font-family:'Great Vibes',cursive; font-size:1.6rem; display:block; margin-top:8px; color:#FFD700; animation:pulse 2s infinite; }
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
 
-  .controls{ margin:14px 0 6px; display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; }
-  .controls button{
+  .controls{ margin:14px 0 6px; display:flex; gap:10px; flex-direction:column; align-items:center; justify-content:center; }
+  #spreadButtons{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  #spreadButtons button{
     background:var(--accent); color:white; border:none; padding:10px 18px; font-size:1rem; border-radius:14px; cursor:pointer;
     box-shadow:0 4px 12px rgba(0,0,0,0.12); transition:transform .14s ease, background 0.3s;
   }
-  .controls button:hover{ background:#FF85C1; }
-  .controls button:active{ transform:scale(.98); }
-  .controls button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
+  #spreadButtons button:hover{ background:#FF85C1; }
+  #spreadButtons button:active{ transform:scale(.98); }
+  #spreadButtons button[aria-pressed="true"]{ box-shadow:0 6px 16px rgba(0,0,0,0.18); outline:3px solid rgba(255,105,180,0.12); }
 
-  #spreadDesc{ margin:8px 0 18px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
+  #spreadDesc{ margin-top:10px; font-size:0.98rem; text-align:center; color:#fff; min-height:22px; }
 
-  #cardWrap{ width:100%; max-width:1200px; position:relative; display:flex; justify-content:center; align-items:flex-start; padding:10px 6px; }
-  #cardContainer{
-    width:100%;
-    min-height:420px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-wrap:wrap;
-    gap: 18px;
-    padding:20px 10px;
-    box-sizing:border-box;
-    position:relative;
-  }
+  #cardWrap{ width:100%; max-width:1200px; display:flex; justify-content:center; align-items:center; padding:10px 6px; }
+  #cardContainer{ width:100%; display:flex; justify-content:center; align-items:center; gap:18px; flex-wrap:wrap; min-height:420px; }
 
   .card{
     width: clamp(160px, 25vw, var(--card-max));
     aspect-ratio: 7/9;
-    position:absolute;
+    position:relative;
     transform-style:preserve-3d;
-    -webkit-tap-highlight-color:transparent;
     border-radius:12px;
     display:flex;
     align-items:center;
     justify-content:center;
-    will-change:transform, opacity;
     cursor:pointer;
-    opacity:0;
+    transition:transform 0.6s ease, opacity 0.6s ease;
   }
 
   .inner {
@@ -79,7 +54,6 @@
     border-radius:12px;
     transform-style:preserve-3d;
     transition: transform .8s cubic-bezier(.2,.9,.25,1), box-shadow .3s;
-    will-change: transform;
   }
 
   .face{
@@ -96,7 +70,6 @@
 
   .flipped .inner{ transform: rotateY(180deg); }
 
-  /* Glow effect */
   .card::after {
     content:'';
     position:absolute;
@@ -107,15 +80,8 @@
     pointer-events:none;
     transition:opacity 0.4s ease-in-out;
   }
-  .card.glow::after {
-    opacity:1;
-    animation: shimmer 1.2s infinite alternate;
-  }
-  @keyframes shimmer {
-    0% { box-shadow: 0 0 10px 2px rgba(255,215,0,0.3); }
-    50% { box-shadow: 0 0 20px 6px rgba(255,215,0,0.5); }
-    100% { box-shadow: 0 0 15px 3px rgba(255,215,0,0.4); }
-  }
+  .card.glow::after { opacity:1; animation: shimmer 1.2s infinite alternate; }
+  @keyframes shimmer {0% { box-shadow:0 0 10px 2px rgba(255,215,0,0.3);}50%{ box-shadow:0 0 20px 6px rgba(255,215,0,0.5);}100%{ box-shadow:0 0 15px 3px rgba(255,215,0,0.4);}}
 
   #revealBtn{
     margin-top:18px;
@@ -132,7 +98,7 @@
   #revealBtn:hover{ transform:scale(1.05); box-shadow:0 8px 28px rgba(0,0,0,0.32); }
   #revealBtn:active{ transform:scale(0.97); }
 
-  /* Card enlarge modal */
+  /* Modal enlarge */
   .modal {
     position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55);
     display:flex; justify-content:center; align-items:center;
@@ -194,114 +160,57 @@ const spreadButtons = document.querySelectorAll('#spreadButtons button');
 const spreadDesc = document.getElementById('spreadDesc');
 const chime = document.getElementById('chime');
 const swoosh = document.getElementById('swoosh');
-
 let selectedSpread = 1;
 let busy=false;
 
-function pickUniqueIndices(n,len){
-  const arr=Array.from({length:len},(_,i)=>i);
-  for(let i=len-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-  return arr.slice(0,n);
-}
+// Helper
+function pickUniqueIndices(n,len){ const arr=Array.from({length:len},(_,i)=>i); for(let i=len-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr.slice(0,n); }
 
 function setActiveSpread(n){
   selectedSpread=n;
-  spreadButtons.forEach(btn=>{
-    btn.setAttribute('aria-pressed', Number(btn.dataset.spread)===n?'true':'false');
-  });
+  spreadButtons.forEach(btn=>{ btn.setAttribute('aria-pressed', Number(btn.dataset.spread)===n?'true':'false'); });
   spreadDesc.textContent = n===1 ? "Daily inspiration / journal prompt."
                        : n===3 ? "Message from Divine: Past — Present — Future."
                        : "Deep insight: 4-card guidance spread.";
   showCoverCard();
 }
 
+// Show initial cover
 function showCoverCard(){
   cardContainer.innerHTML='';
-  const card=document.createElement('div');
-  card.className='card';
-  const inner=document.createElement('div'); inner.className='inner';
-  const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-  const front=document.createElement('div'); front.className='face front';
-  inner.appendChild(back); inner.appendChild(front);
-  card.appendChild(inner);
-  cardContainer.appendChild(card);
-}
-
-function emitDust(parent,count=6,palette=['#FFD700','#FFB6C1','#F6C6FF','#FFF8E8']){
-  for(let i=0;i<count;i++){
-    const d=document.createElement('div'); d.className='dust';
-    const size=3+Math.random()*7; d.style.width=d.style.height=`${size}px`;
-    d.style.background = palette[Math.floor(Math.random()*palette.length)];
-    d.style.left=`${10+Math.random()*(parent.offsetWidth-20)}px`;
-    d.style.top=`${10+Math.random()*(parent.offsetHeight-20)}px`;
-    d.style.opacity='1';
-    d.style.transform='translateY(0) scale(.6)';
-    d.style.transition=`transform ${700+Math.random()*500}ms cubic-bezier(.2,.9,.2,1), opacity ${700+Math.random()*500}ms`;
-    parent.appendChild(d);
-    requestAnimationFrame(()=>{ d.style.transform=`translateY(${-40-Math.random()*60}px) translateX(${(Math.random()-0.5)*80}px) scale(1)`; d.style.opacity='0'; });
-    setTimeout(()=>d.remove(),1400+Math.random()*500);
-  }
-}
-
-// Shuffle + Fan-out + Glow + Flip
-async function shuffleAndReveal(){
-  if(busy) return; busy=true;
-  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
-  cardContainer.innerHTML='';
-
-  const finals = pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
-
-  finals.forEach((src,i)=>{
+  for(let i=0;i<selectedSpread;i++){
     const card=document.createElement('div'); card.className='card';
     const inner=document.createElement('div'); inner.className='inner';
     const back=document.createElement('div'); back.className='face back'; back.style.backgroundImage=`url(${COVER})`;
-    const front=document.createElement('div'); front.className='face front'; front.style.backgroundImage=`url(${src})`;
+    const front=document.createElement('div'); front.className='face front';
     inner.appendChild(back); inner.appendChild(front);
     card.appendChild(inner);
     cardContainer.appendChild(card);
+  }
+}
+
+// Shuffle + flip
+async function shuffleAndReveal(){
+  if(busy) return; busy=true;
+  chime.currentTime=0; chime.play().catch(()=>{}); swoosh.currentTime=0; swoosh.play().catch(()=>{});
+  const cards = cardContainer.querySelectorAll('.card');
+  const finals = pickUniqueIndices(selectedSpread,CARDS.length).map(i=>CARDS[i]);
+
+  cards.forEach((card,i)=>{
+    const front = card.querySelector('.face.front');
+    front.style.backgroundImage=`url(${finals[i]})`;
+    card.classList.add('glow');
+    setTimeout(()=>{ card.classList.add('flipped'); }, 400 + i*200);
+    setTimeout(()=>{ card.classList.remove('glow'); }, 1400 + i*200);
 
     // Click to enlarge
-    card.addEventListener('click',()=>{
-      document.getElementById('modalImg').src=src;
-      document.getElementById('modal').classList.add('show');
-    });
-
-    // Fan-out positioning
-    setTimeout(()=>{
-      let offsetX=0, offsetY=0, rotation=0;
-      if(selectedSpread===1){
-        offsetX=0; offsetY=0; rotation=0;
-      } else if(selectedSpread===3){
-        const positions=[-120,0,120];
-        const tops=[20,0,20];
-        offsetX=positions[i]; offsetY=tops[i]; rotation=(i-1)*6;
-      } else if(selectedSpread===4){
-        const positions=[-120,120,-120,120];
-        const tops=[20,20,-20,-20];
-        offsetX=positions[i]; offsetY=tops[i]; rotation=(i-1.5)*6;
-      }
-      card.style.opacity=1;
-      card.style.transform=`translate(-50%,-50%) translateX(${offsetX}px) translateY(${offsetY}px) rotate(${rotation}deg)`;
-      card.classList.add('glow');
-    }, i*150);
-
-    // Flip to reveal
-    setTimeout(()=>{ card.classList.add('flipped'); }, 700 + i*150);
-    // Remove glow
-    setTimeout(()=>{ card.classList.remove('glow'); }, 1500 + i*150);
+    card.addEventListener('click',()=>{ document.getElementById('modalImg').src=finals[i]; document.getElementById('modal').classList.add('show'); });
   });
-
   busy=false;
 }
 
 // Modal
-document.querySelector('.modal .close').addEventListener('click',()=>{
-  document.getElementById('modal').classList.remove('show');
-});
-
+document.querySelector('.modal .close').addEventListener('click',()=>{ document.getElementById('modal').classList.remove('show'); });
 spreadButtons.forEach(btn=>btn.addEventListener('click',()=>{ setActiveSpread(Number(btn.dataset.spread)); }));
 revealBtn.addEventListener('click',shuffleAndReveal);
 setActiveSpread(1);
