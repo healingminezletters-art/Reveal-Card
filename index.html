@@ -43,6 +43,7 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
 .controls button[aria-pressed="true"]{box-shadow:0 6px 16px rgba(0,0,0,0.18);outline:3px solid rgba(255,105,180,0.12);}
 
 #spreadDesc{margin-top:8px;font-size:1rem;text-align:center;color:#fff;min-height:24px;}
+#clickTip{font-size:0.9rem;color:#000;margin-top:4px;text-align:center;font-style:italic;}
 
 #cardWrap{width:100%;max-width:1200px;position:relative;display:flex;justify-content:center;align-items:flex-start;padding:10px 6px;}
 #cardContainer{
@@ -99,6 +100,16 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
   pointer-events:none;
   transform-origin:center;
   opacity:0;
+}
+
+.master-card {
+  box-shadow: 0 0 24px 6px #FFD700, 0 0 36px 12px #FF69B4;
+  animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+  0% { box-shadow: 0 0 12px 3px #FFD700, 0 0 18px 6px #FF69B4; }
+  50% { box-shadow: 0 0 24px 6px #FFD700, 0 0 36px 12px #FF69B4; }
+  100% { box-shadow: 0 0 16px 4px #FFD700, 0 0 24px 8px #FF69B4; }
 }
 
 #revealBtn{
@@ -162,13 +173,8 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
     <button data-spread="4" aria-pressed="false">4 Cards</button>
   </div>
 </div>
-
-<!-- Added always-visible note -->
-<div id="clickNote" style="text-align:center;color:#000;font-size:0.95rem;margin-top:6px;">
-  *Click card to enlarge*
-</div>
-
 <div id="spreadDesc">Daily inspiration / journal prompt.</div>
+<div id="clickTip">*Click card to enlarge*</div>
 
 <div id="cardWrap">
   <section id="cardContainer"></section>
@@ -182,21 +188,70 @@ h1 span{display:block;font-size:0.98rem;opacity:0.95;margin-top:6px;}
   <img src="" alt="Enlarged card">
 </div>
 
-<audio id="chime" src="https://www.soundjay.com/misc/sounds/magic-chime-01.mp3?v=2"></audio>
+<audio id="chime" src="https://www.soundjay.com/button/sounds/bell-ringing-05.mp3"></audio>
 <audio id="swoosh" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
 const CARDS = [
+  "https://i.imgur.com/3xOO16W.png",
+  "https://i.imgur.com/MB5MTZ4.png",
+  "https://i.imgur.com/HsSFp1G.png",
   "https://i.imgur.com/HMDsIdj.png",
   "https://i.imgur.com/pu3CPVv.png",
   "https://i.imgur.com/pDONoKd.png",
   "https://i.imgur.com/zgWvZtT.png",
   "https://i.imgur.com/Ybi9YzL.png",
   "https://i.imgur.com/SjaDX9E.png",
-  "https://i.imgur.com/oNN1KR0.png"
+  "https://i.imgur.com/oNN1KR0.png",
+  "https://i.imgur.com/hFDmOf8.png",
+  "https://i.imgur.com/stl9kfH.png",
+  "https://i.imgur.com/IFpGZnY.png",
+  "https://i.imgur.com/83CEyAl.png",
+  "https://i.imgur.com/oCfk4b9.png",
+  "https://i.imgur.com/ZCB64Hj.png",
+  "https://i.imgur.com/45WAkja.png",
+  "https://i.imgur.com/SPNVO1w.png",
+  "https://i.imgur.com/nGU5uLN.png",
+  "https://i.imgur.com/edCCB8Q.png",
+  "https://i.imgur.com/nk6TWqa.png",
+  "https://i.imgur.com/QVKWiAE.png",
+  "https://i.imgur.com/FvwfCbB.png",
+  "https://i.imgur.com/JIRKI6G.png",
+  "https://i.imgur.com/A3XEdw5.png",
+  "https://i.imgur.com/qWRTjhp.png",
+  "https://i.imgur.com/2gYwi28.png",
+  "https://i.imgur.com/O76u6MX.png",
+  "https://i.imgur.com/jJDSLTv.png",
+  "https://i.imgur.com/JsJDaix.png",
+  "https://i.imgur.com/Nl6azPe.png",
+  "https://i.imgur.com/YdMZF0C.png",
+  "https://i.imgur.com/045ZqjC.png",
+  "https://i.imgur.com/5LM9wuh.png",
+  "https://i.imgur.com/FlHotKa.png",
+  "https://i.imgur.com/iCe198i.png",
+  "https://i.imgur.com/9kNPa9M.png",
+  "https://i.imgur.com/1YjjwLo.png",
+  "https://i.imgur.com/lni4cEr.png",
+  "https://i.imgur.com/d8cODxw.png",
+  "https://i.imgur.com/Depabhz.png",
+  "https://i.imgur.com/TYGPk9e.png",
+  "https://i.imgur.com/34LjY4Z.png",
+  "https://i.imgur.com/VXmeO5V.png",
+  "https://i.imgur.com/LHkLQ5O.png",
+  "https://i.imgur.com/NJjbe5z.png",
+  "https://i.imgur.com/Nmv26ib.png",
+  "https://i.imgur.com/iKj1B4Z.png",
+  "https://i.imgur.com/GHvbLzh.png",
+  "https://i.imgur.com/lbHy6kp.png", // master
+  "https://i.imgur.com/tJ9JtNL.png"  // master
 ];
-const COVER = "https://i.imgur.com/3xOO16W.png";
 
+const MASTER_CARDS = [
+  "https://i.imgur.com/lbHy6kp.png",
+  "https://i.imgur.com/tJ9JtNL.png"
+];
+
+const COVER = "https://i.imgur.com/3xOO16W.png";
 const cardContainer = document.getElementById('cardContainer');
 const revealBtn = document.getElementById('revealBtn');
 const spreadButtons = document.querySelectorAll('#spreadButtons button');
@@ -294,49 +349,29 @@ async function shuffleAndReveal(){
     const containerW = cardContainer.offsetWidth || window.innerWidth;
     const cW = Math.min(parseFloat(getComputedStyle(card).width) || 240, 320);
     const horizontalGap = Math.max(24, Math.min(120, (containerW - cW* (selectedSpread>2?2:1)) / (selectedSpread + 1)));
-
     let topPct = 5;
+
     if(selectedSpread === 1){
       card.style.top = `${topPct}%`;
       card.style.left = `50%`;
       card.style.transform = 'translateX(-50%)';
     } else if(selectedSpread === 3){
-      if(i === 0){
-        card.style.top = `${topPct}%`;
-        card.style.left = `50%`;
-        card.style.transform = 'translateX(-50%) rotate(-6deg)';
-      } else {
-        const bottomTopPct = 48;
-        const idx = i - 1;
-        const offset = (idx === 0) ? - (cW + horizontalGap)/1.1 : (cW + horizontalGap)/1.1;
-        card.style.top = `${bottomTopPct}%`;
-        card.style.left = `calc(50% + ${offset}px)`;
-        card.style.transform = `translateX(-50%) rotate(${idx===0? -4:4}deg)`;
-      }
-    } else if(selectedSpread === 4){
-      const topTopPct = 7;
-      const bottomTopPct = 48;
-      if(i === 0){
-        card.style.top = `${topTopPct}%`;
-        card.style.left = `calc(50% - ${(cW/2 + horizontalGap/2)}px)`;
-        card.style.transform = 'translateX(-50%) rotate(-6deg)';
-      } else if(i === 1){
-        card.style.top = `${topTopPct}%`;
-        card.style.left = `calc(50% + ${(cW/2 + horizontalGap/2)}px)`;
-        card.style.transform = 'translateX(-50%) rotate(3deg)';
-      } else if(i === 2){
-        card.style.top = `${bottomTopPct}%`;
-        card.style.left = `calc(50% - ${(cW/2 + horizontalGap/2)}px)`;
-        card.style.transform = 'translateX(-50%) rotate(4deg)';
-      } else {
-        card.style.top = `${bottomTopPct}%`;
-        card.style.left = `calc(50% + ${(cW/2 + horizontalGap/2)}px)`;
-        card.style.transform = 'translateX(-50%) rotate(-3deg)';
-      }
+      if(i===0){ card.style.top=`${topPct}%`; card.style.left=`50%`; card.style.transform='translateX(-50%) rotate(-6deg)'; }
+      else { const bottomTopPct=48; const idx=i-1; const offset = idx===0?-(cW+horizontalGap)/1.1:(cW+horizontalGap)/1.1;
+             card.style.top=`${bottomTopPct}%`; card.style.left=`calc(50% + ${offset}px)`; card.style.transform=`translateX(-50%) rotate(${idx===0?-4:4}deg)`; }
+    } else if(selectedSpread===4){
+      const topTopPct=7; const bottomTopPct=48;
+      if(i===0){ card.style.top=`${topTopPct}%`; card.style.left=`calc(50% - ${(cW/2 + horizontalGap/2)}px)`; card.style.transform='translateX(-50%) rotate(-6deg)'; }
+      else if(i===1){ card.style.top=`${topTopPct}%`; card.style.left=`calc(50% + ${(cW/2 + horizontalGap/2)}px)`; card.style.transform='translateX(-50%) rotate(3deg)'; }
+      else if(i===2){ card.style.top=`${bottomTopPct}%`; card.style.left=`calc(50% - ${(cW/2 + horizontalGap/2)}px)`; card.style.transform='translateX(-50%) rotate(4deg)'; }
+      else { card.style.top=`${bottomTopPct}%`; card.style.left=`calc(50% + ${(cW/2 + horizontalGap/2)}px)`; card.style.transform='translateX(-50%) rotate(-3deg)'; }
     }
 
     card.style.zIndex='2';
-    setTimeout(()=> card.classList.add('flipped'), 300 + i*150);
+    setTimeout(()=>{ card.classList.add('flipped'); 
+      if(MASTER_CARDS.includes(src)) card.classList.add('master-card'); 
+    }, 300 + i*150);
+
     card.addEventListener('click',()=>{ modalImg.src = src; modal.style.display='flex'; });
     emitDust(card,6);
   });
@@ -346,6 +381,7 @@ async function shuffleAndReveal(){
 
 modalClose.addEventListener('click',()=> modal.style.display='none');
 modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
+
 spreadButtons.forEach(btn=> btn.addEventListener('click', ()=> setActiveSpread(Number(btn.dataset.spread)) ));
 revealBtn.addEventListener('click', shuffleAndReveal);
 
